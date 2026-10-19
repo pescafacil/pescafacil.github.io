@@ -961,7 +961,8 @@
     });
   }
   function mostrarFactura(ov, fac, emp, cerrar){
-    var conSaldo = !!fac.saldo;   // con saldo por defecto, como al vender en el programa
+    // Arranca como esté en Configuración del programa (con saldo, salvo que el dueño diga lo contrario).
+    var conSaldo = !!fac.saldo && emp.con_saldo !== false;
     var actual=null;
     function pintar(){
       dibujarFactura(fac, emp, conSaldo).then(function(cv){
