@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.0",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.0/PescaFacil-Actualizacion-1.4.0.exe",
-    "sha256":  "8d5f1bd33afeec518fd9dbd59b6b42861669f07a3aec44b976474be0c9af41df",
-    "notas":  "Nuevo: Inventario \u003e Procesos. Transforme materia prima en otros productos (porcionado, fileteado, glaseado...): descuenta la materia prima del inventario, suma los productos nuevos con su costo real por kilo, muestra el rendimiento (merma o kilos ganados) y cuanto gana por kilo. Recetas guardadas y reparto del costo por valor, por kilo o a mano.",
+    "version":  "1.4.1",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.1/PescaFacil-Actualizacion-1.4.1.exe",
+    "sha256":  "f01ab6c9df9b58d61c3fffd52f877020f1845d1cbb80cd406a15f1474bb1facb",
+    "notas":  "La factura ya no imprime la linea del programa ni el telefono del desarrollador: solo los datos y el pie del negocio. Configuracion reorganizada por temas, con la opcion de imprimir las facturas con o sin saldo a la vista.",
     "fecha":  "2026-10-20"
 }
