@@ -1,7 +1,7 @@
 {
-    "version":  "1.2.0",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.2.0/PescaFacil-Actualizacion-1.2.0.exe",
-    "sha256":  "d434f1281f9371d348aaf98e07828aa849766a33a416ce0b19109299da0517bf",
-    "notas":  "Ingreso de mercancía desde el celular (con proveedor y viaje nuevos, compra o comisión). Solicitudes de cambio que el dueño aprueba desde el celular. Factura con detalle y opción sin saldo. Pagos del cierre como Gastos. Actualizaciones en línea.",
+    "version":  "1.2.1",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.2.1/PescaFacil-Actualizacion-1.2.1.exe",
+    "sha256":  "91dfd6305111f9a3d78da6f258380815756fd3e494ba126bb5ea422174e13146",
+    "notas":  "El campo Detalle de la factura ahora se ve seleccionado (cursor y color). Mejora en la conexión de las actualizaciones.",
     "fecha":  "2026-10-20"
 }
