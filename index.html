@@ -212,6 +212,9 @@
   .fac-msg{color:#fff; font-weight:700; margin-top:40px; text-align:center}
 
   /* ---------- INGRESO DESDE EL CELULAR / CAMBIOS ---------- */
+  .banner-sol{appearance:none; display:block; width:100%; text-align:left; border:1px solid var(--purple); background:var(--purple-bg); color:var(--purple);
+    border-radius:12px; padding:11px 14px; margin:0 0 12px; font-family:inherit; font-size:.88rem; font-weight:700; cursor:pointer}
+  .banner-sol b{float:right}
   .badge{background:var(--bad); color:#fff; border-radius:999px; font-size:.66rem; font-weight:800; padding:1px 7px; margin-left:2px}
   .chip[aria-selected="true"] .badge{background:#fff; color:var(--bad)}
   .form{padding:14px}
@@ -330,6 +333,7 @@
   </div></div>
 
   <main>
+    <button type="button" class="banner-sol" id="bannerSol" hidden></button>
     <section id="s-resumen"><div class="loading">Cargando…</div></section>
     <section id="s-trans" hidden></section>
     <section id="s-caja" hidden></section>
@@ -473,6 +477,7 @@
       state.section=c.dataset.s;
       Array.prototype.forEach.call(document.querySelectorAll(".chip"), function(x){ x.setAttribute("aria-selected", x.dataset.s===state.section?"true":"false"); });
       try{ window.scrollTo(0,0); }catch(e){}
+      var ban=el("bannerSol"); if(ban) ban.hidden = !ultimoPendientes || state.section==="cambios";
       render();
     });
   });
@@ -1416,9 +1421,18 @@
   }
   // Insignia en el chip "Cambios" con las solicitudes que esperan decisión (se revisa cada 30 s).
   var pendientesAntes=-1;
+  var ultimoPendientes=0;
   function pintarBadge(n){
     var b=el("badgeCambios"); if(!b) return;
-    b.hidden = !n; b.textContent = n;
+    b.hidden = !n; b.textContent = n; ultimoPendientes=n;
+    // Franja visible arriba de TODAS las pantallas (la pestaña Cambios queda escondida al final de la
+    // barra y el número rojo pasaba desapercibido). En la propia pantalla de Cambios no hace falta.
+    var ban=el("bannerSol");
+    if(ban){
+      ban.hidden = !n || state.section==="cambios";
+      ban.innerHTML = "🛡️ "+n+(n===1?" solicitud esperando":" solicitudes esperando")+" tu aprobación <b>· Ver ›</b>";
+      ban.onclick=function(){ var c=document.querySelector('.chip[data-s="cambios"]'); if(c){ c.click(); try{ c.scrollIntoView({inline:"center", block:"nearest"}); }catch(e){} } };
+    }
     if(pendientesAntes>=0 && n>pendientesAntes){
       if(tiposActivos().indexOf("__sol")<0) say("🛡️ Hay una solicitud de cambio esperando tu aprobación");
       try{ if(window.Notification && Notification.permission==="granted") new Notification("PescaFácil", { body:"Hay una solicitud de cambio esperando tu aprobación" }); }catch(e){}
