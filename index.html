@@ -239,6 +239,12 @@
   .solc .b{display:flex; gap:8px; margin-top:10px}
   .solc .b button{flex:1; appearance:none; border:none; border-radius:10px; padding:11px; font-weight:800; font-family:inherit; cursor:pointer; font-size:.9rem}
   .solc .ok{background:var(--good); color:#fff} .solc .no{background:var(--bad-bg); color:var(--bad)}
+  /* Colores por tipo de cambio (registro, solicitudes y filtros) */
+  .k-anul{--k:var(--bad); --kb:var(--bad-bg)} .k-edic{--k:var(--warn); --kb:var(--warn-bg)} .k-ing{--k:var(--good); --kb:var(--good-bg)}
+  .k-sol{--k:var(--purple); --kb:var(--purple-bg)} .k-otro{--k:var(--info); --kb:var(--info-bg)}
+  .audr[class*="k-"],.solc[class*="k-"]{border-left:5px solid var(--k); background:color-mix(in srgb, var(--kb) 45%, var(--surface))}
+  .ktag{display:inline-block; font-size:.64rem; font-weight:800; padding:2px 7px; border-radius:999px; background:var(--kb); color:var(--k); margin-right:6px; vertical-align:1px}
+  .tchip[class*="k-"]{border-color:var(--k); color:var(--k)} .tchip[class*="k-"].on{background:var(--k); color:#fff}
   .audr{padding:10px 14px; border-top:1px solid var(--line); font-size:.82rem}
   .audr:first-child{border-top:none}
   .audr .a{font-weight:700} .audr .d{color:var(--muted); font-size:.74rem; margin-top:3px; white-space:normal; word-break:break-word}
@@ -855,23 +861,34 @@
       h+='<div class="tiles"><div class="tile"><div class="lab">👥 Por cobrar</div><div class="val num">'+money(porCobrar)+'</div></div>'
         +'<div class="tile"><div class="lab">🔴 En mora (+21d)</div><div class="val num">'+mora+'</div></div></div>';
       if(!rows.length){ h+='<div class="empty">No hay clientes con saldo.</div>'; host.innerHTML=h; return; }
+      h+='<input class="tbus" id="carBus" type="search" placeholder="🔎 Buscar cliente por nombre…" value="'+esc(state.carteraBuscar||"")+'" style="margin-top:12px">';
       h+='<div class="card" id="cartera-lista"></div>';
       h+='<div class="card"><div class="total-row"><span>Total por cobrar</span><span class="big num">'+money(porCobrar)+'</span></div></div>';
       h+='<p class="updated">Toca un cliente para ver su estado de cuenta</p>';
       host.innerHTML=h;
       var lista=el("cartera-lista");
-      rows.forEach(function(c){
-        var fav=Number(c.saldo)<0;
-        var b=document.createElement("button"); b.className="row";
-        var amt= fav ? ('<div class="amt num fav">−'+money(Math.abs(c.saldo))+'</div>') : ('<div class="amt num">'+money(c.saldo)+'</div>');
-        var pill= fav ? '<span class="pill good">a favor</span>'
-          : (c.dias_sin_abono!=null ? '<span class="pill '+claseDias(c.dias_sin_abono)+'">'+c.dias_sin_abono+' d</span>' : '');
-        var meta= fav ? "Saldo a favor" : (c.dias_sin_abono!=null ? ("Último abono: hace "+c.dias_sin_abono+" días") : "");
-        b.innerHTML='<div class="main"><div class="name">'+esc(c.nombre)+'</div><div class="meta">'+meta+'</div></div>'
-          +'<div class="stk">'+amt+pill+'</div><span class="chev">›</span>';
-        b.addEventListener("click", function(){ verCliente(c); });
-        lista.appendChild(b);
-      });
+      // Filtro por nombre (sin tildes ni mayúsculas): repinta solo la lista, el buscador conserva el foco.
+      function sinTildes(s){ return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase(); }
+      function pintarLista(){
+        var q=sinTildes(state.carteraBuscar||"").trim();
+        lista.innerHTML="";
+        var vis=rows.filter(function(c){ return !q || sinTildes(c.nombre).indexOf(q)>=0; });
+        if(!vis.length){ lista.innerHTML='<div class="empty">Ningún cliente con ese nombre.</div>'; return; }
+        vis.forEach(function(c){
+          var fav=Number(c.saldo)<0;
+          var b=document.createElement("button"); b.className="row";
+          var amt= fav ? ('<div class="amt num fav">−'+money(Math.abs(c.saldo))+'</div>') : ('<div class="amt num">'+money(c.saldo)+'</div>');
+          var pill= fav ? '<span class="pill good">a favor</span>'
+            : (c.dias_sin_abono!=null ? '<span class="pill '+claseDias(c.dias_sin_abono)+'">'+c.dias_sin_abono+' d</span>' : '');
+          var meta= fav ? "Saldo a favor" : (c.dias_sin_abono!=null ? ("Último abono: hace "+c.dias_sin_abono+" días") : "");
+          b.innerHTML='<div class="main"><div class="name">'+esc(c.nombre)+'</div><div class="meta">'+meta+'</div></div>'
+            +'<div class="stk">'+amt+pill+'</div><span class="chev">›</span>';
+          b.addEventListener("click", function(){ verCliente(c); });
+          lista.appendChild(b);
+        });
+      }
+      el("carBus").addEventListener("input", function(){ state.carteraBuscar=this.value; pintarLista(); });
+      pintarLista();
       state.cache.cartera=rows;
     });
   }
@@ -910,9 +927,10 @@
       var saldoAnterior=s, movs=desc.slice().reverse();
       var h=cab;
       if(!movs.length){ h+='<div class="empty">Sin movimientos registrados.</div>'; host.innerHTML=h; el("volver2").onclick=volver; return; }
+      // Lo más reciente ARRIBA (pedido del dueño): se recorre del más nuevo al más viejo; el saldo de
+      // cada fila es el que quedó después de ese movimiento, y el "Saldo anterior" va al final.
       var filas="";
-      if(hayMas) filas+='<tr><td></td><td style="text-align:left"><b>◂ Saldo anterior</b></td><td></td><td></td><td class="num"><b>'+money(saldoAnterior)+'</b></td></tr>';
-      movs.forEach(function(m){
+      desc.forEach(function(m){
         var f=new Date(m.fecha).toLocaleDateString("es-CO",{day:"2-digit",month:"short"});
         var esVenta=m.venta_id!=null;
         filas+='<tr'+(esVenta?' class="vta" data-v="'+m.venta_id+'"':'')+'><td>'+f+'</td><td style="text-align:left">'+esc(m.detalle||cap(m.tipo))+(esVenta?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+'</td>'
@@ -920,6 +938,7 @@
           +'<td class="num c-abono">'+(Number(m.abono)?money(m.abono):"")+'</td>'
           +'<td class="num">'+money(m._saldo)+'</td></tr>';
       });
+      if(hayMas) filas+='<tr><td></td><td style="text-align:left"><b>◂ Saldo anterior</b></td><td></td><td></td><td class="num"><b>'+money(saldoAnterior)+'</b></td></tr>';
       h+='<div class="card"><div class="tblwrap"><table><thead><tr><th>Fecha</th><th>Detalle</th><th>Cargo</th><th>Abono</th><th>Saldo</th></tr></thead><tbody>'+filas+'</tbody></table></div></div>';
       h+='<p class="updated">Toca una venta (🧾) para ver, descargar o compartir su factura'+(hayMas?' · mostrando los últimos '+MOVS_RAPIDO:'')+'</p>';
       if(hayMas) h+='<div style="text-align:center;margin-top:10px"><button class="xls" id="verTodo">Ver todo el historial</button></div>';
@@ -1145,8 +1164,14 @@
     var opt=function(arr,sel){ return arr.map(function(x){ return '<option value="'+x.id+'"'+(sel(x)?' selected':'')+'>'+esc(x.nombre)+'</option>'; }).join(""); };
     var h='<div class="sechead"><h2 class="sec">Ingreso de mercancía (factura del proveedor)</h2></div>';
     h+='<div class="card"><div class="form">'
-      +'<label for="iProv">Proveedor</label><select id="iProv"><option value="">— Sin proveedor (solo inventario) —</option>'+opt(cat.proveedor,function(){return false;})+'</select>'
-      +'<label for="iViaje">Viaje donde entra la mercancía</label><select id="iViaje">'+opt(cat.viaje,function(x){ return x.extra && x.extra.predeterminado; })+'</select>'
+      +'<label for="iProv">Proveedor</label><select id="iProv"><option value="">— Sin proveedor (solo inventario) —</option><option value="__nuevo">➕ Proveedor nuevo…</option>'+opt(cat.proveedor,function(){return false;})+'</select>'
+      +'<div id="iProvNuevoBox" hidden><label for="iProvNombre">Nombre del proveedor nuevo</label><input id="iProvNombre" maxlength="80" placeholder="Ej: PESCADOS DEL META">'
+      +'<label for="iProvTel">Teléfono (opcional)</label><input id="iProvTel" inputmode="tel" maxlength="30"></div>'
+      +'<label for="iViaje">Viaje donde entra la mercancía</label><select id="iViaje"><option value="__nuevo">➕ Viaje nuevo…</option>'+opt(cat.viaje,function(x){ return x.extra && x.extra.predeterminado; })+'</select>'
+      +'<div id="iViajeNuevoBox" hidden><label for="iViajeRef">Nombre del viaje nuevo</label><input id="iViajeRef" maxlength="60">'
+      +'<label>Tipo de viaje</label><div class="formas">'
+      +'<label><input type="radio" name="iTipoViaje" value="COMPRA" checked> Normal (compra: la mercancía es mía)</label>'
+      +'<label><input type="radio" name="iTipoViaje" value="COMISION"> Comisión (vendo por cuenta del proveedor)</label></div></div>'
       +'<label>Productos (kilos · precio de compra en miles por arroba)</label><div id="iLineas"></div>'
       +'<datalist id="dlProd">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc((p.extra&&p.extra.codigo)||"")+'</option>'; }).join("")+'</datalist>'
       +'<button type="button" class="addl" id="iAdd">➕ Otro producto</button>'
@@ -1194,9 +1219,22 @@
     }
     agregar();
     el("iAdd").onclick=agregar;
-    var prov=el("iProv");
-    function verForma(){ el("iFormaBox").hidden = !prov.value; }
-    prov.onchange=verForma; verForma();
+    var prov=el("iProv"), viajeSel=el("iViaje");
+    el("iViajeRef").value="VIAJE "+new Date().toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit"});
+    // ¿El viaje elegido (o el nuevo) es de COMISIÓN? Ahí no se paga ni se carga a la cuenta: no se pregunta cómo se paga.
+    function esComision(){
+      if(viajeSel.value==="__nuevo") return ((document.querySelector('input[name="iTipoViaje"]:checked')||{}).value)==="COMISION";
+      var v=cat.viaje.filter(function(x){ return String(x.id)===viajeSel.value; })[0];
+      return !!(v && v.extra && /^COMISI/i.test(String(v.extra.tipo_viaje||"")));
+    }
+    function verForma(){
+      el("iProvNuevoBox").hidden = prov.value!=="__nuevo";
+      el("iViajeNuevoBox").hidden = viajeSel.value!=="__nuevo";
+      el("iFormaBox").hidden = !prov.value || esComision();
+    }
+    prov.onchange=verForma; viajeSel.onchange=verForma;
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="iTipoViaje"]'), function(r){ r.onchange=verForma; });
+    verForma();
 
     el("iEnviar").onclick=function(){
       var btn=this, items=[], resumenL=[], tot=0, malo=null;
@@ -1213,11 +1251,18 @@
       if(malo){ say(malo); return; }
       if(!items.length){ say("Agrega al menos un producto con kilos."); return; }
       var viaje=el("iViaje").value; if(!viaje){ say("Elige el viaje."); return; }
-      var forma = prov.value ? (document.querySelector('input[name="iForma"]:checked')||{}).value : "";
+      var provNuevo = prov.value==="__nuevo", viajeNuevo = viaje==="__nuevo", comi = esComision();
+      var provNombreNuevo = el("iProvNombre").value.trim().toUpperCase();
+      if(provNuevo && !provNombreNuevo){ say("Escribe el nombre del proveedor nuevo."); el("iProvNombre").focus(); return; }
+      if(provNuevo && cat.proveedor.some(function(p){ return String(p.nombre).toUpperCase()===provNombreNuevo; })){ say("Ese proveedor ya existe: elígelo de la lista."); return; }
+      var viajeRefNuevo = el("iViajeRef").value.trim();
+      if(viajeNuevo && !viajeRefNuevo){ say("Escribe el nombre del viaje nuevo."); el("iViajeRef").focus(); return; }
+      if(comi && !prov.value){ say("Un viaje de comisión necesita el proveedor (dueño de la mercancía)."); return; }
+      var forma = prov.value && !comi ? (document.querySelector('input[name="iForma"]:checked')||{}).value : "";
       var caja = forma==="contado" ? el("iCaja").value : "";
-      var provNom = prov.value ? prov.options[prov.selectedIndex].text : "";
-      var viajeNom = el("iViaje").options[el("iViaje").selectedIndex].text;
-      var formaTxt = !prov.value ? "solo inventario" : forma==="credito" ? "a crédito" : forma==="contado" ? "de contado ("+nombreCaja(caja)+")" : "pagado por fuera de caja";
+      var provNom = provNuevo ? provNombreNuevo+" (nuevo)" : prov.value ? prov.options[prov.selectedIndex].text : "";
+      var viajeNom = viajeNuevo ? viajeRefNuevo+(comi?" (nuevo, comisión)":" (nuevo)") : el("iViaje").options[el("iViaje").selectedIndex].text;
+      var formaTxt = comi ? "viaje de comisión (sin cargo a la cuenta)" : !prov.value ? "solo inventario" : forma==="credito" ? "a crédito" : forma==="contado" ? "de contado ("+nombreCaja(caja)+")" : "pagado por fuera de caja";
       var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+formaTxt+" · viaje "+viajeNom+(el("iNota").value?" · "+el("iNota").value:"");
       if(!confirm("¿Enviar este ingreso al sistema?\n\n"+resumen)) return;
       btn.disabled=true; btn.textContent="Enviando…";
@@ -1225,12 +1270,19 @@
         var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
         return sb.from("solicitud_movil").insert({
           negocio_id:state.negocioId, origen:"celular", tipo:"ingreso", estado:"aprobada", creado_por:email, resumen:resumen,
-          datos:{ viaje_id:Number(viaje), proveedor_id: prov.value?Number(prov.value):null, forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"" }
+          datos:{
+            viaje_id: viajeNuevo ? null : Number(viaje),
+            viaje_nuevo: viajeNuevo ? { referencia:viajeRefNuevo, tipo: comi ? "COMISION" : "COMPRA" } : null,
+            proveedor_id: prov.value && !provNuevo ? Number(prov.value) : null,
+            proveedor_nuevo: provNuevo ? { nombre:provNombreNuevo, telefono:el("iProvTel").value.trim() } : null,
+            forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"" }
         });
       }).then(function(res){
         btn.disabled=false; btn.textContent="📨 Enviar al sistema";
         if(res.error){ say("No se pudo enviar: "+res.error.message); return; }
         say("📨 Enviado. El computador lo registra en unos minutos.");
+        // El proveedor/viaje nuevo aparecerá en las listas cuando el computador lo cree y sincronice.
+        delete state.cache["cat_"+state.negocioId];
         loadIngreso();
       });
     };
@@ -1239,6 +1291,8 @@
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
   function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t; }
+  var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
+  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
     if(/SOLICITUD|APROBADO|RECHAZ/.test(a)) return "Solicitudes";
     if(/ANUL/.test(a)) return "Anulaciones";
@@ -1263,7 +1317,7 @@
     var host=sec("cambios");
     var h='<div class="sechead"><h2 class="sec">Solicitudes por aprobar</h2></div>';
     h+= pend.length ? '<div class="card">'+pend.map(function(s){
-        return '<div class="solc"><div class="t">'+tipoSolicitud(s.tipo)+'</div>'
+        return '<div class="solc '+colorTipoSolicitud(s.tipo)+'"><div class="t">'+tipoSolicitud(s.tipo)+'</div>'
           +'<div class="r">'+esc(s.resumen)+'</div>'
           +'<div class="m">Pidió: '+esc(s.creado_por||"—")+' · '+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</div>'
           +'<div class="b"><button class="no" data-no="'+s.id+'">❌ Rechazar</button><button class="ok" data-si="'+s.id+'">✅ Aprobar</button></div></div>';
@@ -1271,13 +1325,13 @@
       : '<div class="empty">No hay solicitudes esperando. Cuando un cajero sin permiso pida anular o corregir una venta, aparece aquí.</div>';
     h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Historial de solicitudes</h2></div>';
     h+= hist.length ? '<div class="card">'+hist.map(function(s){
-        return '<div class="solc"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t">'+tipoSolicitud(s.tipo)+'</span>'+pillSolicitud(s)+'</div>'
+        return '<div class="solc '+colorTipoSolicitud(s.tipo)+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t">'+tipoSolicitud(s.tipo)+'</span>'+pillSolicitud(s)+'</div>'
           +'<div class="r">'+esc(s.resumen)+'</div>'
           +'<div class="m">'+(s.origen==="pc"?'Pidió '+esc(s.creado_por||"—"):'Desde el celular: '+esc(s.creado_por||""))+(s.decidido_por?' · decidió '+esc(s.decidido_por):'')+' · '+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</div>'
           +(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
       }).join("")+'</div>' : '<div class="empty">Sin solicitudes todavía.</div>';
     h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Registro de cambios (últimos 7 días)</h2></div>';
-    h+='<div class="tfil" id="audFil">'+["Todo","Anulaciones","Ediciones","Ingresos","Solicitudes","Otros"].map(function(t){ return '<button class="tchip'+(state.audFiltro===t?' on':'')+'" data-af="'+t+'">'+t+'</button>'; }).join("")+'</div>';
+    h+='<div class="tfil" id="audFil">'+["Todo","Anulaciones","Ediciones","Ingresos","Solicitudes","Otros"].map(function(t){ return '<button class="tchip '+(CLASE_COLOR[t]||'')+(state.audFiltro===t?' on':'')+'" data-af="'+t+'">'+t+'</button>'; }).join("")+'</div>';
     h+='<div id="audLista"></div>';
     host.innerHTML=h;
     Array.prototype.forEach.call(host.querySelectorAll("[data-si]"), function(b){ b.onclick=function(){ decidir(Number(b.dataset.si), true); }; });
@@ -1292,7 +1346,7 @@
     box.innerHTML='<div class="card">'+rows.slice(0,200).map(function(a){
       var acc=cap(String(a.accion||"").replace(/_/g," ").toLowerCase());
       var cambio=(a.antes?esc(a.antes):"")+(a.antes&&a.despues?" → ":"")+(a.despues?esc(a.despues):"");
-      return '<div class="audr"><div style="display:flex;justify-content:space-between;gap:8px"><span class="a">'+esc(acc)+(a.registro?' · '+esc(a.registro):'')+'</span>'
+      var cls=claseAccion(a.accion); return '<div class="audr '+CLASE_COLOR[cls]+'"><div style="display:flex;justify-content:space-between;gap:8px"><span class="a"><span class="ktag">'+({Anulaciones:"Anulación",Ediciones:"Edición",Ingresos:"Ingreso",Solicitudes:"Solicitud",Otros:"Otro"})[cls]+'</span>'+esc(acc)+(a.registro?' · '+esc(a.registro):'')+'</span>'
         +'<span class="m" style="white-space:nowrap">'+new Date(a.momento).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</span></div>'
         +'<div class="d">'+(a.usuario?'👤 '+esc(a.usuario)+' · ':'')+esc(a.modulo)+(cambio?'<br>'+cambio:'')+'</div></div>';
     }).join("")+'</div>';
