@@ -1,7 +1,7 @@
 {
-    "version":  "1.2.1",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.2.1/PescaFacil-Actualizacion-1.2.1.exe",
-    "sha256":  "91dfd6305111f9a3d78da6f258380815756fd3e494ba126bb5ea422174e13146",
-    "notas":  "El campo Detalle de la factura ahora se ve seleccionado (cursor y color). Mejora en la conexión de las actualizaciones.",
+    "version":  "1.3.0",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.3.0/PescaFacil-Actualizacion-1.3.0.exe",
+    "sha256":  "7b43c5a7c49a3185c8f26493d25ad54b190edb4acb99275cf9f65cd20532bc15",
+    "notas":  "Usuarios y permisos desde el celular: crear usuarios, cambiar rol, contraseña y permisos, activar o desactivar. El apartado de Solicitudes muestra también estos cambios.",
     "fecha":  "2026-10-20"
 }
