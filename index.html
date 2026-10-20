@@ -242,6 +242,21 @@
   .solc .b{display:flex; gap:8px; margin-top:10px}
   .solc .b button{flex:1; appearance:none; border:none; border-radius:10px; padding:11px; font-weight:800; font-family:inherit; cursor:pointer; font-size:.9rem}
   .solc .ok{background:var(--good); color:#fff} .solc .no{background:var(--bad-bg); color:var(--bad)}
+  /* 👤 Usuarios: lista + editor con grilla de permisos */
+  .usr{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 14px; border-top:1px solid var(--line); cursor:pointer}
+  .usr:first-child{border-top:none}
+  .usr .n{font-weight:800; font-size:.92rem} .usr .m{font-size:.74rem; color:var(--muted); margin-top:2px}
+  .usr .p{display:flex; flex-direction:column; align-items:flex-end; gap:4px}
+  .chk{display:flex !important; align-items:center; gap:8px; font-size:.88rem !important; color:var(--ink) !important; font-weight:600 !important}
+  .chk input{width:auto !important}
+  .perm{width:100%; border-collapse:collapse; font-size:.8rem}
+  .perm th{font-size:.64rem; color:var(--muted); font-weight:800; text-align:center; padding:6px 2px}
+  .perm th:first-child{text-align:left}
+  .perm td{border-top:1px solid var(--line); padding:7px 2px; text-align:center}
+  .perm td:first-child{text-align:left; font-weight:600}
+  .perm tr.secc td{background:var(--chip); font-size:.68rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; text-align:left}
+  .perm input{width:20px; height:20px; accent-color:var(--ocean)}
+  .btn2{appearance:none; border:1px solid var(--chip-line); background:var(--chip); color:var(--ocean); border-radius:10px; padding:9px 12px; font-weight:800; font-family:inherit; font-size:.82rem; cursor:pointer}
   /* Colores por tipo de cambio (registro, solicitudes y filtros) */
   .k-anul{--k:var(--bad); --kb:var(--bad-bg)} .k-edic{--k:var(--warn); --kb:var(--warn-bg)} .k-ing{--k:var(--good); --kb:var(--good-bg)}
   .k-sol{--k:var(--purple); --kb:var(--purple-bg)} .k-otro{--k:var(--info); --kb:var(--info-bg)}
@@ -330,6 +345,7 @@
     <button class="chip" role="tab" aria-selected="false" data-s="prestamos">🤝 Préstamos</button>
     <button class="chip" role="tab" aria-selected="false" data-s="ingreso">📥 Ingreso</button>
     <button class="chip" role="tab" aria-selected="false" data-s="cambios">🛡️ Cambios <span class="badge" id="badgeCambios" hidden>0</span></button>
+    <button class="chip" role="tab" aria-selected="false" data-s="usuarios">👤 Usuarios</button>
   </div></div>
 
   <main>
@@ -346,6 +362,7 @@
     <section id="s-prestamos" hidden></section>
     <section id="s-ingreso" hidden></section>
     <section id="s-cambios" hidden></section>
+    <section id="s-usuarios" hidden></section>
   </main>
 </div>
 <div id="avisos" class="avisos" hidden></div>
@@ -436,11 +453,11 @@
   function boot(){
     if(booted) return; booted=true;
     showApp();
-    sb.from("perfiles").select("negocio_id, negocios(nombre)").then(function(res){
+    sb.from("perfiles").select("negocio_id, rol, negocios(nombre)").then(function(res){
       if(res.error){ el("hsub").textContent="Error cargando el negocio"; return; }
       var rows=res.data||[];
       if(!rows.length){ el("hsub").textContent="Tu cuenta no tiene negocio asignado"; return; }
-      state.negocios = rows.map(function(r){ return { id:r.negocio_id, nombre:(r.negocios&&r.negocios.nombre)||"Mi negocio" }; });
+      state.negocios = rows.map(function(r){ return { id:r.negocio_id, rol:r.rol||"", nombre:(r.negocios&&r.negocios.nombre)||"Mi negocio" }; });
       var sel=el("biz"); sel.innerHTML="";
       state.negocios.forEach(function(n){ var o=document.createElement("option"); o.value=n.id; o.textContent=n.nombre; sel.appendChild(o); });
       state.negocioId = state.negocios[0].id;
@@ -501,7 +518,7 @@
   // ----- Render por sección -----
   function sec(id){ return el("s-"+id); }
   function showSection(id){
-    ["resumen","trans","caja","bancos","cartera","cliente","inv","prov","venta","prestamos","ingreso","cambios"].forEach(function(x){ sec(x).hidden=(x!==id); });
+    ["resumen","trans","caja","bancos","cartera","cliente","inv","prov","venta","prestamos","ingreso","cambios","usuarios"].forEach(function(x){ sec(x).hidden=(x!==id); });
   }
   function render(forceDateOnly){
     if(!state.negocioId) return;
@@ -518,6 +535,7 @@
     else if(s==="prestamos") loadPrestamos();
     else if(s==="ingreso") loadIngreso();
     else if(s==="cambios") loadCambios();
+    else if(s==="usuarios") loadUsuarios();
   }
   function q(){ return sb.from.bind(sb); }
   function base(tabla){ return sb.from(tabla).select("*").eq("negocio_id", state.negocioId); }
@@ -763,7 +781,7 @@
                    ["Devolución","↩️","Devoluciones"],["Pago Comisión","💵","Pagos de comisión"],
                    // Avisos de CAMBIOS (no salen de "transacciones"): ver revisarAvisosCambios
                    ["__sol","🛡️","Solicitudes por aprobar (cajero)"],["__cambio","✏️","Anulaciones y ediciones hechas"],
-                   ["__ing","📥","Ingresos del celular ya registrados"]];
+                   ["__ing","📥","Ingresos y usuarios del celular ya registrados"]];
   // hora LOCAL "yyyy-MM-ddTHH:mm:ss" (el PC guarda "momento" en hora de Colombia, sin zona)
   function ahoraLocal(){ var d=new Date(); return iso(d)+"T"+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds()); }
   function claveAvisos(){ return "pf_avisos_"+state.negocioId; }
@@ -872,12 +890,13 @@
     }
     if(act.indexOf("__ing")>=0){
       var desdeI=marca("_ing"); if(!desdeI){ marca("_ing", new Date().toISOString()); }
-      else sb.from("solicitud_movil").select("id,estado,resumen,error,aplicado").eq("negocio_id",neg).eq("tipo","ingreso").in("estado",["aplicada","error"]).gt("aplicado",desdeI).order("aplicado",{ascending:true}).then(function(r){
+      else sb.from("solicitud_movil").select("id,tipo,estado,resumen,error,aplicado").eq("negocio_id",neg).in("tipo",["ingreso","usuario"]).in("estado",["aplicada","error"]).gt("aplicado",desdeI).order("aplicado",{ascending:true}).then(function(r){
         var filas=(r&&r.data)||[];
         filas.forEach(function(s){
-          avisar("Ingreso", s.estado==="aplicada" ? "📥 Ya quedó en el sistema: "+s.resumen : "❌ No se pudo registrar: "+s.resumen+(s.error?" ("+s.error+")":""), "ing-"+s.id);
+          var ic = s.tipo==="usuario" ? "👤 " : "📥 ";
+          avisar(s.tipo==="usuario" ? "Usuario" : "Ingreso", s.estado==="aplicada" ? ic+"Ya quedó en el sistema: "+s.resumen : "❌ No se pudo registrar: "+s.resumen+(s.error?" ("+s.error+")":""), "ing-"+s.id);
         });
-        if(filas.length){ marca("_ing", filas[filas.length-1].aplicado); mostrarCola(); if(state.section==="ingreso") loadIngreso(); }
+        if(filas.length){ marca("_ing", filas[filas.length-1].aplicado); mostrarCola(); if(state.section==="ingreso") loadIngreso(); if(state.section==="usuarios") loadUsuarios(); }
       });
     }
   }
@@ -1344,9 +1363,162 @@
     };
   }
 
+  // ===== 👤 USUARIOS: crear usuarios y cambiar rol / contraseña / permisos desde el celular =====
+  // Igual que el ingreso: queda en solicitud_movil (tipo 'usuario', ya aprobada) y el computador lo
+  // aplica en su siguiente sincronización. La contraseña no viaja: se manda su huella SHA-256 (la
+  // misma que guarda el programa) y la nube la borra apenas el computador la usa.
+  function esDueno(){ var n=(state.negocios||[]).filter(function(x){ return x.id===state.negocioId; })[0]; return !n || !n.rol || n.rol==="dueno"; }
+  function sha256Hex(txt){
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0"+b.toString(16)).slice(-2); }).join("");
+    });
+  }
+  function loadUsuarios(){
+    var host=sec("usuarios"); host.innerHTML='<div class="loading">Cargando…</div>';
+    delete state.cache["cat_"+state.negocioId];   // siempre fresco: lo que cambió el computador
+    Promise.all([
+      cargarCatalogo(),
+      sb.from("solicitud_movil").select("id,creado,resumen,estado,error,datos").eq("negocio_id", state.negocioId).eq("tipo","usuario").order("id",{ascending:false}).limit(15)
+    ]).then(function(r){
+      if(state.section!=="usuarios") return;
+      pintarUsuarios(r[0], (r[1]&&r[1].data)||[]);
+    });
+  }
+  function pintarUsuarios(cat, enviados){
+    var host=sec("usuarios"), usuarios=cat.usuario||[], roles=cat.rol||[];
+    if(!(cat.modulo||[]).length){
+      host.innerHTML='<div class="sechead"><h2 class="sec">Usuarios</h2></div><div class="empty">Para manejar los usuarios desde aquí, el programa del computador tiene que estar actualizado a la versión nueva. Ábrelo y espera unos minutos.</div>';
+      return;
+    }
+    // Usuarios con un cambio enviado que el computador aún no aplica.
+    var enCamino={};
+    enviados.forEach(function(s){ if(s.estado==="aprobada" && s.datos && Number(s.datos.usuario_id)>0) enCamino[String(s.datos.usuario_id)]=true; });
+    var h='<div class="sechead"><h2 class="sec">Usuarios del programa</h2></div>';
+    if(!esDueno()) h+='<div class="empty" style="padding:12px">Solo la cuenta del dueño puede crear o cambiar usuarios.</div>';
+    h+='<div class="card">'+usuarios.map(function(u){
+      var x=u.extra||{}, perms=(x.permisos||[]).filter(function(p){ return p.ver; }).length;
+      var camino=enCamino[String(u.id)];
+      return '<div class="usr" data-u="'+u.id+'"><div><div class="n">'+esc(u.nombre||x.usuario)+'</div><div class="m">@'+esc(x.usuario||"")+' · '+(x.es_admin?'puede todo':perms+' módulo'+(perms===1?'':'s'))+'</div></div>'
+        +'<div class="p"><span class="pill info">'+esc(x.rol||"")+'</span>'+(x.activo?'':'<span class="pill bad">Inactivo</span>')+(camino?'<span class="pill warn">⏳ Cambio en camino</span>':'')+'</div></div>';
+    }).join("")+'</div>';
+    if(esDueno()) h+='<button class="btn" id="uNuevo" style="margin-top:12px">➕ Usuario nuevo</button>';
+    h+='<p class="updated">Los cambios los aplica el computador en unos minutos (tiene que estar prendido y con internet). Si el usuario tiene la sesión abierta, sus permisos nuevos cuentan al volver a entrar.</p>';
+    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Últimos cambios enviados</h2></div>';
+    h+= enviados.length ? '<div class="card">'+enviados.map(function(s){
+        return '<div class="solc"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="m">'+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</span>'+pillSolicitud(s)+'</div>'
+          +'<div class="r">'+esc(s.resumen)+'</div>'+(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
+      }).join("")+'</div>' : '<div class="empty">Aún no has enviado cambios de usuarios desde el celular.</div>';
+    host.innerHTML=h;
+    if(el("uNuevo")) el("uNuevo").onclick=function(){ editarUsuario(cat, null); };
+    Array.prototype.forEach.call(host.querySelectorAll(".usr"), function(row){
+      row.onclick=function(){
+        var u=usuarios.filter(function(x){ return String(x.id)===row.getAttribute("data-u"); })[0];
+        if(!u) return;
+        if((u.extra||{}).es_admin){ say("El usuario Admin principal solo se cambia desde el computador."); return; }
+        if(!esDueno()){ say("Solo la cuenta del dueño puede cambiar usuarios."); return; }
+        editarUsuario(cat, u);
+      };
+    });
+  }
+  function editarUsuario(cat, u){
+    var host=sec("usuarios"), x=(u&&u.extra)||{}, nuevo=!u;
+    var roles=(cat.rol||[]).filter(function(r){ return !(r.extra&&r.extra.es_admin); });
+    var modulos=(cat.modulo||[]).slice().sort(function(a,b){ return a.id-b.id; });
+    var permisos={};   // clave -> {ver,crear,editar,eliminar}
+    function cargar(lista){ permisos={}; (lista||[]).forEach(function(p){ permisos[p.modulo]={ver:!!p.ver,crear:!!p.crear,editar:!!p.editar,eliminar:!!p.eliminar}; }); }
+    function plantilla(rolId){ var r=roles.filter(function(r){ return String(r.id)===String(rolId); })[0]; return (r&&r.extra&&r.extra.plantilla)||[]; }
+    var rolIni = nuevo ? ((roles.filter(function(r){ return /cajer/i.test(r.nombre); })[0]||roles[0]||{}).id) : x.rol_id;
+    cargar(nuevo ? plantilla(rolIni) : x.permisos);
+
+    var h='<div class="sechead"><h2 class="sec">'+(nuevo?'Usuario nuevo':'Cambiar usuario @'+esc(x.usuario))+'</h2></div>';
+    h+='<div class="card"><div class="form">'
+      +'<label for="uLogin">Usuario (con el que entra al programa)</label><input id="uLogin" maxlength="40" autocomplete="off" autocapitalize="none" value="'+esc(x.usuario||"")+'">'
+      +'<label for="uNombre">Nombre completo</label><input id="uNombre" maxlength="80" value="'+esc(u?u.nombre:"")+'">'
+      +'<label for="uRol">Rol</label><select id="uRol">'+roles.map(function(r){ return '<option value="'+r.id+'"'+(String(r.id)===String(rolIni)?' selected':'')+'>'+esc(r.nombre)+'</option>'; }).join("")+'</select>'
+      +'<label class="chk"><input type="checkbox" id="uActivo"'+(nuevo||x.activo?' checked':'')+'> Activo (puede entrar al programa)</label>'
+      +'<label for="uPass">'+(nuevo?'Contraseña':'Contraseña nueva (déjala vacía para no cambiarla)')+'</label><input id="uPass" type="password" maxlength="60" autocomplete="new-password">'
+      +'<label for="uPass2">Repetir la contraseña</label><input id="uPass2" type="password" maxlength="60" autocomplete="new-password">'
+      +'</div></div>';
+    h+='<div class="sechead" style="margin-top:18px;display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 class="sec">Permisos</h2><button type="button" class="btn2" id="uPlantilla">↺ Los del rol</button></div>';
+    h+='<div class="card" style="padding:4px 12px 10px"><table class="perm"><thead><tr><th>Módulo</th><th>Ver</th><th>Crear</th><th>Editar</th><th>Borrar</th></tr></thead><tbody id="uPerm"></tbody></table></div>';
+    h+='<button class="btn" id="uGuardar" style="margin-top:12px">📨 Enviar al sistema</button>';
+    h+='<button class="btn2" id="uVolver" style="margin-top:10px;width:100%">← Volver a la lista</button>';
+    host.innerHTML=h; window.scrollTo(0,0);
+
+    function pintarPermisos(){
+      var filas="", secc="";
+      modulos.forEach(function(m){
+        var e=m.extra||{}, p=permisos[e.clave]||{};
+        if(e.seccion!==secc){ secc=e.seccion; filas+='<tr class="secc"><td colspan="5">'+esc(secc)+'</td></tr>'; }
+        filas+='<tr><td>'+esc(m.nombre)+'</td>'+["ver","crear","editar","eliminar"].map(function(k){
+          return '<td><input type="checkbox" data-m="'+esc(e.clave)+'" data-k="'+k+'"'+(p[k]?' checked':'')+' aria-label="'+esc(m.nombre)+' '+k+'"></td>'; }).join("")+'</tr>';
+      });
+      el("uPerm").innerHTML=filas;
+      Array.prototype.forEach.call(el("uPerm").querySelectorAll("input"), function(c){
+        c.onchange=function(){
+          var m=c.getAttribute("data-m"), k=c.getAttribute("data-k"), p=permisos[m]||(permisos[m]={ver:false,crear:false,editar:false,eliminar:false});
+          p[k]=c.checked;
+          if(k!=="ver" && c.checked) p.ver=true;                                 // sin "ver" lo demás no sirve
+          if(k==="ver" && !c.checked){ p.crear=p.editar=p.eliminar=false; }
+          pintarPermisos();
+        };
+      });
+    }
+    pintarPermisos();
+    el("uRol").onchange=function(){ if(nuevo){ cargar(plantilla(this.value)); pintarPermisos(); } };
+    el("uPlantilla").onclick=function(){
+      if(!confirm("¿Poner los permisos por defecto del rol "+el("uRol").options[el("uRol").selectedIndex].text+"?")) return;
+      cargar(plantilla(el("uRol").value)); pintarPermisos();
+    };
+    el("uVolver").onclick=function(){ loadUsuarios(); };
+    el("uGuardar").onclick=function(){
+      var btn=this, login=el("uLogin").value.trim(), nombre=el("uNombre").value.trim(), rolId=Number(el("uRol").value),
+          activo=el("uActivo").checked, p1=el("uPass").value, p2=el("uPass2").value;
+      if(!login){ say("Escribe el usuario con el que entra."); el("uLogin").focus(); return; }
+      if(!nombre){ say("Escribe el nombre completo."); el("uNombre").focus(); return; }
+      if(!rolId){ say("Elige el rol."); return; }
+      if((cat.usuario||[]).some(function(o){ return (!u || o.id!==u.id) && String((o.extra||{}).usuario||"").toLowerCase()===login.toLowerCase(); })){ say("Ya existe otro usuario '"+login+"'."); return; }
+      if(nuevo && !p1){ say("Un usuario nuevo necesita contraseña."); el("uPass").focus(); return; }
+      if(p1 && p1.length<4){ say("La contraseña debe tener al menos 4 caracteres."); el("uPass").focus(); return; }
+      if(p1!==p2){ say("Las contraseñas no coinciden."); el("uPass2").focus(); return; }
+      var lista=Object.keys(permisos).filter(function(k){ var p=permisos[k]; return p.ver||p.crear||p.editar||p.eliminar; })
+        .map(function(k){ var p=permisos[k]; return {modulo:k, ver:true, crear:!!p.crear, editar:!!p.editar, eliminar:!!p.eliminar}; });
+      var rolNom=el("uRol").options[el("uRol").selectedIndex].text;
+      var cambios=[];
+      if(nuevo) cambios.push("rol "+rolNom, lista.length+" módulo"+(lista.length===1?"":"s"));
+      else {
+        if(login!==x.usuario) cambios.push("usuario @"+x.usuario+" → @"+login);
+        if(nombre!==u.nombre) cambios.push("nombre "+nombre);
+        if(String(rolId)!==String(x.rol_id)) cambios.push("rol "+(x.rol||"")+" → "+rolNom);
+        if(activo!==!!x.activo) cambios.push(activo?"activado":"DESACTIVADO");
+        if(p1) cambios.push("contraseña nueva");
+        var antes=JSON.stringify((x.permisos||[]).map(function(p){ return [p.modulo,!!p.ver,!!p.crear,!!p.editar,!!p.eliminar]; }).sort());
+        var ahora=JSON.stringify(lista.map(function(p){ return [p.modulo,p.ver,p.crear,p.editar,p.eliminar]; }).sort());
+        if(antes!==ahora) cambios.push("permisos ("+lista.length+" módulo"+(lista.length===1?"":"s")+")");
+        if(!cambios.length){ say("No cambiaste nada."); return; }
+      }
+      var resumen=(nuevo?"Usuario nuevo @"+login+" ("+nombre+")":"Usuario @"+(x.usuario||login))+": "+cambios.join(" · ");
+      if(!confirm("¿Enviar este cambio al sistema?\n\n"+resumen)) return;
+      btn.disabled=true; btn.textContent="Enviando…";
+      (p1 ? sha256Hex(p1) : Promise.resolve("")).then(function(hash){
+        return sb.auth.getSession().then(function(ss){
+          var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
+          var datos={ usuario_id: nuevo?0:u.id, usuario:login, nombre:nombre, rol_id:rolId, activo:activo, permisos:lista };
+          if(hash) datos.password_hash=hash;
+          return sb.from("solicitud_movil").insert({ negocio_id:state.negocioId, origen:"celular", tipo:"usuario", estado:"aprobada", creado_por:email, resumen:resumen, datos:datos });
+        });
+      }).then(function(res){
+        btn.disabled=false; btn.textContent="📨 Enviar al sistema";
+        if(res.error){ say(/row-level|policy/i.test(res.error.message) ? "Solo la cuenta del dueño puede cambiar usuarios (o falta actualizar la base de la nube)." : "No se pudo enviar: "+res.error.message); return; }
+        say("📨 Enviado. El computador lo aplica en unos minutos.");
+        loadUsuarios();
+      });
+    };
+  }
+
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
-  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t; }
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t; }
   var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
   function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
