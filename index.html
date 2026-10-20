@@ -755,7 +755,10 @@
   // "transacciones" (la manda el PC al sincronizar) y avisa con notificación del celular + mensaje.
   // Funciona mientras el tablero esté abierto (aunque sea en otra pestaña o en segundo plano).
   var TIPOS_AVISO=[["Abono","💰","Abonos"],["Venta","🧾","Ventas"],["Gasto","📤","Gastos"],["Préstamo","🤝","Préstamos"],
-                   ["Devolución","↩️","Devoluciones"],["Pago Comisión","💵","Pagos de comisión"]];
+                   ["Devolución","↩️","Devoluciones"],["Pago Comisión","💵","Pagos de comisión"],
+                   // Avisos de CAMBIOS (no salen de "transacciones"): ver revisarAvisosCambios
+                   ["__sol","🛡️","Solicitudes por aprobar (cajero)"],["__cambio","✏️","Anulaciones y ediciones hechas"],
+                   ["__ing","📥","Ingresos del celular ya registrados"]];
   // hora LOCAL "yyyy-MM-ddTHH:mm:ss" (el PC guarda "momento" en hora de Colombia, sin zona)
   function ahoraLocal(){ var d=new Date(); return iso(d)+"T"+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds()); }
   function claveAvisos(){ return "pf_avisos_"+state.negocioId; }
@@ -805,7 +808,8 @@
     return tipo+" "+money(total);
   }
   function revisarAvisos(){
-    var act=tiposActivos();
+    revisarAvisosCambios();
+    var act=tiposActivos().filter(function(t){ return t.indexOf("__")!==0; });
     if(!state.negocioId || !act.length) return;
     var k=claveAvisos()+"_desde", desde;
     try{ desde=localStorage.getItem(k); }catch(e){}
@@ -826,6 +830,53 @@
         if(state.section==="trans" && state.fecha===isoToday()) loadTrans();
       });
   }
+  // Avisos de CAMBIOS: solicitudes nuevas por aprobar, anulaciones/ediciones hechas en el programa
+  // (auditoria_mov) e ingresos del celular que el computador ya registró (o falló). Cada tipo guarda
+  // en localStorage hasta dónde ya avisó; al prenderlo por primera vez arranca "desde ahora".
+  function avisar(titulo, txt, tag){
+    colaAvisos.push(txt);
+    try{ if("Notification" in window && Notification.permission==="granted") new Notification("PescaFácil · "+titulo, { body: txt, tag: tag }); }catch(e){}
+  }
+  function marca(k, v){ try{ if(v===undefined) return localStorage.getItem(claveAvisos()+k); localStorage.setItem(claveAvisos()+k, v); }catch(e){ return null; } }
+  function revisarAvisosCambios(){
+    var act=tiposActivos(), neg=state.negocioId;
+    if(!neg) return;
+    if(act.indexOf("__sol")>=0){
+      var ult=marca("_sol");
+      sb.from("solicitud_movil").select("id,tipo,resumen,creado_por").eq("negocio_id",neg).eq("estado","pendiente").order("id",{ascending:true}).then(function(r){
+        var filas=(r&&r.data)||[];
+        if(ult===null){ marca("_sol", String(filas.length?filas[filas.length-1].id:0)); return; }
+        filas.filter(function(s){ return s.id>Number(ult); }).forEach(function(s){
+          avisar("Solicitud", "🛡️ "+(s.creado_por||"Un cajero")+" pide: "+s.resumen+" — ábrela en Cambios para aprobar", "sol-"+s.id);
+          marca("_sol", String(s.id));
+        });
+        mostrarCola();
+      });
+    }
+    if(act.indexOf("__cambio")>=0){
+      var desde=marca("_aud"); if(!desde){ marca("_aud", ahoraLocal()); }
+      else sb.from("auditoria_mov").select("id,momento,usuario,accion,registro,despues").eq("negocio_id",neg).gt("momento",desde.slice(0,19)).order("momento",{ascending:true}).then(function(r){
+        var filas=((r&&r.data)||[]).filter(function(a){ var c=claseAccion(a.accion); return c==="Anulaciones"||c==="Ediciones"; });
+        filas.forEach(function(a){
+          avisar("Cambio", (claseAccion(a.accion)==="Anulaciones"?"🚫 ":"✏️ ")+cap(String(a.accion).replace(/_/g," ").toLowerCase())+(a.registro?" · "+a.registro:"")+(a.usuario?" · por "+a.usuario:""), "aud-"+a.id);
+        });
+        var todas=(r&&r.data)||[]; if(todas.length) marca("_aud", todas[todas.length-1].momento);
+        mostrarCola();
+        if(filas.length && state.section==="cambios") loadCambios();
+      });
+    }
+    if(act.indexOf("__ing")>=0){
+      var desdeI=marca("_ing"); if(!desdeI){ marca("_ing", new Date().toISOString()); }
+      else sb.from("solicitud_movil").select("id,estado,resumen,error,aplicado").eq("negocio_id",neg).eq("tipo","ingreso").in("estado",["aplicada","error"]).gt("aplicado",desdeI).order("aplicado",{ascending:true}).then(function(r){
+        var filas=(r&&r.data)||[];
+        filas.forEach(function(s){
+          avisar("Ingreso", s.estado==="aplicada" ? "📥 Ya quedó en el sistema: "+s.resumen : "❌ No se pudo registrar: "+s.resumen+(s.error?" ("+s.error+")":""), "ing-"+s.id);
+        });
+        if(filas.length){ marca("_ing", filas[filas.length-1].aplicado); mostrarCola(); if(state.section==="ingreso") loadIngreso(); }
+      });
+    }
+  }
+
   // Mensajes en pantalla uno tras otro (si llegan 3 avisos juntos, se ven los 3, no solo el último).
   var colaAvisos=[], colaCorriendo=false;
   function mostrarCola(){
@@ -1301,13 +1352,17 @@
     return "Otros"; }
   function loadCambios(){
     var host=sec("cambios"); host.innerHTML='<div class="loading">Cargando…</div>';
-    var neg=state.negocioId;
+    var neg=state.negocioId, fecha=state.fecha;
+    // Las PENDIENTES salen siempre (sean del día que sean); el historial y el registro, solo del día
+    // elegido en la barra de fechas (‹ Hoy ›).
+    var ini=new Date(fecha+"T00:00:00"), fin=new Date(ini.getTime()+86400000);
     Promise.all([
       sb.from("solicitud_movil").select("*").eq("negocio_id", neg).eq("estado","pendiente").order("id",{ascending:true}),
-      sb.from("solicitud_movil").select("id,creado,tipo,resumen,estado,error,creado_por,decidido_por,origen").eq("negocio_id", neg).neq("estado","pendiente").order("id",{ascending:false}).limit(25),
-      base("auditoria_mov").order("momento",{ascending:false}).limit(400)
+      sb.from("solicitud_movil").select("id,creado,tipo,resumen,estado,error,creado_por,decidido_por,origen").eq("negocio_id", neg).neq("estado","pendiente")
+        .gte("creado", ini.toISOString()).lt("creado", fin.toISOString()).order("id",{ascending:false}).limit(100),
+      base("auditoria_mov").eq("fecha", fecha).order("momento",{ascending:false}).limit(500)
     ]).then(function(r){
-      if(state.section!=="cambios") return;
+      if(state.section!=="cambios" || state.fecha!==fecha) return;
       state.cache.aud=(r[2]&&r[2].data)||[];
       pintarCambios((r[0]&&r[0].data)||[], (r[1]&&r[1].data)||[]);
       pintarBadge(((r[0]&&r[0].data)||[]).length);
@@ -1323,14 +1378,14 @@
           +'<div class="b"><button class="no" data-no="'+s.id+'">❌ Rechazar</button><button class="ok" data-si="'+s.id+'">✅ Aprobar</button></div></div>';
       }).join("")+'</div>'
       : '<div class="empty">No hay solicitudes esperando. Cuando un cajero sin permiso pida anular o corregir una venta, aparece aquí.</div>';
-    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Historial de solicitudes</h2></div>';
+    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Solicitudes del '+esc(dayLabel(state.fecha))+'</h2></div>';
     h+= hist.length ? '<div class="card">'+hist.map(function(s){
         return '<div class="solc '+colorTipoSolicitud(s.tipo)+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t">'+tipoSolicitud(s.tipo)+'</span>'+pillSolicitud(s)+'</div>'
           +'<div class="r">'+esc(s.resumen)+'</div>'
           +'<div class="m">'+(s.origen==="pc"?'Pidió '+esc(s.creado_por||"—"):'Desde el celular: '+esc(s.creado_por||""))+(s.decidido_por?' · decidió '+esc(s.decidido_por):'')+' · '+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</div>'
           +(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
-      }).join("")+'</div>' : '<div class="empty">Sin solicitudes todavía.</div>';
-    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Registro de cambios (últimos 7 días)</h2></div>';
+      }).join("")+'</div>' : '<div class="empty">Sin solicitudes este día.</div>';
+    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Registro de cambios del '+esc(dayLabel(state.fecha))+'</h2></div>';
     h+='<div class="tfil" id="audFil">'+["Todo","Anulaciones","Ediciones","Ingresos","Solicitudes","Otros"].map(function(t){ return '<button class="tchip '+(CLASE_COLOR[t]||'')+(state.audFiltro===t?' on':'')+'" data-af="'+t+'">'+t+'</button>'; }).join("")+'</div>';
     h+='<div id="audLista"></div>';
     host.innerHTML=h;
@@ -1342,7 +1397,7 @@
   function pintarAuditoria(){
     var box=el("audLista"); if(!box) return;
     var rows=(state.cache.aud||[]).filter(function(a){ return state.audFiltro==="Todo" || claseAccion(a.accion)===state.audFiltro; });
-    if(!rows.length){ box.innerHTML='<div class="empty">Nada en este filtro.</div>'; return; }
+    if(!rows.length){ box.innerHTML='<div class="empty">'+(state.audFiltro==="Todo"?"Sin cambios registrados este día.":"Nada de esto este día.")+'</div>'; return; }
     box.innerHTML='<div class="card">'+rows.slice(0,200).map(function(a){
       var acc=cap(String(a.accion||"").replace(/_/g," ").toLowerCase());
       var cambio=(a.antes?esc(a.antes):"")+(a.antes&&a.despues?" → ":"")+(a.despues?esc(a.despues):"");
@@ -1365,7 +1420,7 @@
     var b=el("badgeCambios"); if(!b) return;
     b.hidden = !n; b.textContent = n;
     if(pendientesAntes>=0 && n>pendientesAntes){
-      say("🛡️ Hay una solicitud de cambio esperando tu aprobación");
+      if(tiposActivos().indexOf("__sol")<0) say("🛡️ Hay una solicitud de cambio esperando tu aprobación");
       try{ if(window.Notification && Notification.permission==="granted") new Notification("PescaFácil", { body:"Hay una solicitud de cambio esperando tu aprobación" }); }catch(e){}
     }
     pendientesAntes=n;
