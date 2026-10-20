@@ -297,8 +297,8 @@
 <div id="recovery" hidden>
   <div class="brand">
     <div class="logo">🔑</div>
-    <h1>Nueva contraseña</h1>
-    <p>Escribe tu nueva clave para entrar</p>
+    <h1 id="rtitulo">Nueva contraseña</h1>
+    <p id="rsub">Escribe tu nueva clave para entrar</p>
   </div>
   <form class="lcard" id="recoveryForm">
     <p class="lerr" id="rerr"></p>
@@ -307,7 +307,12 @@
       <label for="npass">Nueva contraseña</label>
       <input type="password" id="npass" autocomplete="new-password" placeholder="mínimo 6 caracteres" required>
     </div>
+    <div class="fld">
+      <label for="npass2">Repite la nueva contraseña</label>
+      <input type="password" id="npass2" autocomplete="new-password" placeholder="la misma de arriba" required>
+    </div>
     <button class="btn" id="recoveryBtn" type="submit">Guardar y entrar</button>
+    <button type="button" id="recoveryCancel" class="linkbtn" hidden>Cancelar</button>
   </form>
 </div>
 
@@ -322,6 +327,7 @@
       <div class="h-right">
         <span class="live" id="live"><span class="dot"></span><span id="liveTxt">En vivo</span></span>
         <button class="out bell" id="bell" type="button" aria-label="Avisos de abonos" title="Avisos de abonos">🔕</button>
+        <button class="out" id="cambiarClave" type="button" aria-label="Cambiar contraseña" title="Cambiar contraseña">🔑</button>
         <button class="out" id="logout" type="button">Salir</button>
       </div>
     </div>
@@ -400,7 +406,22 @@
   function hideAll(){ el("login").hidden=true; el("app").hidden=true; el("recovery").hidden=true; }
   function showLogin(err){ hideAll(); el("login").hidden=false; el("lerr").textContent=err||""; }
   function showApp(){ hideAll(); el("app").hidden=false; }
-  function showRecovery(){ hideAll(); recoveryMode=true; el("recovery").hidden=false; el("rerr").textContent=""; el("rok").textContent=""; }
+  // Misma pantalla para dos casos: volver del correo de recuperación ("Guardar y entrar") o
+  // CAMBIAR la clave ya adentro (botón 🔑 de arriba): la clave que puso el desarrollador al
+  // crear la cuenta se cambia por una que el dueño recuerde, sin correos de por medio.
+  var cambiandoClave=false;
+  function showRecovery(cambiar){
+    hideAll(); recoveryMode=!cambiar; cambiandoClave=!!cambiar;
+    el("recovery").hidden=false; el("rerr").textContent=""; el("rok").textContent="";
+    el("npass").value=""; el("npass2").value="";
+    el("rtitulo").textContent = cambiar ? "Cambiar contraseña" : "Nueva contraseña";
+    el("rsub").textContent = cambiar ? "Escribe la clave nueva que vas a usar de ahora en adelante" : "Escribe tu nueva clave para entrar";
+    el("recoveryBtn").textContent = cambiar ? "Guardar contraseña" : "Guardar y entrar";
+    el("recoveryCancel").hidden = !cambiar;
+    setTimeout(function(){ el("npass").focus(); }, 50);
+  }
+  el("cambiarClave").addEventListener("click", function(){ showRecovery(true); });
+  el("recoveryCancel").addEventListener("click", function(){ cambiandoClave=false; showApp(); });
 
   el("loginForm").addEventListener("submit", function(e){
     e.preventDefault();
@@ -439,11 +460,16 @@
     e.preventDefault();
     var np=el("npass").value;
     if(np.length<6){ el("rerr").textContent="La contraseña debe tener al menos 6 caracteres."; return; }
-    var btn=el("recoveryBtn"); btn.disabled=true; btn.textContent="Guardando…"; el("rerr").textContent="";
+    if(np!==el("npass2").value){ el("rerr").textContent="Las dos contraseñas no son iguales."; el("npass2").focus(); return; }
+    var btn=el("recoveryBtn"), texto=btn.textContent; btn.disabled=true; btn.textContent="Guardando…"; el("rerr").textContent="";
     sb.auth.updateUser({ password: np }).then(function(res){
-      btn.disabled=false; btn.textContent="Guardar y entrar";
-      if(res.error){ el("rerr").textContent = traducir(res.error.message); return; }
+      btn.disabled=false; btn.textContent=texto;
+      if(res.error){
+        el("rerr").textContent = /different from the old/i.test(res.error.message) ? "La clave nueva debe ser distinta a la actual." : traducir(res.error.message);
+        return;
+      }
       recoveryMode=false;
+      if(cambiandoClave){ cambiandoClave=false; showApp(); say("✅ Contraseña cambiada. La próxima vez entra con la nueva."); return; }
       el("rok").textContent="✅ Clave actualizada. Entrando…";
       boot();
     });
