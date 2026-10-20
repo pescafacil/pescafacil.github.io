@@ -210,6 +210,38 @@
   .fac-bar .tog.on{background:#fff; color:#15242e}
   .fac-img{width:100%; max-width:384px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,.4)}
   .fac-msg{color:#fff; font-weight:700; margin-top:40px; text-align:center}
+
+  /* ---------- INGRESO DESDE EL CELULAR / CAMBIOS ---------- */
+  .badge{background:var(--bad); color:#fff; border-radius:999px; font-size:.66rem; font-weight:800; padding:1px 7px; margin-left:2px}
+  .chip[aria-selected="true"] .badge{background:#fff; color:var(--bad)}
+  .form{padding:14px}
+  .form label{display:block; font-size:.72rem; font-weight:700; color:var(--muted); margin:10px 0 5px}
+  .form label:first-child{margin-top:0}
+  .form input,.form select,.form textarea{width:100%; border:1px solid var(--chip-line); background:var(--bg); color:var(--ink);
+    border-radius:10px; padding:10px 11px; font-size:.95rem; font-family:inherit}
+  .form input:focus,.form select:focus,.form textarea:focus{outline:2px solid var(--ocean); outline-offset:1px}
+  .ilin{display:grid; grid-template-columns:minmax(0,1fr) 74px 74px 34px; gap:6px; align-items:center; margin-top:8px}
+  .ilin input{min-width:0}
+  .formas label select{flex:0 1 auto; min-width:0; max-width:48%}
+  .ilin .sub{grid-column:1 / -1; font-size:.72rem; color:var(--muted); margin-top:-2px; text-align:right}
+  .ilin .x{appearance:none; border:none; background:var(--bad-bg); color:var(--bad); border-radius:8px; height:38px; font-weight:800; cursor:pointer}
+  .addl{appearance:none; border:1px dashed var(--chip-line); background:none; color:var(--ocean); border-radius:10px; width:100%;
+    padding:9px; margin-top:10px; font-weight:700; font-family:inherit; cursor:pointer}
+  .formas{display:flex; flex-direction:column; gap:6px}
+  .formas label{display:flex; align-items:center; gap:8px; margin:0; font-size:.88rem; color:var(--ink); font-weight:600;
+    border:1px solid var(--chip-line); border-radius:10px; padding:9px 11px}
+  .formas input{width:auto}
+  .solc{padding:12px 14px; border-top:1px solid var(--line)}
+  .solc:first-child{border-top:none}
+  .solc .t{font-weight:800; font-size:.9rem}
+  .solc .r{font-size:.82rem; margin:6px 0; white-space:normal; line-height:1.4}
+  .solc .m{font-size:.72rem; color:var(--muted)}
+  .solc .b{display:flex; gap:8px; margin-top:10px}
+  .solc .b button{flex:1; appearance:none; border:none; border-radius:10px; padding:11px; font-weight:800; font-family:inherit; cursor:pointer; font-size:.9rem}
+  .solc .ok{background:var(--good); color:#fff} .solc .no{background:var(--bad-bg); color:var(--bad)}
+  .audr{padding:10px 14px; border-top:1px solid var(--line); font-size:.82rem}
+  .audr:first-child{border-top:none}
+  .audr .a{font-weight:700} .audr .d{color:var(--muted); font-size:.74rem; margin-top:3px; white-space:normal; word-break:break-word}
 </style>
 </head>
 <body>
@@ -287,6 +319,8 @@
     <button class="chip" role="tab" aria-selected="false" data-s="prov">🚛 Proveedores</button>
     <button class="chip" role="tab" aria-selected="false" data-s="venta">📈 Venta día</button>
     <button class="chip" role="tab" aria-selected="false" data-s="prestamos">🤝 Préstamos</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="ingreso">📥 Ingreso</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="cambios">🛡️ Cambios <span class="badge" id="badgeCambios" hidden>0</span></button>
   </div></div>
 
   <main>
@@ -300,6 +334,8 @@
     <section id="s-prov" hidden></section>
     <section id="s-venta" hidden></section>
     <section id="s-prestamos" hidden></section>
+    <section id="s-ingreso" hidden></section>
+    <section id="s-cambios" hidden></section>
   </main>
 </div>
 <div id="avisos" class="avisos" hidden></div>
@@ -399,8 +435,8 @@
       state.negocios.forEach(function(n){ var o=document.createElement("option"); o.value=n.id; o.textContent=n.nombre; sel.appendChild(o); });
       state.negocioId = state.negocios[0].id;
       el("hsub").textContent = state.negocios.length>1 ? "Toca el nombre para cambiar de empresa" : "Tu negocio en vivo";
-      sel.addEventListener("change", function(){ state.negocioId=this.value; state.cache={}; refreshSync(); render(); pintarBell(); revisarAbonos(); });
-      updateDay(); refreshSync(); render(); pintarBell(); revisarAbonos();
+      sel.addEventListener("change", function(){ state.negocioId=this.value; state.cache={}; pendientesAntes=-1; refreshSync(); render(); pintarBell(); revisarAbonos(); contarPendientes(); });
+      updateDay(); refreshSync(); render(); pintarBell(); revisarAbonos(); contarPendientes();
     });
   }
 
@@ -454,7 +490,7 @@
   // ----- Render por sección -----
   function sec(id){ return el("s-"+id); }
   function showSection(id){
-    ["resumen","trans","caja","bancos","cartera","cliente","inv","prov","venta","prestamos"].forEach(function(x){ sec(x).hidden=(x!==id); });
+    ["resumen","trans","caja","bancos","cartera","cliente","inv","prov","venta","prestamos","ingreso","cambios"].forEach(function(x){ sec(x).hidden=(x!==id); });
   }
   function render(forceDateOnly){
     if(!state.negocioId) return;
@@ -469,6 +505,8 @@
     else if(s==="prov") loadProveedores();
     else if(s==="venta") loadVenta();
     else if(s==="prestamos") loadPrestamos();
+    else if(s==="ingreso") loadIngreso();
+    else if(s==="cambios") loadCambios();
   }
   function q(){ return sb.from.bind(sb); }
   function base(tabla){ return sb.from(tabla).select("*").eq("negocio_id", state.negocioId); }
@@ -1066,6 +1104,225 @@
       im.src="data:image/png;base64,"+emp.logo_png;
     });
   }
+
+  // ===== 📥 INGRESO DE MERCANCÍA DESDE EL CELULAR (factura del proveedor) =====
+  // Queda en solicitud_movil ya aprobado; el computador lo aplica en su siguiente sincronización
+  // (≤ 3 min, si está prendido) igual que el Ingreso rápido: inventario + cuenta del proveedor o caja.
+  function cargarCatalogo(){
+    var k="cat_"+state.negocioId;
+    if(state.cache[k]) return Promise.resolve(state.cache[k]);
+    return base("catalogo_movil").then(function(r){
+      var c={producto:[],proveedor:[],viaje:[]};
+      ((r&&r.data)||[]).forEach(function(x){ (c[x.tipo]||(c[x.tipo]=[])).push(x); });
+      Object.keys(c).forEach(function(t){ c[t].sort(function(a,b){ return String(a.nombre).localeCompare(String(b.nombre),"es"); }); });
+      state.cache[k]=c; return c;
+    });
+  }
+  function valorArroba(kg,precio){ return Number(kg||0)*Number(precio||0)*1000/12.5; }
+  function pillSolicitud(s){
+    if(s.estado==="aplicada") return '<span class="pill good">✅ Aplicado</span>';
+    if(s.estado==="error") return '<span class="pill bad">❌ Error</span>';
+    if(s.estado==="rechazada") return '<span class="pill bad">❌ Rechazada</span>';
+    if(s.estado==="pendiente") return '<span class="pill warn">⏳ Esperando decisión</span>';
+    return '<span class="pill info">⏳ Esperando al computador</span>';
+  }
+  function loadIngreso(){
+    var host=sec("ingreso"); host.innerHTML='<div class="loading">Cargando…</div>';
+    Promise.all([
+      cargarCatalogo(),
+      sb.from("solicitud_movil").select("id,creado,resumen,estado,error").eq("negocio_id", state.negocioId).eq("tipo","ingreso").order("id",{ascending:false}).limit(15)
+    ]).then(function(r){
+      if(state.section!=="ingreso") return;
+      pintarIngreso(r[0], (r[1]&&r[1].data)||[]);
+    });
+  }
+  function pintarIngreso(cat, enviados){
+    var host=sec("ingreso");
+    if(!cat.producto.length){
+      host.innerHTML='<div class="sechead"><h2 class="sec">Ingreso de mercancía</h2></div><div class="empty">Todavía no hay productos en la nube. Abre el programa en el computador (con la versión nueva) y espera unos minutos.</div>';
+      return;
+    }
+    var opt=function(arr,sel){ return arr.map(function(x){ return '<option value="'+x.id+'"'+(sel(x)?' selected':'')+'>'+esc(x.nombre)+'</option>'; }).join(""); };
+    var h='<div class="sechead"><h2 class="sec">Ingreso de mercancía (factura del proveedor)</h2></div>';
+    h+='<div class="card"><div class="form">'
+      +'<label for="iProv">Proveedor</label><select id="iProv"><option value="">— Sin proveedor (solo inventario) —</option>'+opt(cat.proveedor,function(){return false;})+'</select>'
+      +'<label for="iViaje">Viaje donde entra la mercancía</label><select id="iViaje">'+opt(cat.viaje,function(x){ return x.extra && x.extra.predeterminado; })+'</select>'
+      +'<label>Productos (kilos · precio de compra en miles por arroba)</label><div id="iLineas"></div>'
+      +'<datalist id="dlProd">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc((p.extra&&p.extra.codigo)||"")+'</option>'; }).join("")+'</datalist>'
+      +'<button type="button" class="addl" id="iAdd">➕ Otro producto</button>'
+      +'<div id="iFormaBox"><label>¿Cómo se paga?</label><div class="formas">'
+      +'<label><input type="radio" name="iForma" value="credito" checked> A crédito (le quedo debiendo)</label>'
+      +'<label><input type="radio" name="iForma" value="contado"> De contado, sale de la caja <select id="iCaja" style="width:auto;padding:5px 8px;margin-left:auto">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></label>'
+      +'<label><input type="radio" name="iForma" value="fuera"> Ya pagado por fuera de la caja</label>'
+      +'</div></div>'
+      +'<label for="iNota">Nota (opcional)</label><input id="iNota" maxlength="120" placeholder="Ej: factura 1234, llegó a las 5 a. m.">'
+      +'<div class="total-row" style="margin:14px -14px -14px"><span>Total de la factura</span><span class="big num" id="iTotal">$0</span></div>'
+      +'</div></div>'
+      +'<button class="btn" id="iEnviar" style="margin-top:12px">📨 Enviar al sistema</button>'
+      +'<p class="updated">El computador lo registra solo en unos minutos (tiene que estar prendido y con internet). Sube el inventario y la cuenta del proveedor, o sale de la caja y va al cierre.</p>';
+    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Últimos enviados</h2></div>';
+    h+= enviados.length ? '<div class="card">'+enviados.map(function(s){
+        return '<div class="solc"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="m">'+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</span>'+pillSolicitud(s)+'</div>'
+          +'<div class="r">'+esc(s.resumen)+'</div>'+(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
+      }).join("")+'</div>' : '<div class="empty">Aún no has enviado ingresos desde el celular.</div>';
+    host.innerHTML=h;
+
+    var lineas=el("iLineas");
+    function porNombre(t){ t=String(t||"").trim().toLowerCase(); if(!t) return null;
+      return cat.producto.filter(function(p){ return String(p.nombre).toLowerCase()===t || String((p.extra&&p.extra.codigo)||"").toLowerCase()===t; })[0] || null; }
+    function total(){
+      var tot=0;
+      Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
+        var v=valorArroba(row.querySelector(".k").value, row.querySelector(".p").value); tot+=v;
+        var p=porNombre(row.querySelector(".n").value);
+        row.querySelector(".sub").textContent = (row.querySelector(".n").value && !p ? "⚠️ No encuentro ese producto · " : "") + (v?money(v):"");
+      });
+      el("iTotal").textContent=money(tot);
+    }
+    function agregar(){
+      var row=document.createElement("div"); row.className="ilin";
+      row.innerHTML='<input class="n" list="dlProd" placeholder="Producto" autocomplete="off"><input class="k" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos"><input class="p" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Precio"><button type="button" class="x" aria-label="Quitar">✕</button><div class="sub"></div>';
+      row.querySelector(".n").addEventListener("change", function(){
+        var p=porNombre(this.value), pr=row.querySelector(".p");
+        if(p && !pr.value && p.extra && Number(p.extra.precio_compra)) pr.value=p.extra.precio_compra;
+        total();
+      });
+      row.querySelector(".k").addEventListener("input", total);
+      row.querySelector(".p").addEventListener("input", total);
+      row.querySelector(".x").addEventListener("click", function(){ if(lineas.children.length>1){ row.remove(); total(); } });
+      lineas.appendChild(row);
+    }
+    agregar();
+    el("iAdd").onclick=agregar;
+    var prov=el("iProv");
+    function verForma(){ el("iFormaBox").hidden = !prov.value; }
+    prov.onchange=verForma; verForma();
+
+    el("iEnviar").onclick=function(){
+      var btn=this, items=[], resumenL=[], tot=0, malo=null;
+      Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
+        var nom=row.querySelector(".n").value, k=Number(row.querySelector(".k").value||0), pr=Number(row.querySelector(".p").value||0);
+        if(!nom && !k) return;
+        var p=porNombre(nom);
+        if(!p){ malo="No encuentro el producto \""+nom+"\". Elígelo de la lista."; return; }
+        if(!(k>0)){ malo="Falta los kilos de "+p.nombre+"."; return; }
+        items.push({producto_id:p.id, nombre:p.nombre, kilos:k, precio:pr});
+        tot+=valorArroba(k,pr);
+        resumenL.push(p.nombre+" "+kilos(k)+" kg @"+pr);
+      });
+      if(malo){ say(malo); return; }
+      if(!items.length){ say("Agrega al menos un producto con kilos."); return; }
+      var viaje=el("iViaje").value; if(!viaje){ say("Elige el viaje."); return; }
+      var forma = prov.value ? (document.querySelector('input[name="iForma"]:checked')||{}).value : "";
+      var caja = forma==="contado" ? el("iCaja").value : "";
+      var provNom = prov.value ? prov.options[prov.selectedIndex].text : "";
+      var viajeNom = el("iViaje").options[el("iViaje").selectedIndex].text;
+      var formaTxt = !prov.value ? "solo inventario" : forma==="credito" ? "a crédito" : forma==="contado" ? "de contado ("+nombreCaja(caja)+")" : "pagado por fuera de caja";
+      var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+formaTxt+" · viaje "+viajeNom+(el("iNota").value?" · "+el("iNota").value:"");
+      if(!confirm("¿Enviar este ingreso al sistema?\n\n"+resumen)) return;
+      btn.disabled=true; btn.textContent="Enviando…";
+      sb.auth.getSession().then(function(ss){
+        var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
+        return sb.from("solicitud_movil").insert({
+          negocio_id:state.negocioId, origen:"celular", tipo:"ingreso", estado:"aprobada", creado_por:email, resumen:resumen,
+          datos:{ viaje_id:Number(viaje), proveedor_id: prov.value?Number(prov.value):null, forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"" }
+        });
+      }).then(function(res){
+        btn.disabled=false; btn.textContent="📨 Enviar al sistema";
+        if(res.error){ say("No se pudo enviar: "+res.error.message); return; }
+        say("📨 Enviado. El computador lo registra en unos minutos.");
+        loadIngreso();
+      });
+    };
+  }
+
+  // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
+  state.audFiltro="Todo";
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t; }
+  function claseAccion(a){ a=String(a||"");
+    if(/SOLICITUD|APROBADO|RECHAZ/.test(a)) return "Solicitudes";
+    if(/ANUL/.test(a)) return "Anulaciones";
+    if(/EDIT|DESHACER|CORREG|QUITAR/.test(a)) return "Ediciones";
+    if(/INGRESO/.test(a)) return "Ingresos";
+    return "Otros"; }
+  function loadCambios(){
+    var host=sec("cambios"); host.innerHTML='<div class="loading">Cargando…</div>';
+    var neg=state.negocioId;
+    Promise.all([
+      sb.from("solicitud_movil").select("*").eq("negocio_id", neg).eq("estado","pendiente").order("id",{ascending:true}),
+      sb.from("solicitud_movil").select("id,creado,tipo,resumen,estado,error,creado_por,decidido_por,origen").eq("negocio_id", neg).neq("estado","pendiente").order("id",{ascending:false}).limit(25),
+      base("auditoria_mov").order("momento",{ascending:false}).limit(400)
+    ]).then(function(r){
+      if(state.section!=="cambios") return;
+      state.cache.aud=(r[2]&&r[2].data)||[];
+      pintarCambios((r[0]&&r[0].data)||[], (r[1]&&r[1].data)||[]);
+      pintarBadge(((r[0]&&r[0].data)||[]).length);
+    });
+  }
+  function pintarCambios(pend, hist){
+    var host=sec("cambios");
+    var h='<div class="sechead"><h2 class="sec">Solicitudes por aprobar</h2></div>';
+    h+= pend.length ? '<div class="card">'+pend.map(function(s){
+        return '<div class="solc"><div class="t">'+tipoSolicitud(s.tipo)+'</div>'
+          +'<div class="r">'+esc(s.resumen)+'</div>'
+          +'<div class="m">Pidió: '+esc(s.creado_por||"—")+' · '+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</div>'
+          +'<div class="b"><button class="no" data-no="'+s.id+'">❌ Rechazar</button><button class="ok" data-si="'+s.id+'">✅ Aprobar</button></div></div>';
+      }).join("")+'</div>'
+      : '<div class="empty">No hay solicitudes esperando. Cuando un cajero sin permiso pida anular o corregir una venta, aparece aquí.</div>';
+    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Historial de solicitudes</h2></div>';
+    h+= hist.length ? '<div class="card">'+hist.map(function(s){
+        return '<div class="solc"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t">'+tipoSolicitud(s.tipo)+'</span>'+pillSolicitud(s)+'</div>'
+          +'<div class="r">'+esc(s.resumen)+'</div>'
+          +'<div class="m">'+(s.origen==="pc"?'Pidió '+esc(s.creado_por||"—"):'Desde el celular: '+esc(s.creado_por||""))+(s.decidido_por?' · decidió '+esc(s.decidido_por):'')+' · '+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</div>'
+          +(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
+      }).join("")+'</div>' : '<div class="empty">Sin solicitudes todavía.</div>';
+    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Registro de cambios (últimos 7 días)</h2></div>';
+    h+='<div class="tfil" id="audFil">'+["Todo","Anulaciones","Ediciones","Ingresos","Solicitudes","Otros"].map(function(t){ return '<button class="tchip'+(state.audFiltro===t?' on':'')+'" data-af="'+t+'">'+t+'</button>'; }).join("")+'</div>';
+    h+='<div id="audLista"></div>';
+    host.innerHTML=h;
+    Array.prototype.forEach.call(host.querySelectorAll("[data-si]"), function(b){ b.onclick=function(){ decidir(Number(b.dataset.si), true); }; });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-no]"), function(b){ b.onclick=function(){ decidir(Number(b.dataset.no), false); }; });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-af]"), function(b){ b.onclick=function(){ state.audFiltro=b.dataset.af; pintarAuditoria(); Array.prototype.forEach.call(host.querySelectorAll("[data-af]"), function(x){ x.classList.toggle("on", x===b); }); }; });
+    pintarAuditoria();
+  }
+  function pintarAuditoria(){
+    var box=el("audLista"); if(!box) return;
+    var rows=(state.cache.aud||[]).filter(function(a){ return state.audFiltro==="Todo" || claseAccion(a.accion)===state.audFiltro; });
+    if(!rows.length){ box.innerHTML='<div class="empty">Nada en este filtro.</div>'; return; }
+    box.innerHTML='<div class="card">'+rows.slice(0,200).map(function(a){
+      var acc=cap(String(a.accion||"").replace(/_/g," ").toLowerCase());
+      var cambio=(a.antes?esc(a.antes):"")+(a.antes&&a.despues?" → ":"")+(a.despues?esc(a.despues):"");
+      return '<div class="audr"><div style="display:flex;justify-content:space-between;gap:8px"><span class="a">'+esc(acc)+(a.registro?' · '+esc(a.registro):'')+'</span>'
+        +'<span class="m" style="white-space:nowrap">'+new Date(a.momento).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</span></div>'
+        +'<div class="d">'+(a.usuario?'👤 '+esc(a.usuario)+' · ':'')+esc(a.modulo)+(cambio?'<br>'+cambio:'')+'</div></div>';
+    }).join("")+'</div>';
+  }
+  function decidir(id, aprobar){
+    if(!confirm(aprobar ? "¿APROBAR? El computador lo hace solo en unos minutos." : "¿RECHAZAR esta solicitud? No se cambia nada.")) return;
+    sb.rpc("decidir_solicitud", { p_id:id, p_aprobar:aprobar }).then(function(res){
+      if(res.error){ say("No se pudo: "+res.error.message); return; }
+      say(res.data==="ok" ? (aprobar?"✅ Aprobada. El computador la aplica en unos minutos.":"❌ Rechazada.") : String(res.data));
+      loadCambios();
+    });
+  }
+  // Insignia en el chip "Cambios" con las solicitudes que esperan decisión (se revisa cada 30 s).
+  var pendientesAntes=-1;
+  function pintarBadge(n){
+    var b=el("badgeCambios"); if(!b) return;
+    b.hidden = !n; b.textContent = n;
+    if(pendientesAntes>=0 && n>pendientesAntes){
+      say("🛡️ Hay una solicitud de cambio esperando tu aprobación");
+      try{ if(window.Notification && Notification.permission==="granted") new Notification("PescaFácil", { body:"Hay una solicitud de cambio esperando tu aprobación" }); }catch(e){}
+    }
+    pendientesAntes=n;
+  }
+  function contarPendientes(){
+    if(!state.negocioId) return;
+    sb.from("solicitud_movil").select("id",{count:"exact", head:true}).eq("negocio_id", state.negocioId).eq("estado","pendiente").then(function(r){
+      if(!r.error) pintarBadge(r.count||0);
+    });
+  }
+  setInterval(contarPendientes, 30000);
 
   // INVENTARIO
   function loadInventario(){
