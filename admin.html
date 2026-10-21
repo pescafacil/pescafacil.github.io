@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PescaFácil Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --ocean:#0e4f78; --ocean-deep:#0a3c5c; --coral:#ef7b45; --coral-deep:#d9602b;
+    --bg:#eef2f5; --surface:#ffffff; --ink:#15242e; --muted:#5e7180; --line:#dce4ea; --chip:#f3f6f8;
+    --good:#1f9d63; --good-bg:#e4f5ec; --warn:#d98a16; --warn-bg:#fbf1dd;
+    --bad:#d6483b; --bad-bg:#fbe5e3; --info:#2b74b8; --info-bg:#e4eefb;
+    --shadow:0 1px 2px rgba(16,40,60,.06), 0 6px 18px rgba(16,40,60,.06);
+    --f-ui:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --ocean:#0c3a57; --ocean-deep:#08293d; --coral:#f08a58; --coral-deep:#e06f38;
+    --bg:#0b141b; --surface:#122330; --ink:#e7eef3; --muted:#8aa0ae; --line:#1f3443; --chip:#0f1d28;
+    --good:#3bbd80; --good-bg:#10362a; --warn:#e0a63f; --warn-bg:#352a12;
+    --bad:#ef6a5d; --bad-bg:#3a1e1c; --info:#5a9fe0; --info-bg:#122c42; } }
+  :root[data-theme="dark"]{
+    --ocean:#0c3a57; --ocean-deep:#08293d; --coral:#f08a58; --coral-deep:#e06f38;
+    --bg:#0b141b; --surface:#122330; --ink:#e7eef3; --muted:#8aa0ae; --line:#1f3443; --chip:#0f1d28;
+    --good:#3bbd80; --good-bg:#10362a; --warn:#e0a63f; --warn-bg:#352a12;
+    --bad:#ef6a5d; --bad-bg:#3a1e1c; --info:#5a9fe0; --info-bg:#122c42; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--f-ui); -webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px; margin:0 auto; padding:0 16px 40px}
+  header{background:linear-gradient(135deg,var(--ocean),var(--ocean-deep)); color:#fff; padding:18px 16px}
+  header .in{max-width:760px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:10px}
+  header h1{margin:0; font-size:1.2rem; font-weight:800}
+  header p{margin:2px 0 0; opacity:.8; font-size:.8rem}
+  .out{appearance:none; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); color:#fff; border-radius:10px; padding:8px 12px; font:700 .8rem var(--f-ui); cursor:pointer}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:16px; margin-top:16px}
+  h2{font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:22px 0 0}
+  label{display:block; font-size:.72rem; font-weight:700; color:var(--muted); margin:12px 0 5px}
+  input{width:100%; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:10px; padding:11px 12px; font:500 .95rem var(--f-ui)}
+  input:focus{outline:2px solid var(--ocean); outline-offset:1px}
+  .fila{display:flex; gap:8px; align-items:center}
+  .fila input{flex:1; min-width:0}
+  .btn{appearance:none; border:none; border-radius:12px; padding:12px 16px; font:800 .95rem var(--f-ui); cursor:pointer; background:linear-gradient(135deg,var(--coral),var(--coral-deep)); color:#fff; width:100%; margin-top:14px}
+  .btn:disabled{opacity:.6; cursor:wait}
+  .b2{appearance:none; border:1px solid var(--line); background:var(--chip); color:var(--ocean); border-radius:10px; padding:8px 11px; font:700 .8rem var(--f-ui); cursor:pointer; white-space:nowrap}
+  .b2.peligro{color:var(--bad)}
+  .err{color:var(--bad); font-size:.85rem; margin:8px 0 0; min-height:1px}
+  .muted{color:var(--muted); font-size:.8rem}
+  .pill{font-size:.68rem; font-weight:800; padding:3px 8px; border-radius:999px; white-space:nowrap}
+  .pill.good{background:var(--good-bg); color:var(--good)} .pill.bad{background:var(--bad-bg); color:var(--bad)} .pill.warn{background:var(--warn-bg); color:var(--warn)}
+  .neg{padding:14px 0; border-top:1px solid var(--line)}
+  .neg:first-child{border-top:none; padding-top:0}
+  .neg .top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+  .neg .nom{font-weight:800; font-size:1rem}
+  .token{font-family:ui-monospace, Consolas, monospace; font-size:.8rem; background:var(--chip); border:1px dashed var(--line); border-radius:8px; padding:7px 9px; word-break:break-all; flex:1}
+  .duenos{margin:8px 0 0; padding:0; list-style:none}
+  .duenos li{display:flex; justify-content:space-between; gap:8px; align-items:center; font-size:.86rem; padding:5px 0}
+  .acciones{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+  .ok{background:var(--good-bg); border:1px solid var(--good); border-radius:14px; padding:14px; margin-top:14px}
+  .ok h3{margin:0 0 6px; color:var(--good); font-size:1rem}
+  textarea{width:100%; min-height:150px; border:1px solid var(--line); border-radius:10px; padding:10px; font:500 .85rem var(--f-ui); background:var(--surface); color:var(--ink)}
+  #toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#15242e; color:#fff; padding:10px 16px; border-radius:12px; font-size:.85rem; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw}
+  #toast.show{opacity:1}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div><h1>PescaFácil · Administración</h1><p>Clientes del tablero móvil</p></div>
+  <button class="out" id="salir" hidden>Salir</button>
+</div></header>
+
+<div class="wrap">
+  <!-- Entrada -->
+  <div id="vLogin" class="card">
+    <p class="muted" style="margin-top:0">Entra con tu cuenta de administrador.</p>
+    <form id="fLogin">
+      <label for="lEmail">Correo</label><input id="lEmail" type="email" autocomplete="username" required>
+      <label for="lClave">Contraseña</label><input id="lClave" type="password" autocomplete="current-password" required>
+      <p class="err" id="lErr"></p>
+      <button class="btn" id="lBtn" type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <div id="vApp" hidden>
+    <h2>Cliente nuevo</h2>
+    <div class="card">
+      <form id="fNuevo">
+        <label for="nNombre">Nombre del negocio</label>
+        <input id="nNombre" maxlength="80" placeholder="Ej: Pescadería Don Jorge" required>
+        <label for="nEmail">Correo del dueño (con este entra al celular)</label>
+        <input id="nEmail" type="email" autocomplete="off" placeholder="correo@cliente.com" required>
+        <label for="nClave">Clave inicial (el cliente la cambia después con 🔑)</label>
+        <div class="fila"><input id="nClave" autocomplete="off" minlength="6" placeholder="mínimo 6 caracteres"><button type="button" class="b2" id="nGenerar">Generar</button></div>
+        <p class="muted" style="margin:6px 0 0">Si ese correo ya tiene cuenta (otro negocio suyo), se usa la misma y la clave no cambia.</p>
+        <p class="err" id="nErr"></p>
+        <button class="btn" id="nBtn" type="submit">Crear cliente</button>
+      </form>
+      <div class="ok" id="nOk" hidden>
+        <h3>✅ Cliente creado</h3>
+        <label>Token: pégalo en su PC (Configuración → Tablero móvil)</label>
+        <div class="fila"><div class="token" id="okToken"></div><button type="button" class="b2" id="okCopiarToken">Copiar</button></div>
+        <label for="okMsg">Mensaje para el cliente</label>
+        <textarea id="okMsg"></textarea>
+        <div class="acciones">
+          <button type="button" class="b2" id="okCopiarMsg">Copiar mensaje</button>
+          <a class="b2" id="okWhats" target="_blank" rel="noopener" style="text-decoration:none">Enviar por WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="display:flex;justify-content:space-between;align-items:center">Clientes <button type="button" class="b2" id="recargar">Actualizar</button></h2>
+    <div class="card">
+      <input id="buscar" placeholder="Buscar negocio o correo…" style="margin-bottom:12px">
+      <div id="lista"><p class="muted">Cargando…</p></div>
+    </div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SUPABASE_URL = "https://phrsccoipcgjxlqlctjl.supabase.co";
+  var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBocnNjY29pcGNnanhscWxjdGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMDUyNjEsImV4cCI6MjEwNzc4MTI2MX0.KfNT_coWocg1GG6PaVP79kSYve-9rbI5l-_xs9DzSE4";
+  var LINK_CLIENTE = "https://pescafacil.github.io/";
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  var negocios = [];
+
+  function el(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+  var tt; function say(m){ var t=el("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(tt); tt=setTimeout(function(){ t.classList.remove("show"); },2600); }
+  function copiar(txt, msg){ (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function(){ say(msg||"Copiado"); }, function(){ window.prompt("Copia esto:", txt); }); }
+  function hace(iso){
+    if(!iso) return "nunca";
+    var s=(Date.now()-new Date(iso).getTime())/1000;
+    if(s<90) return "hace un momento"; if(s<3600) return "hace "+Math.round(s/60)+" min";
+    if(s<86400) return "hace "+Math.round(s/3600)+" h"; return "hace "+Math.round(s/86400)+" días";
+  }
+  function claveAlAzar(){
+    var a="abcdefghjkmnpqrstuvwxyz", d="23456789", r="";
+    var n=new Uint32Array(6); crypto.getRandomValues(n);
+    for(var i=0;i<4;i++) r+=a[n[i]%a.length];
+    return r.charAt(0).toUpperCase()+r.slice(1)+d[n[4]%d.length]+d[n[5]%d.length];
+  }
+
+  function api(body){
+    return sb.functions.invoke("admin", { body: body }).then(function(res){
+      if(res.error){
+        // El mensaje de la función viene en el cuerpo de la respuesta de error.
+        var ctx=res.error.context;
+        if(ctx && typeof ctx.json==="function") return ctx.json().then(function(j){ throw new Error((j&&j.error)||res.error.message); }, function(){ throw res.error; });
+        throw res.error;
+      }
+      if(res.data && res.data.error) throw new Error(res.data.error);
+      return res.data;
+    });
+  }
+
+  // ----- Entrada -----
+  el("fLogin").addEventListener("submit", function(e){
+    e.preventDefault();
+    var b=el("lBtn"); b.disabled=true; b.textContent="Entrando…"; el("lErr").textContent="";
+    sb.auth.signInWithPassword({ email: el("lEmail").value.trim(), password: el("lClave").value }).then(function(r){
+      b.disabled=false; b.textContent="Entrar";
+      if(r.error){ el("lErr").textContent = /Invalid login/i.test(r.error.message) ? "Correo o contraseña incorrectos." : r.error.message; return; }
+      entrar();
+    });
+  });
+  el("salir").onclick=function(){ sb.auth.signOut().then(function(){ location.reload(); }); };
+  sb.auth.getSession().then(function(r){ if(r.data && r.data.session) entrar(); });
+
+  function entrar(){
+    el("vLogin").hidden=true; el("vApp").hidden=false; el("salir").hidden=false;
+    el("nClave").value=claveAlAzar();
+    cargar();
+  }
+
+  function cargar(){
+    el("lista").innerHTML='<p class="muted">Cargando…</p>';
+    api({ accion:"listar" }).then(function(d){ negocios=d.negocios||[]; pintar(); }, function(err){
+      if(/no es administradora/i.test(err.message)){ el("vApp").hidden=true; el("vLogin").hidden=false; el("lErr").textContent="Esa cuenta no es de administrador."; sb.auth.signOut(); return; }
+      el("lista").innerHTML='<p class="err">No se pudo cargar: '+esc(err.message)+'</p>';
+    });
+  }
+  el("recargar").onclick=cargar;
+  el("buscar").addEventListener("input", pintar);
+
+  function pintar(){
+    var q=el("buscar").value.trim().toLowerCase();
+    var vis=negocios.filter(function(n){
+      return !q || n.nombre.toLowerCase().indexOf(q)>=0 || n.duenos.some(function(d){ return d.email.toLowerCase().indexOf(q)>=0; });
+    });
+    if(!vis.length){ el("lista").innerHTML='<p class="muted">'+(negocios.length?"Nada con esa búsqueda.":"Todavía no hay clientes.")+'</p>'; return; }
+    el("lista").innerHTML=vis.map(function(n){
+      var sync = n.ultima_sync ? '<span class="pill '+((Date.now()-new Date(n.ultima_sync))<3600e3?'good':'warn')+'">PC: '+hace(n.ultima_sync)+'</span>' : '<span class="pill bad">PC: sin conectar</span>';
+      return '<div class="neg" data-id="'+n.id+'">'
+        +'<div class="top"><div><div class="nom">'+esc(n.nombre)+'</div><div class="muted">Creado '+new Date(n.creado).toLocaleDateString("es-CO")+'</div></div>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+sync+(n.activo?'':'<span class="pill bad">Pausado</span>')+'</div></div>'
+        +'<div class="fila" style="margin-top:10px"><div class="token">'+esc(n.token)+'</div><button type="button" class="b2" data-a="copiar">Copiar token</button></div>'
+        +'<ul class="duenos">'+(n.duenos.length?n.duenos.map(function(d){
+            return '<li><span>👤 '+esc(d.email)+' <span class="muted">· entró '+hace(d.ultimo_ingreso)+'</span></span><button type="button" class="b2" data-a="clave" data-u="'+d.user_id+'" data-e="'+esc(d.email)+'">Nueva clave</button></li>';
+          }).join(""):'<li class="muted">Sin correo vinculado</li>')+'</ul>'
+        +'<div class="acciones"><button type="button" class="b2" data-a="vincular">+ Otro correo</button><button type="button" class="b2" data-a="renombrar">Renombrar</button>'
+        +'<button type="button" class="b2 '+(n.activo?'peligro':'')+'" data-a="activo">'+(n.activo?'Pausar':'Reactivar')+'</button></div>'
+        +'</div>';
+    }).join("");
+  }
+
+  el("lista").addEventListener("click", function(e){
+    var b=e.target.closest("button[data-a]"); if(!b) return;
+    var box=b.closest(".neg"), n=negocios.filter(function(x){ return x.id===box.getAttribute("data-id"); })[0]; if(!n) return;
+    var a=b.getAttribute("data-a");
+    if(a==="copiar") return copiar(n.token, "Token copiado");
+    if(a==="clave"){
+      var nueva=window.prompt("Nueva clave para "+b.getAttribute("data-e")+" (mínimo 6 caracteres):", claveAlAzar());
+      if(!nueva) return;
+      return api({ accion:"clave", user_id:b.getAttribute("data-u"), clave:nueva }).then(function(){ copiar(nueva, "Clave cambiada y copiada: "+nueva); }, function(err){ say("No se pudo: "+err.message); });
+    }
+    if(a==="vincular"){
+      var correo=window.prompt("Correo que también podrá ver "+n.nombre+":"); if(!correo) return;
+      var clave=claveAlAzar();
+      return api({ accion:"vincular", negocio_id:n.id, email:correo, clave:clave }).then(function(d){
+        if(d.cuenta_nueva){ copiar(clave); window.alert("Listo. Cuenta nueva:\n"+d.email+"\nClave: "+clave+"\n\n(la clave quedó copiada)"); } else say("Listo: ese correo ya tenía cuenta, ahora también ve este negocio.");
+        cargar();
+      }, function(err){ say("No se pudo: "+err.message); });
+    }
+    if(a==="renombrar"){
+      var nom=window.prompt("Nuevo nombre del negocio:", n.nombre); if(!nom || nom===n.nombre) return;
+      return api({ accion:"renombrar", negocio_id:n.id, nombre:nom }).then(cargar, function(err){ say("No se pudo: "+err.message); });
+    }
+    if(a==="activo"){
+      if(n.activo && !window.confirm("¿Pausar "+n.nombre+"?\nSu PC deja de subir datos hasta que lo reactives (por ejemplo, si no pagó).")) return;
+      return api({ accion:"activo", negocio_id:n.id, activo:!n.activo }).then(cargar, function(err){ say("No se pudo: "+err.message); });
+    }
+  });
+
+  // ----- Cliente nuevo -----
+  el("nGenerar").onclick=function(){ el("nClave").value=claveAlAzar(); };
+  el("fNuevo").addEventListener("submit", function(e){
+    e.preventDefault();
+    var nombre=el("nNombre").value.trim(), email=el("nEmail").value.trim(), clave=el("nClave").value;
+    if(clave && clave.length<6){ el("nErr").textContent="La clave debe tener al menos 6 caracteres."; return; }
+    var b=el("nBtn"); b.disabled=true; b.textContent="Creando…"; el("nErr").textContent=""; el("nOk").hidden=true;
+    api({ accion:"crear", nombre:nombre, email:email, clave:clave }).then(function(d){
+      b.disabled=false; b.textContent="Crear cliente";
+      el("okToken").textContent=d.negocio.token;
+      var msg="Hola 👋 Ya puedes ver tu negocio "+d.negocio.nombre+" desde el celular:\n\n"
+        +"1. Entra a "+LINK_CLIENTE+"\n"
+        +"2. Correo: "+d.email+"\n"
+        +(d.cuenta_nueva ? "3. Clave: "+clave+"\n\nCuando entres, toca la 🔑 de arriba para cambiarla por una tuya." : "3. Tu clave es la misma que ya usas.")
+        +"\n\nTip: en el menú del navegador elige \"Agregar a pantalla de inicio\" para tenerlo como una app.";
+      el("okMsg").value=msg;
+      el("okWhats").href="https://wa.me/?text="+encodeURIComponent(msg);
+      el("nOk").hidden=false;
+      el("fNuevo").reset(); el("nClave").value=claveAlAzar();
+      cargar();
+    }, function(err){
+      b.disabled=false; b.textContent="Crear cliente";
+      el("nErr").textContent = /already been registered|already registered/i.test(err.message) ? "Ese correo ya tiene cuenta." : err.message;
+    });
+  });
+  el("okCopiarToken").onclick=function(){ copiar(el("okToken").textContent, "Token copiado"); };
+  el("okCopiarMsg").onclick=function(){ copiar(el("okMsg").value, "Mensaje copiado"); };
+})();
+</script>
+</body>
+</html>
