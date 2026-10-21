@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.3",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.3/PescaFacil-Actualizacion-1.4.3.exe",
-    "sha256":  "4c866b22e34893900c1bae7c965cab23aa521fc37d0975724c102edb37c33f8e",
-    "notas":  "Pie de la factura centrado. Nombres de clientes, proveedores y productos siempre en mayusculas. Al crear un viaje el codigo viene sugerido (se puede cambiar). Tipo de viaje Bagre ajustado. Herramienta para limpiar los datos desde la USB.",
+    "version":  "1.4.4",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.4/PescaFacil-Actualizacion-1.4.4.exe",
+    "sha256":  "e4a23d94a67aeefb0a6f6531355e815f371f55cf0a54d7ca0d51bc1a0e7f1e4d",
+    "notas":  "Casilla Mostrar contrasena en el inicio de sesion y al crear o editar usuarios.",
     "fecha":  "2026-10-21"
 }
