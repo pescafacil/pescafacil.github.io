@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.5",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.5/PescaFacil-Actualizacion-1.4.5.exe",
-    "sha256":  "e05824ff15013fae3d536e31921c62557b87f0876ad691e2e2560f7f0c60bc7c",
-    "notas":  "Factura mas profesional con los datos del cliente (cedula/NIT, direccion, telefono, correo). Clientes con cedula y correo. Todos los tiquetes (abono, prestamo, pago, estado de cuenta y cierre de caja) con el estilo nuevo.",
+    "version":  "1.4.6",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.6/PescaFacil-Actualizacion-1.4.6.exe",
+    "sha256":  "8902bfff504496976c76f227ef27c08b9feb633d44e01053c90d2f216dce37f2",
+    "notas":  "Factura con los datos del cliente siempre completos (NIT/C.C, direccion, telefono, correo); los que falten salen como N/A.",
     "fecha":  "2026-10-21"
 }
