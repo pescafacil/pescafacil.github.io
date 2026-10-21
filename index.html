@@ -249,6 +249,7 @@
   .usr .p{display:flex; flex-direction:column; align-items:flex-end; gap:4px}
   .chk{display:flex !important; align-items:center; gap:8px; font-size:.88rem !important; color:var(--ink) !important; font-weight:600 !important}
   .chk input{width:auto !important}
+  .vclave{margin:-6px 0 14px; font-size:.82rem !important; color:var(--muted) !important; cursor:pointer}
   .perm{width:100%; border-collapse:collapse; font-size:.8rem}
   .perm th{font-size:.64rem; color:var(--muted); font-weight:800; text-align:center; padding:6px 2px}
   .perm th:first-child{text-align:left}
@@ -287,6 +288,7 @@
       <label for="pass">Contraseña</label>
       <input type="password" id="pass" name="password" autocomplete="current-password" placeholder="••••••••" required>
     </div>
+    <label class="chk vclave"><input type="checkbox" data-ver="pass"> Mostrar contraseña</label>
     <button class="btn" id="loginBtn" type="submit">Entrar</button>
     <button type="button" id="forgotBtn" class="linkbtn">¿Olvidaste tu contraseña?</button>
     <p class="lhint">Usa el correo y la contraseña que te dieron.<br>Solo verás la información de tu negocio.</p>
@@ -311,6 +313,7 @@
       <label for="npass2">Repite la nueva contraseña</label>
       <input type="password" id="npass2" autocomplete="new-password" placeholder="la misma de arriba" required>
     </div>
+    <label class="chk vclave"><input type="checkbox" data-ver="npass,npass2"> Mostrar contraseñas</label>
     <button class="btn" id="recoveryBtn" type="submit">Guardar y entrar</button>
     <button type="button" id="recoveryCancel" class="linkbtn" hidden>Cancelar</button>
   </form>
@@ -398,6 +401,13 @@
   function kilos(n){ n=Number(n||0); return n.toLocaleString("es-CO",{minimumFractionDigits:1, maximumFractionDigits:1}); }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
   function el(id){ return document.getElementById(id); }
+  // "Mostrar contraseña": cualquier casilla con data-ver="id1,id2" destapa esos campos (también los
+  // que se crean después, como el editor de usuarios).
+  document.addEventListener("change", function(e){
+    var ids = e.target && e.target.getAttribute && e.target.getAttribute("data-ver");
+    if(!ids) return;
+    ids.split(",").forEach(function(id){ var i=el(id.trim()); if(i) i.type = e.target.checked ? "text" : "password"; });
+  });
   var tt; function say(msg){ var t=el("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(tt); tt=setTimeout(function(){ t.classList.remove("show"); },2400); }
   function dayLabel(s){ try{ return parseISO(s).toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"short",year:"numeric"}); }catch(e){ return s; } }
 
@@ -1464,6 +1474,7 @@
       +'<label class="chk"><input type="checkbox" id="uActivo"'+(nuevo||x.activo?' checked':'')+'> Activo (puede entrar al programa)</label>'
       +'<label for="uPass">'+(nuevo?'Contraseña':'Contraseña nueva (déjala vacía para no cambiarla)')+'</label><input id="uPass" type="password" maxlength="60" autocomplete="new-password">'
       +'<label for="uPass2">Repetir la contraseña</label><input id="uPass2" type="password" maxlength="60" autocomplete="new-password">'
+      +'<label class="chk"><input type="checkbox" data-ver="uPass,uPass2"> Mostrar contraseñas</label>'
       +'</div></div>';
     h+='<div class="sechead" style="margin-top:18px;display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 class="sec">Permisos</h2><button type="button" class="btn2" id="uPlantilla">↺ Los del rol</button></div>';
     h+='<div class="card" style="padding:4px 12px 10px"><table class="perm"><thead><tr><th>Módulo</th><th>Ver</th><th>Crear</th><th>Editar</th><th>Borrar</th></tr></thead><tbody id="uPerm"></tbody></table></div>';

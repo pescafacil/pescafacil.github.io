@@ -78,6 +78,8 @@
     <form id="fLogin">
       <label for="lEmail">Correo</label><input id="lEmail" type="email" autocomplete="username" required>
       <label for="lClave">Contraseña</label><input id="lClave" type="password" autocomplete="current-password" required>
+      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 0;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer">
+        <input type="checkbox" style="width:auto" onchange="document.getElementById('lClave').type = this.checked ? 'text' : 'password'"> Mostrar contraseña</label>
       <p class="err" id="lErr"></p>
       <button class="btn" id="lBtn" type="submit">Entrar</button>
     </form>
