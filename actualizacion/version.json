@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.6",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.6/PescaFacil-Actualizacion-1.4.6.exe",
-    "sha256":  "8902bfff504496976c76f227ef27c08b9feb633d44e01053c90d2f216dce37f2",
-    "notas":  "Factura con los datos del cliente siempre completos (NIT/C.C, direccion, telefono, correo); los que falten salen como N/A.",
+    "version":  "1.4.7",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.7/PescaFacil-Actualizacion-1.4.7.exe",
+    "sha256":  "56a16a1d34a8cd286c8170f4fa5904590193d94f4fb723fafb7ad00f300df1e9",
+    "notas":  "Al editar o crear un producto con un codigo que ya tiene otro, ahora deja intercambiar los codigos o pasar el otro producto al siguiente codigo libre.",
     "fecha":  "2026-10-21"
 }
