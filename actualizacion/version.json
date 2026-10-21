@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.4",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.4/PescaFacil-Actualizacion-1.4.4.exe",
-    "sha256":  "e4a23d94a67aeefb0a6f6531355e815f371f55cf0a54d7ca0d51bc1a0e7f1e4d",
-    "notas":  "Casilla Mostrar contrasena en el inicio de sesion y al crear o editar usuarios.",
+    "version":  "1.4.5",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.5/PescaFacil-Actualizacion-1.4.5.exe",
+    "sha256":  "e05824ff15013fae3d536e31921c62557b87f0876ad691e2e2560f7f0c60bc7c",
+    "notas":  "Factura mas profesional con los datos del cliente (cedula/NIT, direccion, telefono, correo). Clientes con cedula y correo. Todos los tiquetes (abono, prestamo, pago, estado de cuenta y cierre de caja) con el estilo nuevo.",
     "fecha":  "2026-10-21"
 }
