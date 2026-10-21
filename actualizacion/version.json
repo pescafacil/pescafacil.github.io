@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.7",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.7/PescaFacil-Actualizacion-1.4.7.exe",
-    "sha256":  "56a16a1d34a8cd286c8170f4fa5904590193d94f4fb723fafb7ad00f300df1e9",
-    "notas":  "Al editar o crear un producto con un codigo que ya tiene otro, ahora deja intercambiar los codigos o pasar el otro producto al siguiente codigo libre.",
+    "version":  "1.4.8",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.8/PescaFacil-Actualizacion-1.4.8.exe",
+    "sha256":  "6b31c532259717c5c77ffa748b449ca85d5c6b7b439456a6e6534a05d2d6f379",
+    "notas":  "Mas liviano con el tablero del celular: solo sube lo que cambio (antes subia todo cada 3 minutos). Limpieza automatica de respaldos viejos en la carpeta de Drive/OneDrive.",
     "fecha":  "2026-10-21"
 }
