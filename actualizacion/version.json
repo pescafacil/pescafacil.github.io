@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.1",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.1/PescaFacil-Actualizacion-1.4.1.exe",
-    "sha256":  "f01ab6c9df9b58d61c3fffd52f877020f1845d1cbb80cd406a15f1474bb1facb",
-    "notas":  "La factura ya no imprime la linea del programa ni el telefono del desarrollador: solo los datos y el pie del negocio. Configuracion reorganizada por temas, con la opcion de imprimir las facturas con o sin saldo a la vista.",
+    "version":  "1.4.2",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.2/PescaFacil-Actualizacion-1.4.2.exe",
+    "sha256":  "e0dc49a218033adaa4cd891d866808e8811bf15c65a3862a451eb4159b662b4d",
+    "notas":  "Tipos de viaje (Mojarreros, Bagre, Congelados): se manejan en Configuracion y al crear un viaje cargan sus productos; kilos y precio se escriben en la lista. Boton Editar en el buscador de productos (venta, viaje, prestamo...). Configuracion mas ordenada.",
     "fecha":  "2026-10-20"
 }
