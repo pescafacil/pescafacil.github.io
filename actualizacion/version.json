@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.8",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.8/PescaFacil-Actualizacion-1.4.8.exe",
-    "sha256":  "6b31c532259717c5c77ffa748b449ca85d5c6b7b439456a6e6534a05d2d6f379",
-    "notas":  "Mas liviano con el tablero del celular: solo sube lo que cambio (antes subia todo cada 3 minutos). Limpieza automatica de respaldos viejos en la carpeta de Drive/OneDrive.",
+    "version":  "1.4.9",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.9/PescaFacil-Actualizacion-1.4.9.exe",
+    "sha256":  "49e3013a48d4a07796387ea1a0ae42e1a8a85c8f7efd79fb76fcc9c44aa8220f",
+    "notas":  "Viajes sin salir de la venta: F6 crea un viaje nuevo y F4 hace el ingreso al viaje elegido. Si el viaje no tiene el producto, se agrega solo al vender. Venta rapida siempre muestra los viajes. Nuevo viaje con unidad de compra (arroba, kilo, caja o unidad) que se respeta en la cuenta del proveedor y los balances. Kilos y precio vacios en Nuevo viaje e Ingreso.",
     "fecha":  "2026-10-21"
 }
