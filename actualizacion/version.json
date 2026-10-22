@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.9",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.9/PescaFacil-Actualizacion-1.4.9.exe",
-    "sha256":  "49e3013a48d4a07796387ea1a0ae42e1a8a85c8f7efd79fb76fcc9c44aa8220f",
-    "notas":  "Viajes sin salir de la venta: F6 crea un viaje nuevo y F4 hace el ingreso al viaje elegido. Si el viaje no tiene el producto, se agrega solo al vender. Venta rapida siempre muestra los viajes. Nuevo viaje con unidad de compra (arroba, kilo, caja o unidad) que se respeta en la cuenta del proveedor y los balances. Kilos y precio vacios en Nuevo viaje e Ingreso.",
-    "fecha":  "2026-10-21"
+    "version":  "1.4.10",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.10/PescaFacil-Actualizacion-1.4.10.exe",
+    "sha256":  "9f3659fd22d7f73264b8691c2dfe9fc59330afb79421307e92e3cbf1c85f00e2",
+    "notas":  "Viajes de comision: el ingreso rapido ya no le carga la mercancia al proveedor ni la saca de la caja; la utilidad de lo vendido en comision es el % de comision; la mercancia de comision ya no cuenta como inventario propio. Nueva liquidacion de comision igual al papel del terminal (por producto y precio, stock, abonos, flete, comision y valor a pagar), para imprimir en la POS y en Excel. Nueva opcion en Configuracion: en la factura a credito destacar el SALDO FINAL en grande.",
+    "fecha":  "2026-10-22"
 }
