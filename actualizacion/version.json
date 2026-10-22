@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.10",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.10/PescaFacil-Actualizacion-1.4.10.exe",
-    "sha256":  "9f3659fd22d7f73264b8691c2dfe9fc59330afb79421307e92e3cbf1c85f00e2",
-    "notas":  "Viajes de comision: el ingreso rapido ya no le carga la mercancia al proveedor ni la saca de la caja; la utilidad de lo vendido en comision es el % de comision; la mercancia de comision ya no cuenta como inventario propio. Nueva liquidacion de comision igual al papel del terminal (por producto y precio, stock, abonos, flete, comision y valor a pagar), para imprimir en la POS y en Excel. Nueva opcion en Configuracion: en la factura a credito destacar el SALDO FINAL en grande.",
+    "version":  "1.4.11",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.11/PescaFacil-Actualizacion-1.4.11.exe",
+    "sha256":  "93381b1b7c154be210310acd0a0835d5a3e1b9c3de5432b720a924cb50fac23a",
+    "notas":  "Factura: el nombre del cliente sale mas grande. Con la opcion de Configuracion \u0027destacar el SALDO FINAL\u0027, el recibo de abono tambien muestra en grande el saldo que queda despues del abono. La cifra grande se achica sola si no cabe.",
     "fecha":  "2026-10-22"
 }
