@@ -4,35 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PescaFácil Móvil</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
+  /* Colores del programa de escritorio (Utilidades/Colores.cs): menú azul marino, azul principal,
+     verde de éxito, fondos gris azulado claro y letra Segoe UI. --ocean = barra/menú, --coral = acento. */
   :root{
-    --ocean:#0e4f78; --ocean-deep:#0a3c5c; --coral:#ef7b45; --coral-deep:#d9602b;
-    --bg:#eef2f5; --surface:#ffffff; --ink:#15242e; --muted:#5e7180; --line:#dce4ea;
-    --good:#1f9d63; --good-bg:#e4f5ec; --warn:#d98a16; --warn-bg:#fbf1dd;
-    --bad:#d6483b; --bad-bg:#fbe5e3; --info:#2b74b8; --info-bg:#e4eefb;
-    --purple:#7a53c6; --purple-bg:#ece4fa;
-    --shadow:0 1px 2px rgba(16,40,60,.08), 0 6px 20px rgba(16,40,60,.06);
-    --chip:#ffffff; --chip-line:#d3dde4;
-    --f-ui:"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --ocean:#0f172a; --ocean-deep:#1e293b; --coral:#3b82f6; --coral-deep:#2563eb;
+    --bg:#f1f5f9; --surface:#ffffff; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
+    --good:#059669; --good-bg:#d1fae5; --warn:#d97706; --warn-bg:#fef3c7;
+    --bad:#dc2626; --bad-bg:#fee2e2; --info:#2563eb; --info-bg:#dbeafe;
+    --purple:#7c3aed; --purple-bg:#ede9fe; --verde:#10b981;
+    --shadow:0 1px 2px rgba(15,23,42,.06), 0 4px 14px rgba(15,23,42,.06);
+    --chip:#ffffff; --chip-line:#cbd5e1; --menu:#0f172a; --menu-txt:#94a3b8; --menu-hover:#1e293b;
+    --f-ui:"Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-    --ocean:#0c3a57; --ocean-deep:#08293d; --coral:#f08a58; --coral-deep:#e06f38;
-    --bg:#0b141b; --surface:#122330; --ink:#e7eef3; --muted:#8aa0ae; --line:#1f3443;
-    --good:#3bbd80; --good-bg:#10362a; --warn:#e0a63f; --warn-bg:#352a12;
-    --bad:#ef6a5d; --bad-bg:#3a1e1c; --info:#5a9fe0; --info-bg:#122c42;
-    --purple:#a98ce0; --purple-bg:#241a3b;
+    --ocean:#0b1220; --ocean-deep:#111c2e; --coral:#3b82f6; --coral-deep:#2563eb;
+    --bg:#0b1220; --surface:#111c2e; --ink:#e2e8f0; --muted:#94a3b8; --line:#1e293b;
+    --good:#34d399; --good-bg:#063b2c; --warn:#fbbf24; --warn-bg:#3a2a0a;
+    --bad:#f87171; --bad-bg:#3b1414; --info:#60a5fa; --info-bg:#10264a;
+    --purple:#a78bfa; --purple-bg:#241a3b;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
-    --chip:#16293a; --chip-line:#274055; color-scheme:dark;
+    --chip:#16233a; --chip-line:#26344d; --menu:#070d18; --menu-hover:#16233a; color-scheme:dark;
   }}
   :root[data-theme="dark"]{
-    --ocean:#0c3a57; --ocean-deep:#08293d; --coral:#f08a58; --coral-deep:#e06f38;
-    --bg:#0b141b; --surface:#122330; --ink:#e7eef3; --muted:#8aa0ae; --line:#1f3443;
-    --good:#3bbd80; --good-bg:#10362a; --warn:#e0a63f; --warn-bg:#352a12;
-    --bad:#ef6a5d; --bad-bg:#3a1e1c; --info:#5a9fe0; --info-bg:#122c42;
-    --purple:#a98ce0; --purple-bg:#241a3b;
+    --ocean:#0b1220; --ocean-deep:#111c2e; --coral:#3b82f6; --coral-deep:#2563eb;
+    --bg:#0b1220; --surface:#111c2e; --ink:#e2e8f0; --muted:#94a3b8; --line:#1e293b;
+    --good:#34d399; --good-bg:#063b2c; --warn:#fbbf24; --warn-bg:#3a2a0a;
+    --bad:#f87171; --bad-bg:#3b1414; --info:#60a5fa; --info-bg:#10264a;
+    --purple:#a78bfa; --purple-bg:#241a3b;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
-    --chip:#16293a; --chip-line:#274055; color-scheme:dark;
+    --chip:#16233a; --chip-line:#26344d; --menu:#070d18; --menu-hover:#16233a; color-scheme:dark;
   }
   *{box-sizing:border-box}
   html,body{margin:0; padding:0}
@@ -267,6 +268,45 @@
   .audr{padding:10px 14px; border-top:1px solid var(--line); font-size:.82rem}
   .audr:first-child{border-top:none}
   .audr .a{font-weight:700} .audr .d{color:var(--muted); font-size:.74rem; margin-top:3px; white-space:normal; word-break:break-word}
+
+  /* Venta externa registrada desde el celular: celeste (igual que en Transacciones del programa) */
+  table.ttx tbody tr.cel{background:#a5f3fc} table.ttx tbody tr.cel td.tv,table.ttx tbody tr.cel td.tt{color:#0e7490}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) table.ttx tbody tr.cel td{color:#15242e} }
+  .k-vta{--k:#0e7490; --kb:#cffafe}
+  /* Aviso: el computador no está enviando datos (apagado o con el tablero desactivado) */
+  .banner-sync{border:1px solid var(--warn); background:var(--warn-bg); color:var(--ink); border-radius:12px; padding:11px 14px; margin:0 0 12px; font-size:.84rem; line-height:1.45}
+  .banner-sync b{color:var(--warn)}
+  .sidebrand{display:none}
+  /* Venta externa: el producto en su propio renglón y debajo kilos · precio · unidad · quitar */
+  .ilin.v{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 74px 38px; padding-top:8px; border-top:1px dashed var(--line)}
+  .ilin.v:first-child{border-top:none; padding-top:0}
+  .ilin.v .n{grid-column:1 / -1}
+  @media (min-width: 900px){ .ilin.v{grid-template-columns:minmax(0,1fr) 90px 90px 80px 38px; border-top:none; padding-top:0} .ilin.v .n{grid-column:auto} }
+  .ilin select{min-width:0; padding:9px 4px}
+  .nuevo-tag{color:var(--info); font-weight:700}
+
+  /* ---------- VERSIÓN COMPUTADOR: menú lateral oscuro como el del programa ---------- */
+  @media (min-width: 900px){
+    .app{max-width:none; display:grid; grid-template-columns:232px minmax(0,1fr); grid-template-rows:auto 1fr; min-height:100vh}
+    header{grid-column:2; grid-row:1; position:sticky; top:0; padding:12px 28px; box-shadow:none; border-bottom:1px solid rgba(255,255,255,.06)}
+    .datebar{justify-content:flex-start; margin-top:8px}
+    .chips{grid-column:1; grid-row:1 / span 2; position:sticky; top:0; height:100vh; overflow-y:auto; overflow-x:hidden;
+      background:var(--menu); border:none}
+    .chips-in{flex-direction:column; gap:2px; padding:0 10px 20px}
+    .sidebrand{display:block; color:#fff; font-weight:800; font-size:1.15rem; padding:20px 10px 16px; letter-spacing:.2px}
+    .sidebrand small{display:block; color:var(--menu-txt); font-weight:600; font-size:.72rem; margin-top:2px}
+    .chip{background:transparent; border:none; color:var(--menu-txt); border-radius:8px; padding:10px 12px; font-size:.88rem; justify-content:flex-start; width:100%}
+    .chip:hover{background:var(--menu-hover); color:#fff}
+    .chip[aria-selected="true"]{background:var(--coral); color:#fff}
+    main{grid-column:2; grid-row:2; max-width:1240px; width:100%; padding:22px 28px 48px}
+    .tiles{grid-template-columns:repeat(4, minmax(0,1fr))}
+    .tile.span{grid-column:span 2}
+    .tile .val{font-size:1.6rem}
+    table.ttx{font-size:.86rem}
+    .avisos{top:70px}
+    #s-ingreso > .card, #s-vext > .card, #s-ingreso > .btn, #s-vext > .btn{max-width:760px}
+  }
+  @media (min-width: 1400px){ .tiles{grid-template-columns:repeat(6, minmax(0,1fr))} }
 </style>
 </head>
 <body>
@@ -343,6 +383,7 @@
   </header>
 
   <div class="chips"><div class="chips-in" role="tablist">
+    <div class="sidebrand">🐟 PescaFácil<small>Tablero del negocio</small></div>
     <button class="chip" role="tab" aria-selected="true"  data-s="resumen">📊 Resumen</button>
     <button class="chip" role="tab" aria-selected="false" data-s="trans">🧾 Transacciones</button>
     <button class="chip" role="tab" aria-selected="false" data-s="caja">🧮 Cierre de caja</button>
@@ -352,12 +393,14 @@
     <button class="chip" role="tab" aria-selected="false" data-s="prov">🚛 Proveedores</button>
     <button class="chip" role="tab" aria-selected="false" data-s="venta">📈 Venta día</button>
     <button class="chip" role="tab" aria-selected="false" data-s="prestamos">🤝 Préstamos</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="vext">🛒 Venta externa</button>
     <button class="chip" role="tab" aria-selected="false" data-s="ingreso">📥 Ingreso</button>
     <button class="chip" role="tab" aria-selected="false" data-s="cambios">🛡️ Cambios <span class="badge" id="badgeCambios" hidden>0</span></button>
     <button class="chip" role="tab" aria-selected="false" data-s="usuarios">👤 Usuarios</button>
   </div></div>
 
   <main>
+    <div class="banner-sync" id="bannerSync" hidden></div>
     <button type="button" class="banner-sol" id="bannerSol" hidden></button>
     <section id="s-resumen"><div class="loading">Cargando…</div></section>
     <section id="s-trans" hidden></section>
@@ -369,6 +412,7 @@
     <section id="s-prov" hidden></section>
     <section id="s-venta" hidden></section>
     <section id="s-prestamos" hidden></section>
+    <section id="s-vext" hidden></section>
     <section id="s-ingreso" hidden></section>
     <section id="s-cambios" hidden></section>
     <section id="s-usuarios" hidden></section>
@@ -538,11 +582,23 @@
   // ----- "Actualizado hace..." -----
   function refreshSync(){
     sb.from("sync_estado").select("ultima_sync").eq("negocio_id", state.negocioId).maybeSingle().then(function(res){
-      var live=el("live"), txt=el("liveTxt");
-      if(res.error || !res.data || !res.data.ultima_sync){ live.classList.add("off"); txt.textContent="Sin datos aún"; return; }
+      var live=el("live"), txt=el("liveTxt"), ban=el("bannerSync");
+      if(res.error || !res.data || !res.data.ultima_sync){
+        live.classList.add("off"); txt.textContent="Sin datos aún";
+        ban.innerHTML='<b>⚠️ El computador todavía no ha enviado datos.</b> En PescaFácil del computador: Configuración → Tablero móvil → pega el token y activa la sincronización.';
+        ban.hidden=false; return;
+      }
       var diff=(Date.now()-new Date(res.data.ultima_sync).getTime())/1000;
-      live.classList.remove("off");
+      live.classList.toggle("off", diff>=600);
       txt.textContent = diff<120 ? "En vivo" : ("hace "+humano(diff));
+      // Más de 10 min sin noticias del PC: lo que se cargue aquí (ingresos, ventas, cambios) queda en
+      // espera hasta que el computador vuelva a sincronizar — se avisa para que no parezca que se perdió.
+      if(diff>=600){
+        ban.innerHTML='<b>⚠️ El computador no envía datos desde hace '+humano(diff)+'.</b> Lo que veas puede estar desactualizado, y lo que cargues aquí '
+          +'(ingresos, ventas, cambios) se registra cuando el computador vuelva a sincronizar. Revisa que PescaFácil esté abierto, con internet y con '
+          +'<i>Configuración → Tablero móvil → Activar la sincronización automática</i> marcado.';
+        ban.hidden=false;
+      } else ban.hidden=true;
     });
   }
   function humano(seg){
@@ -554,7 +610,7 @@
   // ----- Render por sección -----
   function sec(id){ return el("s-"+id); }
   function showSection(id){
-    ["resumen","trans","caja","bancos","cartera","cliente","inv","prov","venta","prestamos","ingreso","cambios","usuarios"].forEach(function(x){ sec(x).hidden=(x!==id); });
+    ["resumen","trans","caja","bancos","cartera","cliente","inv","prov","venta","prestamos","vext","ingreso","cambios","usuarios"].forEach(function(x){ sec(x).hidden=(x!==id); });
   }
   function render(forceDateOnly){
     if(!state.negocioId) return;
@@ -569,6 +625,7 @@
     else if(s==="prov") loadProveedores();
     else if(s==="venta") loadVenta();
     else if(s==="prestamos") loadPrestamos();
+    else if(s==="vext") loadVentaExterna();
     else if(s==="ingreso") loadIngreso();
     else if(s==="cambios") loadCambios();
     else if(s==="usuarios") loadUsuarios();
@@ -739,14 +796,15 @@
     else {
       h+='<div class="card"><div class="tblwrap"><table class="ttx"><thead><tr><th>Hora</th><th>Producto</th><th>Kilos</th><th>Precio</th><th>Valor</th><th>Cliente</th><th>Pago</th><th>Tipo</th><th>Viaje</th></tr></thead><tbody>';
       filas.forEach(function(r){
-        var cls = r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
+        var delCel = r.tipo==="Venta" && String(r.detalle||"").indexOf("📱 celular")>=0;   // venta externa del celular
+        var cls = r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : delCel ? "cel" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
                 : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "";
         var prod = r.producto || r.detalle || "";
         var vid = (r.tipo==="Venta" && r.estado!=="Anulada") ? ventaDeRef(r.ref) : null;
-        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+'"><td>'+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+esc(prod)+(vid?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+'</td>'
+        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+'"><td>'+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(vid?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+'</td>'
           +'<td>'+(Number(r.kilos)?kilos(r.kilos):'')+'</td><td>'+esc(r.precio||'')+'</td>'
           +'<td class="tv">'+(Number(r.valor)?money(r.valor):'')+'</td><td class="tc">'+esc(r.cliente)+'</td>'
-          +'<td>'+esc(r.pago)+'</td><td class="tt">'+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
+          +'<td>'+esc(r.pago)+'</td><td class="tt">'+(delCel?'📱 ':'')+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
       });
       h+='</tbody></table></div></div>';
       h+='<p class="updated">'+filas.length+' de '+todas.length+' movimientos · desliza la tabla hacia los lados para ver todo · toca una venta (🧾) para su factura</p>';
@@ -1086,12 +1144,22 @@
     Promise.all([
       cargarEmpresa(),
       sb.from("cliente_movimiento").select("cliente_id,fecha,producto,kilos,precio,cargo,factura,titulo")
-        .eq("negocio_id", neg).eq("venta_id", ventaId)
+        .eq("negocio_id", neg).eq("venta_id", ventaId),
+      cargarCatalogo().catch(function(){ return {cliente:[], config:[]}; })
     ]).then(function(r){
-      var emp=r[0], lin=(r[1] && r[1].data) || [];
+      var emp=r[0], lin=(r[1] && r[1].data) || [], cat=r[2] || {};
+      // Datos de la factura del PC (pie, saldo destacado) y los del cliente (cédula, dirección…).
+      var cfg=((cat.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
+      emp.pie=cfg.pie; emp.saldo_destacado=!!cfg.saldo_destacado;
+      function datosCli(id, nombre){
+        var c=(cat.cliente||[]).filter(function(x){ return (id && Number(x.id)===Number(id)) || (!id && nombre && String(x.nombre).toUpperCase()===String(nombre).toUpperCase()); })[0];
+        if(!c) return null;
+        var d={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ d[k]=c.extra[k]; }); return d;
+      }
       if(lin.length){
         var f0=lin[0];
-        var fac={ ventaId:ventaId, num: f0.factura ? "FACTURA DE VENTA #"+f0.factura : "COMPROBANTE DE VENTA #"+ventaId,
+        var fac={ ventaId:ventaId, numLab: f0.factura ? "Factura de venta" : "Venta N°", numVal: f0.factura ? String(f0.factura) : String(ventaId),
+          num: f0.factura ? "FACTURA DE VENTA #"+f0.factura : "COMPROBANTE DE VENTA #"+ventaId, datosCliente: datosCli(f0.cliente_id),
           titulo:f0.titulo||"", fecha:new Date(f0.fecha), pago:"Crédito", cliente:"",
           lineas: lin.map(function(l){ return { producto:l.producto||"", kilos:Number(l.kilos||0), precio:l.precio||"", valor:Number(l.cargo||0) }; }) };
         fac.total=fac.lineas.reduce(function(s,l){ return s+l.valor; },0);
@@ -1113,8 +1181,10 @@
       if(filasTrans && filasTrans.length){
         var t0=filasTrans[0];
         var tit=""; var p=String(t0.detalle||"").indexOf(" · 📝 "); if(p>=0) tit=String(t0.detalle).slice(p+5).trim();
-        var fac2={ ventaId:ventaId, num:"COMPROBANTE DE VENTA #"+ventaId, titulo:tit, fecha:new Date(t0.momento||t0.fecha),
+        if(tit.indexOf(" · 📱 celular")>=0) tit=tit.replace(" · 📱 celular","").trim();
+        var fac2={ ventaId:ventaId, numLab:"Venta N°", numVal:String(ventaId), num:"COMPROBANTE DE VENTA #"+ventaId, titulo:tit, fecha:new Date(t0.momento||t0.fecha),
           pago:t0.pago||"", cliente:t0.cliente||"CONTADO",
+          datosCliente: t0.cliente && t0.cliente!=="CONTADO" ? (datosCli(null, t0.cliente) || {}) : null,
           lineas: filasTrans.map(function(x){ return { producto:x.producto||"", kilos:Number(x.kilos||0), precio:x.precio||"", valor:Number(x.valor||0) }; }) };
         fac2.total=fac2.lineas.reduce(function(s,l){ return s+l.valor; },0);
         return [fac2, emp];
@@ -1180,51 +1250,108 @@
       var a=t.slice(0,c), b=t.slice(c+1); while(px>16 && (ancho(a)>W-2*M || ancho(b)>W-2*M)){ px--; f(px,true); }
       centro(a,px,true); centro(b,px,true);
     }
-    function dos(a,b,px,bold){ f(px,bold,true); g.textAlign="left"; g.fillText(a,M,y); g.textAlign="right"; g.fillText(b,W-M,y); y+=Math.round(px*1.35); }
+    function dos(a,b,px,bold){ f(px,bold); g.textAlign="left"; g.fillText(a,M,y); g.textAlign="right"; g.fillText(b,W-M,y); y+=Math.round(px*1.35); }
     function sep(){ y+=4; g.fillRect(M,y,W-2*M,2); y+=12; }
     function recortar(t,max){ if(ancho(t)<=max) return t; while(t.length>1 && ancho(t+"…")>max) t=t.slice(0,-1); return t+"…"; }
+    // Mismo formato que la factura POS del programa (TiquetePos, 1.4.5+): encabezado de la empresa,
+    // Fecha | Factura y Hora | Pago, "Datos cliente" con N/A en lo vacío, tabla DESCRIPCIÓN/CANT/PRECIO U/TOTAL,
+    // saldo, total (o SALDO FINAL destacado si así está en el PC), pie y la franja del proveedor del software.
+    function lineaFina(){ y+=6; g.fillRect(M,y,W-2*M,2); y+=12; }
+    function infoFila(izq, lab, val){
+      f(24,false); g.textAlign="left"; g.fillText(izq,M,y);
+      f(24,true); var wv=ancho(val); g.textAlign="right"; g.fillText(val,W-M,y);
+      f(24,false); g.fillText(lab,W-M-wv-12,y); y+=32;
+    }
+    // Etiqueta a la izquierda y valor a la derecha; un valor largo baja a varios renglones (alineados a la derecha).
+    function campo(etq, val, px, bold){
+      f(24,false); g.textAlign="left"; g.fillText(etq,M,y);
+      var max=W-2*M-170; f(px,bold);
+      var palabras=String(val||"").split(" "), linea="", lineas=[];
+      palabras.forEach(function(p){ var t=linea?linea+" "+p:p; if(ancho(t)>max && linea){ lineas.push(linea); linea=p; } else linea=t; });
+      if(linea) lineas.push(linea);
+      if(!lineas.length) lineas=[""];
+      g.textAlign="right";
+      lineas.forEach(function(l,i){ g.fillText(recortar(l,max),W-M,y); y+=Math.round(px*1.25); });
+      y+=4;
+    }
+    function partir(t, max){   // en 2 renglones como mucho
+      if(ancho(t)<=max) return [t];
+      var pal=t.split(" "), a="", i=0;
+      for(;i<pal.length;i++){ var tt=a?a+" "+pal[i]:pal[i]; if(ancho(tt)>max && a) break; a=tt; }
+      return [recortar(a,max), recortar(pal.slice(i).join(" "),max)].filter(function(x){ return x; });
+    }
+    function totalLinea(etq, val){
+      var px=46; f(px,true); while(px>26 && ancho(etq)+ancho(val)+40>W-2*M){ px-=2; f(px,true); }
+      f(Math.min(px,34),true); g.textAlign="left"; g.fillText(etq,M,y+(px-Math.min(px,34))*0.6);
+      f(px,true); g.textAlign="right"; g.fillText(val,W-M,y); y+=Math.round(px*1.3);
+    }
     function cuerpo(logo){
       if(logo){ var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; }
-        g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+10; }
-      if(emp.nombre) centro(emp.nombre,40,true);
-      if(emp.nit) centro("NIT/CC: "+emp.nit,24,false);
-      if(emp.direccion) centro(emp.direccion,24,false);
-      if(emp.telefono) centro("Tel: "+emp.telefono,24,false);
-      sep();
-      centro(fac.num,30,true);
-      if(fac.titulo) titulo(String(fac.titulo).toUpperCase(),36);
-      sep();
-      var fe=fac.fecha.toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+fac.fecha.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
-      f(26,false,true); g.textAlign="left"; g.fillText("Fecha: "+fe,M,y); y+=34;
-      g.fillText(recortar("Cliente: "+(fac.cliente||"CONTADO"),W-2*M),M,y); y+=34;
-      sep();
-      var xC=285, xU=398, xT=W-M;   // columnas: un total de 7 cifras (~135 px) cabe sin tocar VR.UNIT
-      f(22,true); g.textAlign="left"; g.fillText("ESP.",M,y); g.textAlign="right"; g.fillText("CANT.",xC,y); g.fillText("VR.UNIT",xU,y); g.fillText("TOTAL",xT,y); y+=30;
+        g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+12; }
+      if(emp.nombre) centro(String(emp.nombre).toUpperCase(),42,true);
+      if(emp.nit) centro("NIT: "+emp.nit,26,false);
+      if(emp.direccion) centro("Dirección: "+emp.direccion,26,false);
+      if(emp.telefono) centro("Teléfono: "+emp.telefono,26,false);
+      if(fac.titulo) { y+=4; titulo(String(fac.titulo).toUpperCase(),34); }
+      lineaFina();
+      var fe=fac.fecha.toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"});
+      var ho=fac.fecha.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
+      var pagoTxt = fac.pago==="Contado" ? "CONTADO" : "CRÉDITO";
+      infoFila("Fecha: "+fe, fac.numLab||"Venta N°", fac.numVal||String(fac.ventaId));
+      infoFila("Hora: "+ho, "Pago", pagoTxt);
+      lineaFina();
+      // Datos del cliente: siempre los cinco cuando hay cliente, con N/A en lo que no se tenga (contado no los lleva).
+      var dc=fac.datosCliente, nombreCli = fac.cliente || (dc && dc.nombre) || "";
+      if(nombreCli && nombreCli!=="CONTADO"){
+        dc=dc||{};
+        centro("Datos cliente",26,true); y+=2;
+        campo("NOMBRE:", String(nombreCli).toUpperCase(), 30, true);
+        campo("NIT / C.C:", dc.cedula||"N/A", 24, false);
+        campo("DIRECCIÓN:", dc.direccion||"N/A", 24, false);
+        campo("TELÉFONO:", dc.telefono||"N/A", 24, false);
+        campo("CORREO:", dc.correo||"N/A", 24, false);
+      } else {
+        f(24,false); g.textAlign="left"; g.fillText("CLIENTE:",M,y); f(24,true); g.textAlign="right"; g.fillText("CONTADO",W-M,y); y+=32;
+      }
+      lineaFina();
+      var xC=300, xU=420, xT=W-M;
+      f(21,true); g.textAlign="left"; g.fillText("DESCRIPCIÓN",M,y); g.textAlign="right"; g.fillText("CANT",xC,y); g.fillText("PRECIO U",xU,y); g.fillText("TOTAL",xT,y); y+=28;
       g.fillRect(M,y,W-2*M,1); y+=8;
       var kg=0;
       fac.lineas.forEach(function(l){
-        kg+=l.kilos; f(22,false,true);
-        g.textAlign="left"; g.fillText(recortar(String(l.producto).toUpperCase(), xC-95-M),M,y);
+        kg+=l.kilos; f(24,false);
+        var desc=partir(String(l.producto).toUpperCase(), xC-90-M);
+        g.textAlign="left"; g.fillText(desc[0],M,y);
         g.textAlign="right"; g.fillText(l.kilos.toLocaleString("es-CO",{minimumFractionDigits:2,maximumFractionDigits:2}),xC,y);
-        g.fillText(recortar(l.precio,100),xU,y); g.fillText(money(l.valor),xT,y); y+=32;
+        g.fillText(recortar(String(l.precio||""),105),xU,y); g.fillText(money(l.valor),xT,y); y+=32;
+        if(desc[1]){ g.textAlign="left"; g.fillText(desc[1],M,y); y+=30; }
       });
       dos("Total: "+kg.toLocaleString("es-CO",{minimumFractionDigits:2,maximumFractionDigits:2})+" kg","Items: "+fac.lineas.length,24,false);
-      if(conSaldo && fac.saldo){
-        sep();
+      var conElSaldo = conSaldo && fac.saldo;
+      if(conElSaldo){
+        lineaFina();
         dos("Saldo anterior:",money(fac.saldo.antes),24,false);
         dos("+ Esta venta:",money(fac.total),24,false);
-        y+=4; dos("SALDO ACTUAL:",money(fac.saldo.despues),32,true);
+        if(!emp.saldo_destacado){ y+=4; dos("Saldo actual:",money(fac.saldo.despues),30,true); }
       }
-      sep();
-      var bx=y; y+=16;
-      f(24,true); g.textAlign="center"; g.fillText("T O T A L   V E N T A",W/2,y); y+=36;
-      f(56,true); g.fillText(money(fac.total),W/2,y); y+=70;
-      g.lineWidth=3; g.strokeRect(M,bx,W-2*M,y-bx); y+=16;
-      f(24,false,true); g.textAlign="left";
-      g.fillText("Pago: "+(fac.pago==="Contado"?"CONTADO":"CRÉDITO (queda en cartera)"),M,y); y+=34;
-      sep();
-      centro("¡Gracias por su compra!",24,false);
-      centro("Generada desde PescaFácil Móvil",20,false);
+      lineaFina(); y+=4;
+      // Como en el PC: con "destacar el SALDO FINAL" (Configuración) la cifra grande de una factura a crédito
+      // con saldo es lo que queda debiendo; si no, el total de la venta.
+      if(conElSaldo && emp.saldo_destacado) totalLinea("Saldo final", money(fac.saldo.despues));
+      else totalLinea("Total venta", money(fac.total));
+      dos("FORMA DE PAGO:", fac.pago==="Contado" ? "CONTADO" : "CRÉDITO (queda en cartera)", 24, false);
+      lineaFina();
+      var pie=String(emp.pie||"¡Gracias por su compra!\nProducto perecedero, no se aceptan devoluciones después de retirada la mercancía.");
+      pie.split(/\r?\n/).forEach(function(lin){
+        lin=lin.trim(); if(!lin) return;
+        f(23,false);
+        partir(lin, W-2*M).forEach(function(p){ centro(p,23,false); });
+      });
+      y+=10;
+      var by=y; g.fillStyle="#e5e7eb"; g.fillRect(M,by,W-2*M,64); g.fillStyle="#000"; y+=8;
+      centro("Proveedor del software: PescaFácil",20,true);
+      centro("pescafacilbykevin@gmail.com  ·  320 967 1137",20,false);
+      y=by+64;
       var out=document.createElement("canvas"); out.width=W; out.height=y+18;
       out.getContext("2d").drawImage(cv,0,0); return out;
     }
@@ -1238,17 +1365,28 @@
   // ===== 📥 INGRESO DE MERCANCÍA DESDE EL CELULAR (factura del proveedor) =====
   // Queda en solicitud_movil ya aprobado; el computador lo aplica en su siguiente sincronización
   // (≤ 3 min, si está prendido) igual que el Ingreso rápido: inventario + cuenta del proveedor o caja.
+  // El catálogo se vuelve a pedir si tiene más de 45 s (antes se guardaba para siempre: un proveedor
+  // o producto creado en el PC no aparecía hasta recargar la página).
   function cargarCatalogo(){
-    var k="cat_"+state.negocioId;
-    if(state.cache[k]) return Promise.resolve(state.cache[k]);
-    return base("catalogo_movil").then(function(r){
-      var c={producto:[],proveedor:[],viaje:[]};
+    var k="cat_"+state.negocioId, c0=state.cache[k];
+    if(c0 && Date.now()-c0._t < 45000) return Promise.resolve(c0);
+    return base("catalogo_movil").limit(10000).then(function(r){
+      var c={producto:[],proveedor:[],viaje:[],cliente:[],config:[], _t:Date.now()};
       ((r&&r.data)||[]).forEach(function(x){ (c[x.tipo]||(c[x.tipo]=[])).push(x); });
-      Object.keys(c).forEach(function(t){ c[t].sort(function(a,b){ return String(a.nombre).localeCompare(String(b.nombre),"es"); }); });
+      Object.keys(c).forEach(function(t){ if(Array.isArray(c[t])) c[t].sort(function(a,b){ return String(a.nombre).localeCompare(String(b.nombre),"es"); }); });
       state.cache[k]=c; return c;
     });
   }
-  function valorArroba(kg,precio){ return Number(kg||0)*Number(precio||0)*1000/12.5; }
+  // Valor según la UNIDAD (igual que el programa): solo la arroba divide entre 12,5.
+  function valorCompra(kg,precio,unidad){ return Number(kg||0)*Number(precio||0)*1000/(String(unidad||"Arroba")==="Arroba"?12.5:1); }
+  function valorArroba(kg,precio){ return valorCompra(kg,precio,"Arroba"); }
+  var UNIDADES=[["Arroba","@"],["Kilo","kg"],["Caja","caja"],["Unidad","und"]];
+  function unidadDe(p){ return (p && p.extra && p.extra.unidad) || "Arroba"; }
+  function abrevUnidad(u){ for(var i=0;i<UNIDADES.length;i++) if(UNIDADES[i][0]===u) return UNIDADES[i][1]; return "@"; }
+  function buscarPorNombre(lista, t){
+    t=String(t||"").trim().toLowerCase(); if(!t) return null;
+    return lista.filter(function(p){ return String(p.nombre).toLowerCase()===t || (p.extra && String(p.extra.codigo||"").toLowerCase()===t && t); })[0] || null;
+  }
   function pillSolicitud(s){
     if(s.estado==="aplicada") return '<span class="pill good">✅ Aplicado</span>';
     if(s.estado==="error") return '<span class="pill bad">❌ Error</span>';
@@ -1283,7 +1421,7 @@
       +'<label>Tipo de viaje</label><div class="formas">'
       +'<label><input type="radio" name="iTipoViaje" value="COMPRA" checked> Normal (compra: la mercancía es mía)</label>'
       +'<label><input type="radio" name="iTipoViaje" value="COMISION"> Comisión (vendo por cuenta del proveedor)</label></div></div>'
-      +'<label>Productos (kilos · precio de compra en miles por arroba)</label><div id="iLineas"></div>'
+      +'<label>Productos (kilos · precio de compra en miles, por la unidad del producto)</label><div id="iLineas"></div>'
       +'<datalist id="dlProd">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc((p.extra&&p.extra.codigo)||"")+'</option>'; }).join("")+'</datalist>'
       +'<button type="button" class="addl" id="iAdd">➕ Otro producto</button>'
       +'<div id="iFormaBox"><label>¿Cómo se paga?</label><div class="formas">'
@@ -1304,25 +1442,31 @@
     host.innerHTML=h;
 
     var lineas=el("iLineas");
-    function porNombre(t){ t=String(t||"").trim().toLowerCase(); if(!t) return null;
-      return cat.producto.filter(function(p){ return String(p.nombre).toLowerCase()===t || String((p.extra&&p.extra.codigo)||"").toLowerCase()===t; })[0] || null; }
+    function porNombre(t){ return buscarPorNombre(cat.producto, t); }
+    // Unidad de la línea: la del producto; si es un producto NUEVO, la que se elija en su lista.
+    function unidadLinea(row){ var p=porNombre(row.querySelector(".n").value); return p ? unidadDe(p) : row.querySelector(".u").value; }
     function total(){
       var tot=0;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-        var v=valorArroba(row.querySelector(".k").value, row.querySelector(".p").value); tot+=v;
-        var p=porNombre(row.querySelector(".n").value);
-        row.querySelector(".sub").textContent = (row.querySelector(".n").value && !p ? "⚠️ No encuentro ese producto · " : "") + (v?money(v):"");
+        var nom=row.querySelector(".n").value.trim(), p=porNombre(nom), u=unidadLinea(row);
+        var v=valorCompra(row.querySelector(".k").value, row.querySelector(".p").value, u); tot+=v;
+        row.querySelector(".un").hidden = !(nom && !p);
+        row.querySelector(".st").innerHTML = (nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '')
+          + (p ? 'por '+abrevUnidad(u)+' · ' : '') + (v?money(v):"");
       });
       el("iTotal").textContent=money(tot);
     }
     function agregar(){
       var row=document.createElement("div"); row.className="ilin";
-      row.innerHTML='<input class="n" list="dlProd" placeholder="Producto" autocomplete="off"><input class="k" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos"><input class="p" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Precio"><button type="button" class="x" aria-label="Quitar">✕</button><div class="sub"></div>';
+      row.innerHTML='<input class="n" list="dlProd" placeholder="Producto" autocomplete="off"><input class="k" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos"><input class="p" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Precio"><button type="button" class="x" aria-label="Quitar">✕</button>'
+        +'<div class="sub"><span class="un" hidden>Se compra por <select class="u">'+UNIDADES.map(function(u){ return '<option value="'+u[0]+'">'+u[0]+'</option>'; }).join("")+'</select> · </span><span class="st"></span></div>';
       row.querySelector(".n").addEventListener("change", function(){
         var p=porNombre(this.value), pr=row.querySelector(".p");
         if(p && !pr.value && p.extra && Number(p.extra.precio_compra)) pr.value=p.extra.precio_compra;
         total();
       });
+      row.querySelector(".n").addEventListener("input", total);
+      row.querySelector(".u").addEventListener("change", total);
       row.querySelector(".k").addEventListener("input", total);
       row.querySelector(".p").addEventListener("input", total);
       row.querySelector(".x").addEventListener("click", function(){ if(lineas.children.length>1){ row.remove(); total(); } });
@@ -1350,14 +1494,16 @@
     el("iEnviar").onclick=function(){
       var btn=this, items=[], resumenL=[], tot=0, malo=null;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-        var nom=row.querySelector(".n").value, k=Number(row.querySelector(".k").value||0), pr=Number(row.querySelector(".p").value||0);
+        var nom=row.querySelector(".n").value.trim(), k=Number(row.querySelector(".k").value||0), pr=Number(row.querySelector(".p").value||0);
         if(!nom && !k) return;
-        var p=porNombre(nom);
-        if(!p){ malo="No encuentro el producto \""+nom+"\". Elígelo de la lista."; return; }
-        if(!(k>0)){ malo="Falta los kilos de "+p.nombre+"."; return; }
-        items.push({producto_id:p.id, nombre:p.nombre, kilos:k, precio:pr});
-        tot+=valorArroba(k,pr);
-        resumenL.push(p.nombre+" "+kilos(k)+" kg @"+pr);
+        if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
+        var p=porNombre(nom), u=unidadLinea(row), nombreProd = p ? p.nombre : nom.toUpperCase();
+        if(!(k>0)){ malo="Faltan los kilos de "+nombreProd+"."; return; }
+        // Producto que no está en la lista = producto NUEVO: el computador lo crea con la unidad elegida.
+        items.push(p ? {producto_id:p.id, nombre:p.nombre, kilos:k, precio:pr}
+                     : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:u}, nombre:nombreProd, kilos:k, precio:pr});
+        tot+=valorCompra(k,pr,u);
+        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+abrevUnidad(u));
       });
       if(malo){ say(malo); return; }
       if(!items.length){ say("Agrega al menos un producto con kilos."); return; }
@@ -1395,6 +1541,141 @@
         // El proveedor/viaje nuevo aparecerá en las listas cuando el computador lo cree y sincronice.
         delete state.cache["cat_"+state.negocioId];
         loadIngreso();
+      });
+    };
+  }
+
+  // ===== 🛒 VENTA EXTERNA (vendí por fuera del mostrador: en la calle, por teléfono…) =====
+  // Queda en solicitud_movil (tipo 'venta', ya aprobada) y el computador la registra como una venta
+  // real en su siguiente sincronización: baja el inventario y entra a la caja (contado) o a la cartera
+  // del cliente (crédito). En Transacciones sale en celeste con "📱".
+  var TIPOS_PRECIO=[["x Arroba","@"],["x Kilo","kg"],["x Unidad","und"],["x Caja","caja"]];
+  function subtotalVenta(kg,precio,tipo){ return Number(kg||0)*Number(precio||0)*1000/(tipo==="x Arroba"?12.5:1); }
+  function tipoPrecioDe(p){ var u=unidadDe(p); return u==="Kilo"?"x Kilo": u==="Caja"?"x Caja": u==="Unidad"?"x Unidad":"x Arroba"; }
+  function loadVentaExterna(){
+    var host=sec("vext"); host.innerHTML='<div class="loading">Cargando…</div>';
+    Promise.all([
+      cargarCatalogo(),
+      sb.from("solicitud_movil").select("id,creado,resumen,estado,error").eq("negocio_id", state.negocioId).eq("tipo","venta").order("id",{ascending:false}).limit(15)
+    ]).then(function(r){
+      if(state.section!=="vext") return;
+      pintarVentaExterna(r[0], (r[1]&&r[1].data)||[]);
+    });
+  }
+  function pintarVentaExterna(cat, enviados){
+    var host=sec("vext");
+    if(!cat.producto.length){
+      host.innerHTML='<div class="sechead"><h2 class="sec">Venta externa</h2></div><div class="empty">Todavía no hay productos en la nube. Abre el programa en el computador (con la versión nueva) y espera unos minutos.</div>';
+      return;
+    }
+    var clientes=cat.cliente||[];
+    var h='<div class="sechead"><h2 class="sec">Venta externa (fuera del mostrador)</h2></div>';
+    h+='<div class="card"><div class="form">'
+      +'<label for="vCli">Cliente (vacío = contado)</label><input id="vCli" list="dlCli" placeholder="Escribe o elige el cliente" autocomplete="off">'
+      +'<datalist id="dlCli">'+clientes.map(function(c){ return '<option value="'+esc(c.nombre)+'">'+(c.extra&&Number(c.extra.saldo)?'debe '+money(c.extra.saldo):'')+'</option>'; }).join("")+'</datalist>'
+      +'<div class="m" id="vCliInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
+      +'<div id="vCliNuevoBox" hidden><label for="vCliTel">Teléfono del cliente nuevo (opcional)</label><input id="vCliTel" inputmode="tel" maxlength="30"></div>'
+      +'<label>Productos (kilos · precio de venta en miles)</label><div id="vLineas"></div>'
+      +'<datalist id="dlProdV">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc((p.extra&&p.extra.codigo)||"")+'</option>'; }).join("")+'</datalist>'
+      +'<button type="button" class="addl" id="vAdd">➕ Otro producto</button>'
+      +'<label>¿Cómo pagó?</label><div class="formas">'
+      +'<label><input type="radio" name="vPago" value="contado" checked> De contado, entró a <select id="vCaja" style="width:auto;padding:5px 8px;margin-left:auto">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></label>'
+      +'<label><input type="radio" name="vPago" value="credito"> A crédito (le queda debiendo)</label></div>'
+      +'<label for="vViaje">Viaje de donde sale la mercancía</label><select id="vViaje"><option value="">Automático (el que tenga el producto)</option>'
+      +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
+      +'<label for="vDet">Título de la factura (opcional)</label><input id="vDet" maxlength="40" placeholder="Ej: Pedido de la calle 5">'
+      +'<div class="total-row" style="margin:14px -14px -14px"><span>Total de la venta</span><span class="big num" id="vTotal">$0</span></div>'
+      +'</div></div>'
+      +'<button class="btn" id="vEnviar" style="margin-top:12px">📨 Registrar venta</button>'
+      +'<p class="updated">El computador la registra sola en unos minutos (tiene que estar prendido y con internet): baja el inventario y entra a la caja o a la cartera del cliente. En Transacciones sale en celeste con 📱.</p>';
+    h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Últimas ventas externas</h2></div>';
+    h+= enviados.length ? '<div class="card">'+enviados.map(function(s){
+        return '<div class="solc"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="m">'+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</span>'+pillSolicitud(s)+'</div>'
+          +'<div class="r">'+esc(s.resumen)+'</div>'+(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
+      }).join("")+'</div>' : '<div class="empty">Aún no has registrado ventas desde aquí.</div>';
+    host.innerHTML=h;
+
+    var lineas=el("vLineas"), cli=el("vCli");
+    function porNombre(t){ return buscarPorNombre(cat.producto, t); }
+    function clienteSel(){ return buscarPorNombre(clientes, cli.value); }
+    function verCliente(){
+      var t=cli.value.trim(), c=clienteSel();
+      el("vCliNuevoBox").hidden = !(t && !c);
+      el("vCliInfo").innerHTML = !t ? "Venta de contado (sin cliente)." : c ? ("Debe hoy "+money((c.extra&&c.extra.saldo)||0)) : '<span class="nuevo-tag">➕ Cliente nuevo: se crea al registrar la venta</span>';
+    }
+    function total(){
+      var tot=0;
+      Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
+        var nom=row.querySelector(".n").value.trim(), p=porNombre(nom);
+        var v=subtotalVenta(row.querySelector(".k").value, row.querySelector(".p").value, row.querySelector(".t").value); tot+=v;
+        row.querySelector(".sub").innerHTML=(nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '')+(v?money(v):"");
+      });
+      el("vTotal").textContent=money(tot);
+    }
+    function agregar(){
+      var row=document.createElement("div"); row.className="ilin v";
+      row.innerHTML='<input class="n" list="dlProdV" placeholder="Producto" autocomplete="off"><input class="k" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos">'
+        +'<input class="p" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Precio"><select class="t" aria-label="Precio por">'
+        +TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select>'
+        +'<button type="button" class="x" aria-label="Quitar">✕</button><div class="sub"></div>';
+      row.querySelector(".n").addEventListener("change", function(){
+        var p=porNombre(this.value), pr=row.querySelector(".p");
+        if(p){ row.querySelector(".t").value=tipoPrecioDe(p); if(!pr.value && p.extra && Number(p.extra.precio_venta)) pr.value=p.extra.precio_venta; }
+        total();
+      });
+      ["input","change"].forEach(function(ev){ row.addEventListener(ev, total); });
+      row.querySelector(".x").addEventListener("click", function(){ if(lineas.children.length>1){ row.remove(); total(); } });
+      lineas.appendChild(row);
+    }
+    agregar();
+    el("vAdd").onclick=agregar;
+    cli.addEventListener("input", verCliente); cli.addEventListener("change", verCliente); verCliente();
+
+    el("vEnviar").onclick=function(){
+      var btn=this, items=[], resumenL=[], tot=0, malo=null;
+      Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
+        var nom=row.querySelector(".n").value.trim(), k=Number(row.querySelector(".k").value||0), pr=Number(row.querySelector(".p").value||0), tp=row.querySelector(".t").value;
+        if(!nom && !k) return;
+        if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
+        var p=porNombre(nom), nombreProd = p ? p.nombre : nom.toUpperCase();
+        if(!(k>0)){ malo="Faltan los kilos de "+nombreProd+"."; return; }
+        if(!(pr>0)){ malo="Falta el precio de "+nombreProd+"."; return; }
+        var unidadNueva = tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad":"Arroba";
+        items.push(p ? {producto_id:p.id, kilos:k, precio:pr, tipo_precio:tp}
+                     : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:unidadNueva}, kilos:k, precio:pr, tipo_precio:tp});
+        tot+=subtotalVenta(k,pr,tp);
+        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+(TIPOS_PRECIO.filter(function(t){ return t[0]===tp; })[0]||["","@"])[1]);
+      });
+      if(malo){ say(malo); return; }
+      if(!items.length){ say("Agrega al menos un producto con kilos y precio."); return; }
+      var pago=(document.querySelector('input[name="vPago"]:checked')||{}).value||"contado";
+      var t=cli.value.trim(), c=clienteSel();
+      if(pago==="credito" && !t){ say("Una venta a crédito necesita el cliente."); cli.focus(); return; }
+      var caja = pago==="contado" ? el("vCaja").value : "";
+      var cliTxt = !t ? "contado" : c ? c.nombre : t.toUpperCase()+" (nuevo)";
+      var resumen = "Venta externa a "+cliTxt+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+(pago==="credito"?"a crédito":"de contado ("+nombreCaja(caja)+")")
+        +(el("vDet").value.trim()?" · "+el("vDet").value.trim():"");
+      if(!confirm("¿Registrar esta venta?\n\n"+resumen)) return;
+      btn.disabled=true; btn.textContent="Enviando…";
+      sb.auth.getSession().then(function(ss){
+        var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
+        return sb.from("solicitud_movil").insert({
+          negocio_id:state.negocioId, origen:"celular", tipo:"venta", estado:"aprobada", creado_por:email, resumen:resumen,
+          datos:{
+            cliente_id: c ? Number(c.id) : null,
+            cliente_nuevo: t && !c ? { nombre:t.toUpperCase(), telefono:el("vCliTel").value.trim() } : null,
+            pago:pago, caja:caja, viaje_id: el("vViaje").value ? Number(el("vViaje").value) : null,
+            detalle: el("vDet").value.trim(), lineas:items }
+        });
+      }).then(function(res){
+        btn.disabled=false; btn.textContent="📨 Registrar venta";
+        if(res.error){
+          say(/row-level security|policy/i.test(res.error.message) ? "La nube todavía no acepta ventas desde el celular (falta actualizar el servidor)." : "No se pudo enviar: "+res.error.message);
+          return;
+        }
+        say("📨 Venta enviada. El computador la registra en unos minutos.");
+        delete state.cache["cat_"+state.negocioId];
+        loadVentaExterna();
       });
     };
   }
@@ -1555,9 +1836,9 @@
 
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
-  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t; }
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t; }
   var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
-  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing":"k-otro"; }
+  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
     if(/SOLICITUD|APROBADO|RECHAZ/.test(a)) return "Solicitudes";
     if(/ANUL/.test(a)) return "Anulaciones";
