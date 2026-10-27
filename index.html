@@ -1836,9 +1836,9 @@
 
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
-  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t; }
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t; }
   var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
-  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta":"k-otro"; }
+  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta": t==="prestamo"?"k-sol":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
     if(/SOLICITUD|APROBADO|RECHAZ/.test(a)) return "Solicitudes";
     if(/ANUL/.test(a)) return "Anulaciones";
@@ -1992,17 +1992,86 @@
   // PRESTAMOS
   function loadPrestamos(){
     var host=sec("prestamos"); host.innerHTML='<div class="loading">Cargando…</div>';
-    base("prestamos").then(function(res){
+    Promise.all([
+      base("prestamos"),
+      cargarCatalogo().catch(function(){ return null; }),
+      sb.from("solicitud_movil").select("id,creado,resumen,estado,error").eq("negocio_id", state.negocioId).eq("tipo","prestamo").order("id",{ascending:false}).limit(8)
+    ]).then(function(r){
       if(state.section!=="prestamos") return;
+      var res=r[0], cat=r[1], enviados=(r[2]&&r[2].data)||[];
       var rows=res.data||[];
       var nos=rows.filter(function(r){return r.direccion==="NOS_DEBEN";});
       var deb=rows.filter(function(r){return r.direccion==="DEBEMOS";});
       var h='<div class="sechead"><h2 class="sec">Préstamos de patio</h2><button class="xls" data-xls="prestamos">⬇️ Excel</button></div>';
-      if(!rows.length){ h+='<div class="empty">No hay préstamos pendientes.</div>'; host.innerHTML=h; return; }
+      if(cat && cat.producto && cat.producto.length) h+='<button class="addl" id="pNuevoBtn" style="margin:0 0 12px">➕ Registrar préstamo (presté o me prestaron)</button><div id="pForm" hidden></div>';
+      if(!rows.length) h+='<div class="empty">No hay préstamos pendientes.</div>';
       h+=grupoPrestamo("↩️ Nos deben","var(--good)",nos);
       h+=grupoPrestamo("↪️ Debemos","var(--bad)",deb);
+      if(enviados.length){
+        h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Registrados desde aquí</h2></div><div class="card">'+enviados.map(function(s){
+          return '<div class="solc"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="m">'+new Date(s.creado).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</span>'+pillSolicitud(s)+'</div>'
+            +'<div class="r">'+esc(s.resumen)+'</div>'+(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
+        }).join("")+'</div>';
+      }
       host.innerHTML=h; state.cache.prestamos=rows;
+      if(el("pNuevoBtn")) el("pNuevoBtn").onclick=function(){ var f=el("pForm"); f.hidden=!f.hidden; if(!f.hidden && !f.innerHTML) formPrestamo(cat); };
     });
+  }
+  // ➕ Préstamo desde el celular: queda en solicitud_movil (tipo 'prestamo', ya aprobada) y el computador
+  // lo registra igual que Inventario → Préstamos (si presté, sale del viaje; si me prestaron, entra).
+  function formPrestamo(cat){
+    var f=el("pForm"), clientes=cat.cliente||[];
+    f.innerHTML='<div class="card" style="margin:0 0 12px"><div class="form">'
+      +'<label>¿Qué pasó?</label><div class="formas">'
+      +'<label><input type="radio" name="pDir" value="NOS_DEBEN" checked> ↩️ Yo presté (me deben)</label>'
+      +'<label><input type="radio" name="pDir" value="DEBEMOS"> ↪️ Me prestaron (debo)</label></div>'
+      +'<label for="pCli">Cliente</label><input id="pCli" list="dlCliP" placeholder="Escribe o elige el cliente" autocomplete="off">'
+      +'<datalist id="dlCliP">'+clientes.map(function(c){ return '<option value="'+esc(c.nombre)+'"></option>'; }).join("")+'</datalist>'
+      +'<div id="pCliInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
+      +'<label for="pProd">Producto</label><input id="pProd" list="dlProdP" placeholder="Escribe o elige el producto" autocomplete="off">'
+      +'<datalist id="dlProdP">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'"></option>'; }).join("")+'</datalist>'
+      +'<div id="pProdInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
+      +'<label for="pKg">Kilos</label><input id="pKg" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos">'
+      +'<label for="pViaje">Viaje</label><select id="pViaje"><option value="">Automático</option>'
+      +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
+      +'<label for="pNota">Nota (opcional)</label><input id="pNota" maxlength="100" placeholder="Ej: lo devuelve el sábado">'
+      +'</div></div><button class="btn" id="pEnviar" style="margin:0 0 14px">📨 Registrar préstamo</button>';
+    function info(){
+      var c=buscarPorNombre(clientes, el("pCli").value), p=buscarPorNombre(cat.producto, el("pProd").value);
+      el("pCliInfo").innerHTML = !el("pCli").value.trim() ? "" : c ? "" : '<span class="nuevo-tag">➕ Cliente nuevo: se crea al registrar</span>';
+      el("pProdInfo").innerHTML = !el("pProd").value.trim() ? "" : p ? "" : '<span class="nuevo-tag">➕ Producto nuevo: se crea al registrar</span>';
+    }
+    ["pCli","pProd"].forEach(function(id){ el(id).addEventListener("input", info); el(id).addEventListener("change", info); });
+    el("pEnviar").onclick=function(){
+      var btn=this, dir=(document.querySelector('input[name="pDir"]:checked')||{}).value||"NOS_DEBEN";
+      var tc=el("pCli").value.trim(), tp=el("pProd").value.trim(), kg=Number(el("pKg").value||0);
+      if(!tc){ say("Escribe el cliente."); el("pCli").focus(); return; }
+      if(!tp){ say("Escribe el producto."); el("pProd").focus(); return; }
+      if(!(kg>0)){ say("Escribe los kilos."); el("pKg").focus(); return; }
+      var c=buscarPorNombre(clientes, tc), p=buscarPorNombre(cat.producto, tp);
+      var cliTxt = c ? c.nombre : tc.toUpperCase()+" (nuevo)", prodTxt = p ? p.nombre : tp.toUpperCase()+" (nuevo)";
+      var resumen = (dir==="NOS_DEBEN" ? "Le presté a " : "Me prestó ")+cliTxt+": "+prodTxt+" "+kilos(kg)+" kg"+(el("pNota").value.trim()?" · "+el("pNota").value.trim():"");
+      if(!confirm("¿Registrar este préstamo?\n\n"+resumen)) return;
+      btn.disabled=true; btn.textContent="Enviando…";
+      sb.auth.getSession().then(function(ss){
+        var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
+        return sb.from("solicitud_movil").insert({
+          negocio_id:state.negocioId, origen:"celular", tipo:"prestamo", estado:"aprobada", creado_por:email, resumen:resumen,
+          datos:{ direccion:dir, cliente_id: c ? Number(c.id) : null, cliente_nuevo: c ? null : { nombre:tc.toUpperCase(), telefono:"" },
+                  producto_id: p ? Number(p.id) : 0, producto_nuevo: p ? null : { nombre:tp.toUpperCase(), unidad:"Arroba" },
+                  kilos:kg, viaje_id: el("pViaje").value ? Number(el("pViaje").value) : null, nota: el("pNota").value.trim() }
+        });
+      }).then(function(res){
+        btn.disabled=false; btn.textContent="📨 Registrar préstamo";
+        if(res.error){
+          say(/row-level security|policy/i.test(res.error.message) ? "La nube todavía no acepta préstamos desde el celular (falta actualizar el servidor)." : "No se pudo enviar: "+res.error.message);
+          return;
+        }
+        say("📨 Préstamo enviado. El computador lo registra en unos minutos.");
+        delete state.cache["cat_"+state.negocioId];
+        loadPrestamos();
+      });
+    };
   }
   function grupoPrestamo(titulo,color,rows){
     if(!rows.length) return "";
