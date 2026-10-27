@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.12",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.12/PescaFacil-Actualizacion-1.4.12.exe",
-    "sha256":  "e2a159ab9d6b02c1ca605c3a9e431a6e650f3004917e8d0df42b274ac2c3bf53",
-    "notas":  "Viajes: ingresos del día al lado y cada ingreso del viaje por separado, para editarlo o anularlo completo. Venta y venta rápida: lupa con todos los viajes, botón + para meterle productos al viaje y atajos nuevo F6 / ingreso F4. El precio de compra del viaje se promedia en cada ingreso. Arreglo: un ingreso de contado con proveedor se guardaba a crédito.",
-    "fecha":  "2026-10-22"
+    "version":  "1.4.13",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.13/PescaFacil-Actualizacion-1.4.13.exe",
+    "sha256":  "f126c2b5e65b7127bd725529e42eafea235305dd1cba3d3261fe0745fdcbfca9",
+    "notas":  "Impresora: en Configuración → Impresora del tiquete hay un AJUSTE DEL TIQUETE para impresoras que imprimen la factura corrida o cortada (correr a la izquierda/derecha en mm y tamaño en %), con un botón Imprimir prueba para calibrar.",
+    "fecha":  "2026-10-27"
 }
