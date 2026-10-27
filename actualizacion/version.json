@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.13",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.13/PescaFacil-Actualizacion-1.4.13.exe",
-    "sha256":  "f126c2b5e65b7127bd725529e42eafea235305dd1cba3d3261fe0745fdcbfca9",
-    "notas":  "Impresora: en Configuración → Impresora del tiquete hay un AJUSTE DEL TIQUETE para impresoras que imprimen la factura corrida o cortada (correr a la izquierda/derecha en mm y tamaño en %), con un botón Imprimir prueba para calibrar.",
+    "version":  "1.4.14",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.14/PescaFacil-Actualizacion-1.4.14.exe",
+    "sha256":  "7ef8003536abe1d694818dbd702619be558366444692391ced0d7754d5a51eb1",
+    "notas":  "Celular: venta externa (se registra sola en el PC y sale en cian en Transacciones), factura con el formato del PC, colores del programa y versión para computador, ingreso con productos nuevos. PC: ajustador de impresión con vista previa (mover en 4 direcciones, tamaño y corte del papel), sincronizar cada 1 a 10 minutos, aviso si el tablero está apagado, cuadros de código más anchos en la venta y editar producto con Enter hasta guardar.",
     "fecha":  "2026-10-27"
 }
