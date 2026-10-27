@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.14",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.14/PescaFacil-Actualizacion-1.4.14.exe",
-    "sha256":  "7ef8003536abe1d694818dbd702619be558366444692391ced0d7754d5a51eb1",
-    "notas":  "Celular: venta externa (se registra sola en el PC y sale en cian en Transacciones), factura con el formato del PC, colores del programa y versión para computador, ingreso con productos nuevos. PC: ajustador de impresión con vista previa (mover en 4 direcciones, tamaño y corte del papel), sincronizar cada 1 a 10 minutos, aviso si el tablero está apagado, cuadros de código más anchos en la venta y editar producto con Enter hasta guardar.",
+    "version":  "1.4.15",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.15/PescaFacil-Actualizacion-1.4.15.exe",
+    "sha256":  "dea89f1578abd78dcaf2286c8c109b532d48f113b04975b6e36fc83c76c5cedf",
+    "notas":  "NUEVO EN 1.4.15: venta con columna # para contar las pesadas, botón Σ (o F5) para sumar varias pesadas en KILOS, Nueva venta ya no abre otra ventana (trae la abierta a su sitio), y préstamos desde el celular (presté o me prestaron). DE LA 1.4.14: venta externa desde el celular (sale en cian en Transacciones), factura del celular con el formato del PC, colores del programa y versión para computador en el celular, ajustador de impresión con vista previa (mover en 4 direcciones, tamaño y corte), sincronizar cada 1 a 10 minutos, aviso si el tablero está apagado, cuadros de código más anchos y editar producto con Enter hasta guardar.",
     "fecha":  "2026-10-27"
 }
