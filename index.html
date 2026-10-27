@@ -1317,16 +1317,18 @@
       var xC=300, xU=420, xT=W-M;
       f(21,true); g.textAlign="left"; g.fillText("DESCRIPCIÓN",M,y); g.textAlign="right"; g.fillText("CANT",xC,y); g.fillText("PRECIO U",xU,y); g.fillText("TOTAL",xT,y); y+=28;
       g.fillRect(M,y,W-2*M,1); y+=8;
-      var kg=0;
+      var kg=0, piezas=0;
       fac.lineas.forEach(function(l){
-        kg+=l.kilos; f(24,false);
+        // Caja/unidad (precio "86 cj" / "3 un"): la cantidad son cajas o unidades, no kilos.
+        var pieza=/\s(cj|un)$/.test(String(l.precio||"")), uni=/\scj$/.test(String(l.precio||""))?" cj":" und";
+        if(pieza) piezas+=l.kilos; else kg+=l.kilos; f(24,false);
         var desc=partir(String(l.producto).toUpperCase(), xC-90-M);
         g.textAlign="left"; g.fillText(desc[0],M,y);
-        g.textAlign="right"; g.fillText(l.kilos.toLocaleString("es-CO",{minimumFractionDigits:2,maximumFractionDigits:2}),xC,y);
+        g.textAlign="right"; g.fillText(pieza ? l.kilos.toLocaleString("es-CO",{maximumFractionDigits:2})+uni : l.kilos.toLocaleString("es-CO",{minimumFractionDigits:2,maximumFractionDigits:2}),xC,y);
         g.fillText(recortar(String(l.precio||""),105),xU,y); g.fillText(money(l.valor),xT,y); y+=32;
         if(desc[1]){ g.textAlign="left"; g.fillText(desc[1],M,y); y+=30; }
       });
-      dos("Total: "+kg.toLocaleString("es-CO",{minimumFractionDigits:2,maximumFractionDigits:2})+" kg","Items: "+fac.lineas.length,24,false);
+      dos((kg>0||!piezas ? "Total: "+kg.toLocaleString("es-CO",{minimumFractionDigits:2,maximumFractionDigits:2})+" kg" : "Total:")+(piezas ? " + "+piezas.toLocaleString("es-CO",{maximumFractionDigits:2})+" cj/und" : ""),"Items: "+fac.lineas.length,24,false);
       var conElSaldo = conSaldo && fac.saldo;
       if(conElSaldo){
         lineaFina();
