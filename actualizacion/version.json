@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.16",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.16/PescaFacil-Actualizacion-1.4.16.exe",
-    "sha256":  "e6b139cc7b7c8f85c26752e8a1fca76c81566d6d71c98990763b8e512f45e9e2",
-    "notas":  "Venta: la ventana y la lista de productos del carrito son un poco más bajas. Incluye todo lo de la 1.4.15: columna # para contar las pesadas, botón Σ (o F5) para sumar pesadas en KILOS, Nueva venta sin abrir otra ventana y préstamos desde el celular.",
+    "version":  "1.4.17",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.17/PescaFacil-Actualizacion-1.4.17.exe",
+    "sha256":  "6e9bcd0c92dc9dfa5a39a8673f1cfcce9c03e80a6c0018c29cc14c070a421f19",
+    "notas":  "Venta por CAJA o UNIDAD: 1 caja a 86 = 86.000, el campo dice CAJAS y la factura muestra 1 cj sin sumarlo a los kilos. Transacciones: la columna PAGO dice Efectivo, Nequi, Transferencia o Daviplata. Mas rapido: guardar ya no espera a la sincronizacion del celular, la sincronizacion es mucho mas liviana y los tiquetes salen sin demora.",
     "fecha":  "2026-10-27"
 }
