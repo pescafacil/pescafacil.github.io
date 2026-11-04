@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.18",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.18/PescaFacil-Actualizacion-1.4.18.exe",
-    "sha256":  "618c4daa17dbb40424bc168c0ec737150fd0d0be25472b560202626ff24eddf5",
-    "notas":  "Arregla el error al cargar proveedores (celda invisible). Prestamos: ahora tambien con proveedor. Cartera por rango de fechas: toda la cartera en Excel e impresa en POS, y Excel del estado de cuenta por rango. Cierre de caja: una venta de contado editada otro dia o con fecha pasada ya queda en el cierre de su dia, igual que en Transacciones.",
+    "version":  "1.4.19",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.19/PescaFacil-Actualizacion-1.4.19.exe",
+    "sha256":  "da06d64bca59368c99e7b80d1b7ee6985a86208c0dcb9f5cad9fc8137e7aa85f",
+    "notas":  "Fecha de la venta: si una ventana de venta, venta rapida o abono queda abierta de un dia para otro, la fecha pasa sola a hoy y la plata cae en el cierre del dia correcto. Una fecha pasada elegida a mano se sigue respetando ese dia. Cierre de caja: en la lista de Nequi ahora se puede escribir el detalle, como en gastos (20000 Pepe).",
     "fecha":  "2026-11-04"
 }
