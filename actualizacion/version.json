@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.17",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.17/PescaFacil-Actualizacion-1.4.17.exe",
-    "sha256":  "6e9bcd0c92dc9dfa5a39a8673f1cfcce9c03e80a6c0018c29cc14c070a421f19",
-    "notas":  "Venta por CAJA o UNIDAD: 1 caja a 86 = 86.000, el campo dice CAJAS y la factura muestra 1 cj sin sumarlo a los kilos. Transacciones: la columna PAGO dice Efectivo, Nequi, Transferencia o Daviplata. Mas rapido: guardar ya no espera a la sincronizacion del celular, la sincronizacion es mucho mas liviana y los tiquetes salen sin demora.",
-    "fecha":  "2026-10-27"
+    "version":  "1.4.18",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.18/PescaFacil-Actualizacion-1.4.18.exe",
+    "sha256":  "618c4daa17dbb40424bc168c0ec737150fd0d0be25472b560202626ff24eddf5",
+    "notas":  "Arregla el error al cargar proveedores (celda invisible). Prestamos: ahora tambien con proveedor. Cartera por rango de fechas: toda la cartera en Excel e impresa en POS, y Excel del estado de cuenta por rango. Cierre de caja: una venta de contado editada otro dia o con fecha pasada ya queda en el cierre de su dia, igual que en Transacciones.",
+    "fecha":  "2026-11-04"
 }
