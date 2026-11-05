@@ -442,7 +442,17 @@
   function pad(n){ return (n<10?"0":"")+n; }
   function parseISO(s){ var p=String(s).slice(0,10).split("-"); return new Date(+p[0],+p[1]-1,+p[2]); }
   function money(n){ n=Math.round(Number(n||0)); return (n<0?"−$":"$")+Math.abs(n).toLocaleString("es-CO"); }
-  function kilos(n){ n=Number(n||0); return n.toLocaleString("es-CO",{minimumFractionDigits:1, maximumFractionDigits:1}); }
+  function kilos(n){ n=Number(n||0); return n.toLocaleString("es-CO",{minimumFractionDigits:0, maximumFractionDigits:2}); }
+  // Lee lo escrito en una casilla de kilos o precio: "120,55" y "120.55" son lo mismo; con los dos signos
+  // ("1.234,5") el último es el decimal. Son casillas de texto porque en un celular en español un campo
+  // numérico no acepta la coma y queda vacío: por eso solo dejaba cifras cerradas.
+  function leerNum(v){
+    var s=String(v==null?"":v).replace(/\s/g,""); if(!s) return 0;
+    var iP=s.lastIndexOf("."), iC=s.lastIndexOf(",");
+    if(iP>=0 && iC>=0){ var dec=iP>iC?".":",", mil=dec==="."?",":"."; s=s.split(mil).join("").replace(dec,"."); }
+    else s=s.replace(",",".");
+    var n=Number(s); return isFinite(n)&&n>0 ? n : 0;
+  }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
   function el(id){ return document.getElementById(id); }
   // "Mostrar contraseña": cualquier casilla con data-ver="id1,id2" destapa esos campos (también los
@@ -1451,7 +1461,7 @@
       var tot=0;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
         var nom=row.querySelector(".n").value.trim(), p=porNombre(nom), u=unidadLinea(row);
-        var v=valorCompra(row.querySelector(".k").value, row.querySelector(".p").value, u); tot+=v;
+        var v=valorCompra(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), u); tot+=v;
         row.querySelector(".un").hidden = !(nom && !p);
         row.querySelector(".st").innerHTML = (nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '')
           + (p ? 'por '+abrevUnidad(u)+' · ' : '') + (v?money(v):"");
@@ -1460,7 +1470,7 @@
     }
     function agregar(){
       var row=document.createElement("div"); row.className="ilin";
-      row.innerHTML='<input class="n" list="dlProd" placeholder="Producto" autocomplete="off"><input class="k" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos"><input class="p" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Precio"><button type="button" class="x" aria-label="Quitar">✕</button>'
+      row.innerHTML='<input class="n" list="dlProd" placeholder="Producto" autocomplete="off"><input class="k" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos"><input class="p" type="text" inputmode="decimal" autocomplete="off" placeholder="Precio"><button type="button" class="x" aria-label="Quitar">✕</button>'
         +'<div class="sub"><span class="un" hidden>Se compra por <select class="u">'+UNIDADES.map(function(u){ return '<option value="'+u[0]+'">'+u[0]+'</option>'; }).join("")+'</select> · </span><span class="st"></span></div>';
       row.querySelector(".n").addEventListener("change", function(){
         var p=porNombre(this.value), pr=row.querySelector(".p");
@@ -1496,7 +1506,7 @@
     el("iEnviar").onclick=function(){
       var btn=this, items=[], resumenL=[], tot=0, malo=null;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-        var nom=row.querySelector(".n").value.trim(), k=Number(row.querySelector(".k").value||0), pr=Number(row.querySelector(".p").value||0);
+        var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value);
         if(!nom && !k) return;
         if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
         var p=porNombre(nom), u=unidadLinea(row), nombreProd = p ? p.nombre : nom.toUpperCase();
@@ -1580,9 +1590,8 @@
       +'<label>Productos (kilos · precio de venta en miles)</label><div id="vLineas"></div>'
       +'<datalist id="dlProdV">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc((p.extra&&p.extra.codigo)||"")+'</option>'; }).join("")+'</datalist>'
       +'<button type="button" class="addl" id="vAdd">➕ Otro producto</button>'
-      +'<label>¿Cómo pagó?</label><div class="formas">'
-      +'<label><input type="radio" name="vPago" value="contado" checked> De contado, entró a <select id="vCaja" style="width:auto;padding:5px 8px;margin-left:auto">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></label>'
-      +'<label><input type="radio" name="vPago" value="credito"> A crédito (le queda debiendo)</label></div>'
+      // Igual que en el programa: sin cliente es de contado, con cliente es a crédito. No se pregunta.
+      +'<div id="vContadoBox"><label for="vCaja">💵 Venta de contado: la plata entró a</label><select id="vCaja">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></div>'
       +'<label for="vViaje">Viaje de donde sale la mercancía</label><select id="vViaje"><option value="">Automático (el que tenga el producto)</option>'
       +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
       +'<label for="vDet">Título de la factura (opcional)</label><input id="vDet" maxlength="40" placeholder="Ej: Pedido de la calle 5">'
@@ -1603,21 +1612,22 @@
     function verCliente(){
       var t=cli.value.trim(), c=clienteSel();
       el("vCliNuevoBox").hidden = !(t && !c);
-      el("vCliInfo").innerHTML = !t ? "Venta de contado (sin cliente)." : c ? ("Debe hoy "+money((c.extra&&c.extra.saldo)||0)) : '<span class="nuevo-tag">➕ Cliente nuevo: se crea al registrar la venta</span>';
+      el("vContadoBox").hidden = !!t;
+      el("vCliInfo").innerHTML = !t ? "💵 Sin cliente: venta de contado." : "💳 Con cliente: queda a crédito. "+(c ? ("Debe hoy "+money((c.extra&&c.extra.saldo)||0)) : '<span class="nuevo-tag">➕ Cliente nuevo: se crea al registrar la venta</span>');
     }
     function total(){
       var tot=0;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
         var nom=row.querySelector(".n").value.trim(), p=porNombre(nom);
-        var v=subtotalVenta(row.querySelector(".k").value, row.querySelector(".p").value, row.querySelector(".t").value); tot+=v;
+        var v=subtotalVenta(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), row.querySelector(".t").value); tot+=v;
         row.querySelector(".sub").innerHTML=(nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '')+(v?money(v):"");
       });
       el("vTotal").textContent=money(tot);
     }
     function agregar(){
       var row=document.createElement("div"); row.className="ilin v";
-      row.innerHTML='<input class="n" list="dlProdV" placeholder="Producto" autocomplete="off"><input class="k" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos">'
-        +'<input class="p" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Precio"><select class="t" aria-label="Precio por">'
+      row.innerHTML='<input class="n" list="dlProdV" placeholder="Producto" autocomplete="off"><input class="k" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos">'
+        +'<input class="p" type="text" inputmode="decimal" autocomplete="off" placeholder="Precio"><select class="t" aria-label="Precio por">'
         +TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select>'
         +'<button type="button" class="x" aria-label="Quitar">✕</button><div class="sub"></div>';
       row.querySelector(".n").addEventListener("change", function(){
@@ -1636,7 +1646,7 @@
     el("vEnviar").onclick=function(){
       var btn=this, items=[], resumenL=[], tot=0, malo=null;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-        var nom=row.querySelector(".n").value.trim(), k=Number(row.querySelector(".k").value||0), pr=Number(row.querySelector(".p").value||0), tp=row.querySelector(".t").value;
+        var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
         if(!nom && !k) return;
         if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
         var p=porNombre(nom), nombreProd = p ? p.nombre : nom.toUpperCase();
@@ -1650,9 +1660,8 @@
       });
       if(malo){ say(malo); return; }
       if(!items.length){ say("Agrega al menos un producto con kilos y precio."); return; }
-      var pago=(document.querySelector('input[name="vPago"]:checked')||{}).value||"contado";
       var t=cli.value.trim(), c=clienteSel();
-      if(pago==="credito" && !t){ say("Una venta a crédito necesita el cliente."); cli.focus(); return; }
+      var pago = t ? "credito" : "contado";
       var caja = pago==="contado" ? el("vCaja").value : "";
       var cliTxt = !t ? "contado" : c ? c.nombre : t.toUpperCase()+" (nuevo)";
       var resumen = "Venta externa a "+cliTxt+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+(pago==="credito"?"a crédito":"de contado ("+nombreCaja(caja)+")")
@@ -2002,11 +2011,21 @@
       if(state.section!=="prestamos") return;
       var res=r[0], cat=r[1], enviados=(r[2]&&r[2].data)||[];
       var rows=res.data||[];
-      var nos=rows.filter(function(r){return r.direccion==="NOS_DEBEN";});
-      var deb=rows.filter(function(r){return r.direccion==="DEBEMOS";});
+      // Saldo FINAL por contacto y producto (no préstamo por préstamo): se cruza lo que nos debe con lo
+      // que le debemos del mismo producto, igual que en el programa.
+      var porClave={};
+      rows.forEach(function(r){
+        var k=r.contacto+"|"+r.producto, g=porClave[k]||(porClave[k]={contacto:r.contacto, producto:r.producto, neto:0, fecha:r.fecha});
+        g.neto+=(r.direccion==="NOS_DEBEN"?1:-1)*Number(r.kilos||0);
+        if(String(r.fecha)>String(g.fecha)) g.fecha=r.fecha;
+      });
+      var saldos=Object.keys(porClave).map(function(k){ var g=porClave[k]; g.neto=Math.round(g.neto*100)/100; g.kilos=Math.abs(g.neto); return g; }).filter(function(g){ return g.neto!==0; });
+      var nos=saldos.filter(function(g){return g.neto>0;});
+      var deb=saldos.filter(function(g){return g.neto<0;});
       var h='<div class="sechead"><h2 class="sec">Préstamos de patio</h2><button class="xls" data-xls="prestamos">⬇️ Excel</button></div>';
       if(cat && cat.producto && cat.producto.length) h+='<button class="addl" id="pNuevoBtn" style="margin:0 0 12px">➕ Registrar préstamo (presté o me prestaron)</button><div id="pForm" hidden></div>';
-      if(!rows.length) h+='<div class="empty">No hay préstamos pendientes.</div>';
+      if(!saldos.length) h+='<div class="empty">No hay préstamos pendientes.</div>';
+      h+=saldoPorProducto(saldos);
       h+=grupoPrestamo("↩️ Nos deben","var(--good)",nos);
       h+=grupoPrestamo("↪️ Debemos","var(--bad)",deb);
       if(enviados.length){
@@ -2033,7 +2052,7 @@
       +'<label for="pProd">Producto</label><input id="pProd" list="dlProdP" placeholder="Escribe o elige el producto" autocomplete="off">'
       +'<datalist id="dlProdP">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'"></option>'; }).join("")+'</datalist>'
       +'<div id="pProdInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
-      +'<label for="pKg">Kilos</label><input id="pKg" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Kilos">'
+      +'<label for="pKg">Kilos</label><input id="pKg" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos">'
       +'<label for="pViaje">Viaje</label><select id="pViaje"><option value="">Automático</option>'
       +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
       +'<label for="pNota">Nota (opcional)</label><input id="pNota" maxlength="100" placeholder="Ej: lo devuelve el sábado">'
@@ -2046,7 +2065,7 @@
     ["pCli","pProd"].forEach(function(id){ el(id).addEventListener("input", info); el(id).addEventListener("change", info); });
     el("pEnviar").onclick=function(){
       var btn=this, dir=(document.querySelector('input[name="pDir"]:checked')||{}).value||"NOS_DEBEN";
-      var tc=el("pCli").value.trim(), tp=el("pProd").value.trim(), kg=Number(el("pKg").value||0);
+      var tc=el("pCli").value.trim(), tp=el("pProd").value.trim(), kg=leerNum(el("pKg").value);
       if(!tc){ say("Escribe el cliente."); el("pCli").focus(); return; }
       if(!tp){ say("Escribe el producto."); el("pProd").focus(); return; }
       if(!(kg>0)){ say("Escribe los kilos."); el("pKg").focus(); return; }
@@ -2074,6 +2093,19 @@
         loadPrestamos();
       });
     };
+  }
+  // Lo de todo el patio por especie: cuánto nos deben, cuánto debemos y cómo queda cada producto.
+  function saldoPorProducto(saldos){
+    if(!saldos.length) return "";
+    var prods={};
+    saldos.forEach(function(g){ var p=prods[g.producto]||(prods[g.producto]={nos:0,deb:0}); if(g.neto>0) p.nos+=g.neto; else p.deb-=g.neto; });
+    var h='<div class="sechead" style="margin-top:14px"><h2 class="sec">🐟 Saldo final por producto</h2></div><div class="card">';
+    Object.keys(prods).sort().forEach(function(n){
+      var p=prods[n], s=Math.round((p.nos-p.deb)*100)/100;
+      h+='<div class="row"><div class="main"><div class="name">'+esc(n)+'</div><div class="meta">Nos deben '+kilos(p.nos)+' kg · Debemos '+kilos(p.deb)+' kg</div></div>'
+        +'<div class="amt num" style="color:'+(s>0?'var(--good)':s<0?'var(--bad)':'inherit')+'">'+kilos(Math.abs(s))+' kg</div></div>';
+    });
+    return h+'</div>';
   }
   function grupoPrestamo(titulo,color,rows){
     if(!rows.length) return "";
