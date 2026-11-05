@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.19",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.19/PescaFacil-Actualizacion-1.4.19.exe",
-    "sha256":  "da06d64bca59368c99e7b80d1b7ee6985a86208c0dcb9f5cad9fc8137e7aa85f",
-    "notas":  "Fecha de la venta: si una ventana de venta, venta rapida o abono queda abierta de un dia para otro, la fecha pasa sola a hoy y la plata cae en el cierre del dia correcto. Una fecha pasada elegida a mano se sigue respetando ese dia. Cierre de caja: en la lista de Nequi ahora se puede escribir el detalle, como en gastos (20000 Pepe).",
-    "fecha":  "2026-11-04"
+    "version":  "1.4.20",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.20/PescaFacil-Actualizacion-1.4.20.exe",
+    "sha256":  "560b9b974418bd2df756451fbd1c1f8309063131299dccadb0aa9196294baab7",
+    "notas":  "Gastos: se le puede descontar a un proveedor. Prestamos: abono de kilos por producto (cierta cantidad o todos) con saldo final, y saldos por producto. Kilos y precios con 2 decimales. Configuracion: factura predeterminada SI o NO. Venta rapida: opcion de factura e impresion. Transacciones: al sumar sale la cantidad de filas, y la barra de abajo mas ordenada. Corrige el saldo de kilos que se redondeaba.",
+    "fecha":  "2026-11-05"
 }
