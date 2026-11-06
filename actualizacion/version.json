@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.20",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.20/PescaFacil-Actualizacion-1.4.20.exe",
-    "sha256":  "560b9b974418bd2df756451fbd1c1f8309063131299dccadb0aa9196294baab7",
-    "notas":  "Gastos: se le puede descontar a un proveedor. Prestamos: abono de kilos por producto (cierta cantidad o todos) con saldo final, y saldos por producto. Kilos y precios con 2 decimales. Configuracion: factura predeterminada SI o NO. Venta rapida: opcion de factura e impresion. Transacciones: al sumar sale la cantidad de filas, y la barra de abajo mas ordenada. Corrige el saldo de kilos que se redondeaba.",
-    "fecha":  "2026-11-05"
+    "version":  "1.4.21",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.21/PescaFacil-Actualizacion-1.4.21.exe",
+    "sha256":  "d568058ad4ea20bb70bb3df857225f0232b0b16da51803dee90343d0ef2a8bc2",
+    "notas":  "ARREGLO IMPORTANTE: en algunos computadores escribir 7.2 kilos guardaba 72, y 50.000 pesos guardaba 50. Ahora punto y coma funcionan igual en kilos, precios y plata, sin importar como este configurado Windows. Revisen las ventas recientes por si quedo alguna con los kilos mal.",
+    "fecha":  "2026-11-06"
 }
