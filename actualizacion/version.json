@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.22",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.22/PescaFacil-Actualizacion-1.4.22.exe",
-    "sha256":  "7d06e54f1441924a78847eeff5ffd11f81098ccc09499b4c0f4a41d0ab6ffcdf",
-    "notas":  "Exportar todos los productos a Excel desde Inventario - Productos.",
-    "fecha":  "2026-11-06"
+    "version":  "1.4.23",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.23/PescaFacil-Actualizacion-1.4.23.exe",
+    "sha256":  "10dfb1c4a23224fa344c8b723bd4161c2cc55bd58f85a008361eb62af0400aec",
+    "notas":  "Estado de cuenta mas claro (como el reporte del terminal): saldo anterior, cada pesada, abonos con su forma de pago y devoluciones, saldo final a la fecha del reporte. Una factura o un abono reimpreso sale con el saldo de ese dia, no el de hoy.",
+    "fecha":  "2026-11-08"
 }
