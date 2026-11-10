@@ -300,6 +300,9 @@
   .acbox b{color:#2563eb; min-width:2.2em}
   .acbox .i{margin-left:auto; font-size:.74rem; color:#64748b; white-space:nowrap}
   .acbox .nuevo{color:#15803d; font-weight:700; background:#f0fdf4}
+  .vext-imp{display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:12px}
+  .vext-imp label{display:flex; align-items:center; gap:8px; font-weight:700; font-size:.92rem}
+  .vext-imp input{width:20px; height:20px}
   .acbox .nuevo b{color:#15803d; min-width:0}
   /* Impresora del celular */
   .fac-bar .imp{background:#16a34a; color:#fff}
@@ -848,7 +851,7 @@
     if(!todas.length){ h+='<div class="empty">No hay transacciones este día.</div>'; }
     else if(!filas.length){ h+='<div class="empty">Nada con ese filtro.</div>'; }
     else {
-      h+='<div class="card"><div class="tblwrap"><table class="ttx"><thead><tr><th>Hora</th><th>Producto</th><th>Kilos</th><th>Precio</th><th>Valor</th><th>Cliente</th><th>Pago</th><th>Tipo</th><th>Viaje</th></tr></thead><tbody>';
+      h+='<div class="card"><div class="tblwrap"><table class="ttx"><thead><tr><th>Hora</th><th>Producto</th><th>Kilos</th><th>Precio</th><th>Valor</th><th>Cliente</th><th>Pago</th><th>Desde</th><th>Tipo</th><th>Viaje</th></tr></thead><tbody>';
       filas.forEach(function(r){
         var delCel = r.tipo==="Venta" && String(r.detalle||"").indexOf("📱 celular")>=0;   // venta externa del celular
         var cls = r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : delCel ? "cel" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
@@ -858,7 +861,7 @@
         h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+'"><td>'+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(vid?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+'</td>'
           +'<td>'+(Number(r.kilos)?kilos(r.kilos):'')+'</td><td>'+esc(r.precio||'')+'</td>'
           +'<td class="tv">'+(Number(r.valor)?money(r.valor):'')+'</td><td class="tc">'+esc(r.cliente)+'</td>'
-          +'<td>'+esc(r.pago)+'</td><td class="tt">'+(delCel?'📱 ':'')+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
+          +'<td>'+esc(r.pago)+'</td><td>'+(String(r.detalle||"").indexOf("📱 celular")>=0 ? "📱 Celular" : "💻 PC")+'</td><td class="tt">'+(delCel?'📱 ':'')+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
       });
       h+='</tbody></table></div></div>';
       h+='<p class="updated">'+filas.length+' de '+todas.length+' movimientos · desliza la tabla hacia los lados para ver todo · toca una venta (🧾) para su factura</p>';
@@ -1257,13 +1260,17 @@
       ov.innerHTML='<div class="fac-msg">No se pudo armar la factura: '+esc(e && e.message || e)+'<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar;
     });
   }
-  function mostrarFactura(ov, fac, emp, cerrar){
-    // Arranca como esté en Configuración del programa (con saldo, salvo que el dueño diga lo contrario).
-    var conSaldo = !!fac.saldo && emp.con_saldo !== false;
-    var actual=null;
+  function mostrarFactura(ov, fac, emp, cerrar, opc){
+    opc=opc||{};
+    // Arranca como esté en Configuración del programa (con saldo, salvo que el dueño diga lo contrario),
+    // o como se eligió en la venta del celular.
+    var conSaldo = !!fac.saldo && (opc.conSaldo!=null ? !!opc.conSaldo : emp.con_saldo !== false);
+    var actual=null, yaImprimio=false;
     function pintar(){
       dibujarFactura(fac, emp, conSaldo).then(function(cv){
         actual=cv;
+        // "Imprimir factura" marcado en la venta: sale a la impresora apenas se arma, una sola vez.
+        if(opc.imprimir && !yaImprimio){ yaImprimio=true; setTimeout(function(){ imprimirCanvas(cv, nombreArchivoFactura(fac)); }, 50); }
         var puedeCompartir = !!(navigator.share && navigator.canShare);
         ov.innerHTML='<div class="fac-bar">'
           +(fac.saldo?'<button class="tog'+(conSaldo?' on':'')+'" id="facCon">Con saldo</button><button class="tog'+(!conSaldo?' on':'')+'" id="facSin">Sin saldo</button>':'')
@@ -2231,6 +2238,8 @@
       +'<label for="vDet">Título de la factura (opcional)</label><input id="vDet" maxlength="40" placeholder="Ej: Pedido de la calle 5">'
       +'<div class="total-row" style="margin:14px -14px -14px"><span>Total de la venta</span><span class="big num" id="vTotal">$0</span></div>'
       +'</div></div>'
+      +'<div class="vext-imp"><label><input type="checkbox" id="vImp"> 🖨️ Imprimir factura al registrar</label>'
+      +'<label id="vSalBox"><input type="checkbox" id="vSal"> Con el saldo del cliente</label></div>'
       +'<button class="btn" id="vEnviar" style="margin-top:12px">📨 Registrar venta</button>'
       +'<p class="updated">El computador la registra sola en unos minutos (tiene que estar prendido y con internet): baja el inventario y entra a la caja o a la cartera del cliente. En Transacciones sale en celeste con 📱.</p>';
     h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Últimas ventas externas</h2></div>';
@@ -2245,6 +2254,7 @@
     function clienteSel(){ return buscarPorNombre(clientes, cli.value); }
     function verCliente(){
       var t=cli.value.trim(), c=clienteSel();
+      el("vSalBox").hidden = !t;   // el saldo solo aplica a crédito (con cliente)
       el("vCliNuevoBox").hidden = !(t && !c);
       el("vContadoBox").hidden = !!t;
       el("vCliInfo").innerHTML = !t ? "💵 Sin cliente: venta de contado." : "💳 Con cliente: queda a crédito. "+(c ? ("Debe hoy "+money((c.extra&&c.extra.saldo)||0)) : '<span class="nuevo-tag">➕ Cliente nuevo: se crea al registrar la venta</span>');
@@ -2275,6 +2285,12 @@
     }
     agregar();
     el("vAdd").onclick=agregar;
+    // Lo último elegido en este celular (de entrada: imprimir sí, con saldo sí).
+    function pref(k, def){ try{ var v=localStorage.getItem(k); return v==null ? def : v==="1"; }catch(e){ return def; } }
+    el("vImp").checked = pref("pf_vext_imp", true);
+    el("vSal").checked = pref("pf_vext_sal", true);
+    el("vImp").onchange=function(){ try{ localStorage.setItem("pf_vext_imp", this.checked?"1":"0"); }catch(e){} };
+    el("vSal").onchange=function(){ try{ localStorage.setItem("pf_vext_sal", this.checked?"1":"0"); }catch(e){} };
     cli.addEventListener("input", verCliente); cli.addEventListener("change", verCliente); verCliente();
 
     el("vEnviar").onclick=function(){
@@ -2304,6 +2320,7 @@
         +(el("vDet").value.trim()?" · "+el("vDet").value.trim():"");
       if(!confirm("¿Registrar esta venta?\n\n"+resumen)) return;
       var detTxt=el("vDet").value.trim();
+      var imprimirFac=el("vImp").checked, facConSaldo=el("vSal").checked;
       btn.disabled=true; btn.textContent="Enviando…";
       sb.auth.getSession().then(function(ss){
         var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
@@ -2332,9 +2349,9 @@
           fecha:new Date(), pago: pago==="credito" ? "Crédito" : "Contado", cliente: t ? (c ? c.nombre : t.toUpperCase()) : "CONTADO",
           datosCliente: datosCli, lineas: paraTiquete, total: tot,
           saldo: (pago==="credito" && c) ? { antes: saldoCli, despues: saldoCli+tot } : null };
-        if(confirm("✅ Venta enviada.\n\n¿Ver e imprimir el comprobante?")){
+        if(imprimirFac){
           var o=abrirOverlay();
-          cargarEmpresa().then(function(emp){ mostrarFactura(o.ov, facCel, emp, o.cerrar); });
+          cargarEmpresa().then(function(emp){ mostrarFactura(o.ov, facCel, emp, o.cerrar, { conSaldo:facConSaldo, imprimir:true }); });
         }
       });
     };
