@@ -271,6 +271,17 @@
 
   /* Venta externa registrada desde el celular: celeste (igual que en Transacciones del programa) */
   table.ttx tbody tr.cel{background:#a5f3fc} table.ttx tbody tr.cel td.tv,table.ttx tbody tr.cel td.tt{color:#0e7490}
+  /* Ingreso de mercancía (entra al viaje; no es plata del día): gris pizarra, como en el programa */
+  table.ttx tbody tr.ing{background:#e2e8f0} table.ttx tbody tr.ing td.tv,table.ttx tbody tr.ing td.tt{color:#334155}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) table.ttx tbody tr.ing td{color:#15242e} }
+  /* Impresora del celular */
+  .fac-bar .imp{background:#16a34a; color:#fff}
+  .imp-card{width:100%; max-width:440px; color:#fff; margin-top:18px}
+  .imp-card h3{margin:0 0 6px; font-size:1.05rem}
+  .imp-card .lab{font-size:.78rem; font-weight:800; opacity:.8; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.04em}
+  .imp-card .fac-bar{justify-content:flex-start; max-width:none}
+  .imp-card p{font-size:.86rem; line-height:1.4; opacity:.92; margin:10px 0}
+  .imp-card input[type=date]{appearance:none; border:none; border-radius:10px; padding:9px 10px; font:inherit; font-weight:700; background:#fff; color:#15242e}
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) table.ttx tbody tr.cel td{color:#15242e} }
   .k-vta{--k:#0e7490; --kb:#cffafe}
   /* Aviso: el computador no está enviando datos (apagado o con el tablero desactivado) */
@@ -370,6 +381,7 @@
       <div class="h-right">
         <span class="live" id="live"><span class="dot"></span><span id="liveTxt">En vivo</span></span>
         <button class="out bell" id="bell" type="button" aria-label="Avisos de abonos" title="Avisos de abonos">🔕</button>
+        <button class="out" id="impCfg" type="button" aria-label="Impresora de este celular" title="Impresora de este celular">🖨️</button>
         <button class="out" id="cambiarClave" type="button" aria-label="Cambiar contraseña" title="Cambiar contraseña">🔑</button>
         <button class="out" id="logout" type="button">Salir</button>
       </div>
@@ -792,8 +804,9 @@
       +(k.pagosCom?'<div class="tile span"><div class="lab">💵 Pagos comisión</div><div class="val num" style="color:#0f766e">'+money(k.pagosCom)+'</div></div>':'')
       +'</div>';
     // Filtros: tipo + buscar cliente
-    var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Devolución"];
-    h+='<div class="tfil">'+tipos.map(function(t){ return '<button class="tchip'+(state.transTipo===t?' on':'')+'" data-tt="'+t+'">'+(t==="Todas"?"Todas":t+"s")+'</button>'; }).join("")+'</div>';
+    var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Devolución","Ingreso"];
+    var plural={ "Todas":"Todas", "Devolución":"Devoluciones" };
+    h+='<div class="tfil">'+tipos.map(function(t){ return '<button class="tchip'+(state.transTipo===t?' on':'')+'" data-tt="'+t+'">'+(plural[t]||t+"s")+'</button>'; }).join("")+'</div>';
     h+='<input class="tbus" id="tBus" type="search" placeholder="🔎 Buscar cliente o producto…" value="'+esc(state.transBuscar)+'">';
     var q=state.transBuscar.toLowerCase();
     var filas=todas.filter(function(r){
@@ -808,7 +821,7 @@
       filas.forEach(function(r){
         var delCel = r.tipo==="Venta" && String(r.detalle||"").indexOf("📱 celular")>=0;   // venta externa del celular
         var cls = r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : delCel ? "cel" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
-                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "";
+                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.tipo==="Ingreso" ? "ing" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "";
         var prod = r.producto || r.detalle || "";
         var vid = (r.tipo==="Venta" && r.estado!=="Anulada") ? ventaDeRef(r.ref) : null;
         h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+'"><td>'+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(vid?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+'</td>'
@@ -918,6 +931,7 @@
     });
     el("avCerrar").onclick=function(){ p.hidden=true; };
   }
+  el("impCfg").onclick=function(){ abrirCfgImpresora(); };
   el("bell").onclick=function(){ if(!state.negocioId) return; var p=el("avisos"); if(p && !p.hidden){ p.hidden=true; } else abrirAvisos(); };
 
   // Texto del aviso por tipo. Las ventas llegan una fila por producto: se juntan por venta.
@@ -1083,10 +1097,12 @@
     var volver=function(){ state.section="cartera"; render(); };
     var fav=Number(c.saldo)<0;
     var cab='<button class="back" id="volver2">‹ Volver a cartera</button>'
-      +'<div class="sechead" style="margin-top:6px"><h2 class="sec">'+esc(c.nombre)+'</h2><button class="xls" data-xls="cliente">⬇️ Excel</button></div>'
+      +'<div class="sechead" style="margin-top:6px"><h2 class="sec">'+esc(c.nombre)+'</h2><span><button class="xls" id="ecImp">🖨️ Estado de cuenta</button> <button class="xls" data-xls="cliente">⬇️ Excel</button></span></div>'
       +'<div class="tiles"><div class="tile span"><div class="lab">'+(fav?"Saldo a favor":"Debe actualmente")+'</div><div class="val num" style="'+(fav?'color:var(--good)':'')+'">'+(fav?"−":"")+money(Math.abs(c.saldo))+'</div></div></div>';
     host.innerHTML=cab+'<div class="loading">Cargando movimientos…</div>';
     el("volver2").onclick=volver;
+    // El botón se vuelve a dibujar con cada carga: se escucha en el contenedor.
+    host.onclick=function(e){ if(e.target && e.target.id==="ecImp") abrirEstadoCuenta(c); };
     function consulta(cols){
       var qy=sb.from("cliente_movimiento").select(cols)
         .eq("negocio_id", state.negocioId).eq("cliente_id", c.cliente_id).order("fecha",{ascending:false});
@@ -1219,11 +1235,14 @@
         ov.innerHTML='<div class="fac-bar">'
           +(fac.saldo?'<button class="tog'+(conSaldo?' on':'')+'" id="facCon">Con saldo</button><button class="tog'+(!conSaldo?' on':'')+'" id="facSin">Sin saldo</button>':'')
           +'</div><div class="fac-bar">'
+          +'<button class="imp" id="facPrint">🖨️ Imprimir</button><button class="sec2" id="facCfg" aria-label="Impresora">⚙️</button>'
           +(puedeCompartir?'<button class="prim" id="facShare">📤 Compartir</button>':'')
           +'<button class="'+(puedeCompartir?'sec2':'prim')+'" id="facDown">⬇️ Descargar</button>'
           +'<button class="sec2" id="facClose">✕ Cerrar</button></div>'
           +'<img class="fac-img" alt="Factura" src="'+cv.toDataURL("image/png")+'">';
         el("facClose").onclick=cerrar;
+        el("facPrint").onclick=function(){ imprimirCanvas(actual, nombreArchivoFactura(fac)); };
+        el("facCfg").onclick=function(){ abrirCfgImpresora(); };
         if(fac.saldo){ el("facCon").onclick=function(){ conSaldo=true; pintar(); }; el("facSin").onclick=function(){ conSaldo=false; pintar(); }; }
         el("facDown").onclick=function(){
           var a=document.createElement("a"); a.href=actual.toDataURL("image/png"); a.download=nombreArchivoFactura(fac);
@@ -1359,6 +1378,322 @@
         f(23,false);
         partir(lin, W-2*M).forEach(function(p){ centro(p,23,false); });
       });
+      y+=10;
+      var by=y; g.fillStyle="#e5e7eb"; g.fillRect(M,by,W-2*M,64); g.fillStyle="#000"; y+=8;
+      centro("Proveedor del software: PescaFácil",20,true);
+      centro("pescafacilbykevin@gmail.com  ·  320 967 1137",20,false);
+      y=by+64;
+      var out=document.createElement("canvas"); out.width=W; out.height=y+18;
+      out.getContext("2d").drawImage(cv,0,0); return out;
+    }
+    return new Promise(function(ok){
+      if(!emp.logo_png){ ok(cuerpo(null)); return; }
+      var im=new Image(); im.onload=function(){ ok(cuerpo(im)); }; im.onerror=function(){ ok(cuerpo(null)); };
+      im.src="data:image/png;base64,"+emp.logo_png;
+    });
+  }
+
+  // ===== 🖨️ IMPRESORA DE ESTE CELULAR =====
+  // Cada celular guarda la suya (localStorage): el ancho del papel (58 mm de las portátiles u 80 mm) y
+  // cómo imprime. "Bluetooth directo" manda el tiquete como imagen ESC/POS a una térmica Bluetooth
+  // (Chrome en Android; la impresora tiene que tener Bluetooth BLE). "App de la impresora" comparte la
+  // imagen para imprimirla con RawBT (gratis en Play Store) o con la app que trajo la impresora.
+  var CFG_IMP="pf_impresora";
+  function cfgImpresora(){
+    var o={}; try{ o=JSON.parse(localStorage.getItem(CFG_IMP)||"{}")||{}; }catch(e){}
+    return { papel: o.papel==="80"?"80":"58", modo: o.modo==="app"?"app":"bt", nombre: o.nombre||"" };
+  }
+  function guardarCfgImpresora(c){ try{ localStorage.setItem(CFG_IMP, JSON.stringify(c)); }catch(e){} }
+  // Puntos de ancho a 203 ppp: el papel de 58 mm imprime 48 mm (384 puntos) y el de 80 mm, 72 mm (576).
+  function puntosPapel(p){ return p==="80" ? 576 : 384; }
+  function escalarParaPapel(cv, papel){
+    var w=puntosPapel(papel); if(cv.width===w) return cv;
+    var h=Math.round(cv.height*w/cv.width), out=document.createElement("canvas"); out.width=w; out.height=h;
+    var g=out.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,w,h);
+    g.imageSmoothingEnabled=true; g.imageSmoothingQuality="high"; g.drawImage(cv,0,0,w,h);
+    return out;
+  }
+  // Imagen → bytes ESC/POS: ESC @ (reinicia), la imagen en franjas "GS v 0" de 1 bit (negro donde la
+  // luz es < 165), avance de papel y corte (las portátiles sin cuchilla lo ignoran).
+  function canvasAEscPos(cv){
+    var w=cv.width, h=cv.height, bw=Math.ceil(w/8), px=cv.getContext("2d").getImageData(0,0,w,h).data;
+    var partes=[new Uint8Array([0x1B,0x40])];
+    for(var y0=0;y0<h;y0+=128){
+      var hh=Math.min(128,h-y0), b=new Uint8Array(8+bw*hh);
+      b.set([0x1D,0x76,0x30,0x00, bw&255, bw>>8, hh&255, hh>>8],0);
+      for(var y=0;y<hh;y++) for(var x=0;x<w;x++){
+        var i=((y0+y)*w+x)*4, luz=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2];
+        if(px[i+3]>0 && luz<165) b[8+y*bw+(x>>3)] |= (0x80>>(x&7));
+      }
+      partes.push(b);
+    }
+    partes.push(new Uint8Array([0x1B,0x64,0x04]), new Uint8Array([0x1D,0x56,0x42,0x00]));
+    var total=partes.reduce(function(s,p){ return s+p.length; },0), out=new Uint8Array(total), o=0;
+    partes.forEach(function(p){ out.set(p,o); o+=p.length; });
+    return out;
+  }
+  var BT={ dev:null, car:null };
+  // Servicios BLE de las térmicas comunes (genéricas chinas, Xprinter, Goojprt, MTP, PT-210…).
+  var BT_SERVICIOS=["000018f0-0000-1000-8000-00805f9b34fb","0000ff00-0000-1000-8000-00805f9b34fb","0000ffe0-0000-1000-8000-00805f9b34fb",
+                    "0000fee7-0000-1000-8000-00805f9b34fb","0000ae30-0000-1000-8000-00805f9b34fb","49535343-fe7d-4ae5-8fa9-9fafd205e455",
+                    "e7810a71-73ae-499d-8c15-faa9aef0c3f2"];
+  function btCaracteristica(server){
+    return server.getPrimaryServices().then(function(servs){
+      var i=0;
+      function sig(){
+        if(i>=servs.length) throw new Error("la impresora no deja recibir datos por Bluetooth");
+        return servs[i++].getCharacteristics().then(function(cs){
+          var c=cs.filter(function(x){ return x.properties.writeWithoutResponse || x.properties.write; })[0];
+          return c || sig();
+        }, sig);
+      }
+      return sig();
+    });
+  }
+  function btConectar(elegirOtra){
+    if(!navigator.bluetooth) return Promise.reject(new Error("este navegador no maneja Bluetooth (abre el tablero en Chrome en Android, o usa \"App de la impresora\")"));
+    if(!elegirOtra && BT.dev && BT.car && BT.dev.gatt.connected) return Promise.resolve(BT.car);
+    var pedir=(!elegirOtra && BT.dev) ? Promise.resolve(BT.dev)
+      : navigator.bluetooth.requestDevice({ acceptAllDevices:true, optionalServices:BT_SERVICIOS });
+    return pedir.then(function(dev){ BT.dev=dev; return dev.gatt.connect(); })
+      .then(btCaracteristica)
+      .then(function(c){ BT.car=c; var cfg=cfgImpresora(); cfg.nombre=(BT.dev && BT.dev.name)||"Impresora"; guardarCfgImpresora(cfg); return c; });
+  }
+  function btEnviar(bytes){
+    return btConectar(false).then(function(c){
+      var n=0, trozo=180;   // si la impresora no acepta trozos grandes, se baja a 20 (lo mínimo de BLE)
+      function escribir(parte){
+        return (c.properties.writeWithoutResponse && c.writeValueWithoutResponse) ? c.writeValueWithoutResponse(parte) : c.writeValue(parte);
+      }
+      function sig(){
+        if(n>=bytes.length) return Promise.resolve();
+        var parte=bytes.slice(n, n+trozo);
+        return escribir(parte).then(function(){ n+=parte.length; return new Promise(function(ok){ setTimeout(ok, trozo>20?15:6); }); }, function(e){
+          if(trozo>20){ trozo=20; return; }
+          throw e;
+        }).then(sig);
+      }
+      return sig();
+    });
+  }
+  function compartirCanvas(cv, nombre, paraImprimir){
+    return new Promise(function(ok){
+      cv.toBlob(function(b){
+        var file=new File([b], nombre, {type:"image/png"});
+        if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+          navigator.share({ files:[file], title:nombre }).catch(function(){}).then(ok);
+          return;
+        }
+        var a=document.createElement("a"); a.href=cv.toDataURL("image/png"); a.download=nombre;
+        document.body.appendChild(a); a.click(); a.remove();
+        if(paraImprimir) say("Se descargó la imagen: ábrela con la app de la impresora.");
+        ok();
+      }, "image/png");
+    });
+  }
+  // Imprime un tiquete (canvas de 576 px) con la impresora de este celular, al ancho de su papel.
+  function imprimirCanvas(cv, nombre){
+    var cfg=cfgImpresora(), img=escalarParaPapel(cv, cfg.papel);
+    if(cfg.modo==="app") return compartirCanvas(img, nombre, true);
+    say("🖨️ Imprimiendo…");
+    return btEnviar(canvasAEscPos(img)).then(function(){
+      say("✅ Enviado a "+(cfgImpresora().nombre||"la impresora"));
+    }).catch(function(e){
+      if(e && e.name==="NotFoundError") return;   // cerró el selector sin elegir impresora
+      BT.car=null;
+      if(confirm("No se pudo imprimir por Bluetooth ("+(e && e.message || e)+").\n\n¿Mandar el tiquete a la app de la impresora (RawBT u otra)?"))
+        return compartirCanvas(img, nombre, true);
+    });
+  }
+  // Tiquete de prueba: recuadro del ancho imprimible con una regla, para ver si el papel elegido es el correcto.
+  function tiqueteDePrueba(papel){
+    var W=puntosPapel(papel), cv=document.createElement("canvas"); cv.width=W; cv.height=330;
+    var g=cv.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,W,cv.height); g.fillStyle="#000"; g.strokeStyle="#000"; g.textBaseline="top";
+    g.lineWidth=3; g.strokeRect(2,2,W-4,cv.height-4);
+    g.textAlign="center"; g.font="bold 30px Arial"; g.fillText("PRUEBA PescaFácil",W/2,22);
+    g.font="22px Arial"; g.fillText("Papel de "+papel+" mm · "+W+" puntos",W/2,64);
+    g.fillText(new Date().toLocaleString("es-CO"),W/2,96);
+    var mm=W/(papel==="80"?72:48);   // puntos por milímetro del área imprimible
+    for(var i=0;i*mm<=W;i++){ var x=Math.round(i*mm); g.fillRect(Math.min(x,W-2),140,2,i%10===0?34:(i%5===0?24:14)); if(i%10===0 && i>0) { g.font="18px Arial"; g.fillText(String(i),Math.min(x,W-14),180); } }
+    g.font="20px Arial"; g.fillText("◀ IZQ",50,216); g.fillText("DER ▶",W-50,216);
+    g.font="bold 20px Arial"; g.fillText("Si el recuadro sale cortado a los lados,",W/2,258); g.fillText("elige el otro ancho de papel.",W/2,284);
+    return cv;
+  }
+  function abrirCfgImpresora(){
+    var ov=document.createElement("div"); ov.className="fac-ov"; ov.setAttribute("role","dialog");
+    document.body.appendChild(ov);
+    function cerrar(){ ov.remove(); }
+    ov.addEventListener("click", function(e){ if(e.target===ov) cerrar(); });
+    function pintar(){
+      var c=cfgImpresora();
+      var ayuda = c.modo==="bt"
+        ? (navigator.bluetooth
+            ? 'Prende la impresora y toca <b>Elegir impresora</b> la primera vez (después la recuerda mientras esté abierta esta página).'+(c.nombre?' Última usada: <b>'+esc(c.nombre)+'</b>.':'')
+              +' Si no aparece o no imprime, usa <b>App de la impresora</b>.'
+            : '⚠️ Este navegador no maneja Bluetooth: abre el tablero en <b>Chrome</b> (Android) o usa <b>App de la impresora</b>.')
+        : 'Al imprimir se comparte la imagen del tiquete: elige <b>RawBT</b> (gratis en Play Store, conecta casi cualquier impresora térmica) o la app que trajo tu impresora.';
+      ov.innerHTML='<div class="imp-card"><h3>🖨️ Impresora de este celular</h3>'
+        +'<div class="lab">Ancho del papel</div><div class="fac-bar">'
+        +'<button class="tog'+(c.papel==="58"?' on':'')+'" data-p="58">58 mm (portátil)</button><button class="tog'+(c.papel==="80"?' on':'')+'" data-p="80">80 mm</button></div>'
+        +'<div class="lab">Cómo imprime</div><div class="fac-bar">'
+        +'<button class="tog'+(c.modo==="bt"?' on':'')+'" data-m="bt">Bluetooth directo</button><button class="tog'+(c.modo==="app"?' on':'')+'" data-m="app">App de la impresora</button></div>'
+        +'<p>'+ayuda+'</p>'
+        +'<div class="fac-bar">'+(c.modo==="bt"?'<button class="sec2" id="impBuscar">🔎 Elegir impresora</button>':'')
+        +'<button class="imp" id="impPrueba">🧾 Imprimir prueba</button><button class="sec2" id="impListo">✓ Listo</button></div></div>';
+      Array.prototype.forEach.call(ov.querySelectorAll("[data-p]"), function(b){ b.onclick=function(){ var x=cfgImpresora(); x.papel=b.dataset.p; guardarCfgImpresora(x); pintar(); }; });
+      Array.prototype.forEach.call(ov.querySelectorAll("[data-m]"), function(b){ b.onclick=function(){ var x=cfgImpresora(); x.modo=b.dataset.m; guardarCfgImpresora(x); pintar(); }; });
+      el("impListo").onclick=cerrar;
+      el("impPrueba").onclick=function(){ var x=cfgImpresora(); imprimirCanvas(tiqueteDePrueba(x.papel), "Prueba-impresora.png"); };
+      if(el("impBuscar")) el("impBuscar").onclick=function(){
+        btConectar(true).then(function(){ say("✅ Conectada: "+cfgImpresora().nombre); pintar(); })
+          .catch(function(e){ if(!(e && e.name==="NotFoundError")) say("No se pudo conectar: "+(e && e.message || e)); });
+      };
+    }
+    pintar();
+  }
+  // Muestra cualquier tiquete ya dibujado con Imprimir / Compartir / Descargar.
+  function mostrarTiquete(ov, cv, nombre, cerrar){
+    var puedeCompartir = !!(navigator.share && navigator.canShare);
+    ov.innerHTML='<div class="fac-bar"><button class="imp" id="tqPrint">🖨️ Imprimir</button><button class="sec2" id="tqCfg" aria-label="Impresora">⚙️</button>'
+      +(puedeCompartir?'<button class="prim" id="tqShare">📤 Compartir</button>':'')
+      +'<button class="'+(puedeCompartir?'sec2':'prim')+'" id="tqDown">⬇️ Descargar</button><button class="sec2" id="tqClose">✕ Cerrar</button></div>'
+      +'<img class="fac-img" alt="Tiquete" src="'+cv.toDataURL("image/png")+'">';
+    el("tqClose").onclick=cerrar;
+    el("tqPrint").onclick=function(){ imprimirCanvas(cv, nombre); };
+    el("tqCfg").onclick=function(){ abrirCfgImpresora(); };
+    el("tqDown").onclick=function(){ var a=document.createElement("a"); a.href=cv.toDataURL("image/png"); a.download=nombre; document.body.appendChild(a); a.click(); a.remove(); };
+    if(puedeCompartir) el("tqShare").onclick=function(){ compartirCanvas(cv, nombre, false); };
+  }
+  function abrirOverlay(){
+    var ov=document.createElement("div"); ov.className="fac-ov"; ov.setAttribute("role","dialog");
+    document.body.appendChild(ov);
+    function teclas(e){ if(e.key==="Escape") cerrar(); }
+    function cerrar(){ ov.remove(); document.removeEventListener("keydown", teclas); }
+    document.addEventListener("keydown", teclas);
+    ov.addEventListener("click", function(e){ if(e.target===ov) cerrar(); });
+    return { ov:ov, cerrar:cerrar };
+  }
+
+  // ===== 📄 ESTADO DE CUENTA para imprimir (igual al tiquete del programa) =====
+  // Saldo anterior al DESDE y saldo final AL HASTA (no el de hoy), contados hacia atrás desde lo que el
+  // cliente debe hoy; una fila por pesada, abono (con su forma de pago) y devolución.
+  function abrirEstadoCuenta(c){
+    var o=abrirOverlay(), ov=o.ov, cerrar=o.cerrar;
+    var hoyS=isoToday(), d8=new Date(); d8.setDate(d8.getDate()-8);
+    ov.innerHTML='<div class="imp-card"><h3>📄 Estado de cuenta · '+esc(c.nombre)+'</h3>'
+      +'<div class="lab">Desde</div><input type="date" id="ecDesde" value="'+iso(d8)+'" max="'+hoyS+'">'
+      +'<div class="lab">Hasta</div><input type="date" id="ecHasta" value="'+hoyS+'" max="'+hoyS+'">'
+      +'<p>Sale el saldo que debía antes del DESDE, cada pesada, abono y devolución del rango, y el saldo final a la fecha del HASTA.</p>'
+      +'<div class="fac-bar"><button class="imp" id="ecVer">📄 Ver estado de cuenta</button><button class="sec2" id="ecX">✕ Cerrar</button></div></div>';
+    el("ecX").onclick=cerrar;
+    el("ecVer").onclick=function(){
+      var desde=el("ecDesde").value, hasta=el("ecHasta").value;
+      if(!desde || !hasta || desde>hasta){ say("Revisa las fechas: el DESDE va antes del HASTA."); return; }
+      ov.innerHTML='<div class="fac-msg">Armando el estado de cuenta…</div>';
+      function consulta(cols){
+        return sb.from("cliente_movimiento").select(cols).eq("negocio_id", state.negocioId).eq("cliente_id", c.cliente_id)
+          .gte("fecha", desde+"T00:00:00").order("fecha",{ascending:true}).limit(5000);
+      }
+      Promise.all([
+        consulta("fecha,tipo,detalle,cargo,abono,producto,kilos,precio").then(function(r){ return r.error ? consulta("fecha,tipo,detalle,cargo,abono") : r; }),
+        cargarEmpresa()
+      ]).then(function(r){
+        if(!document.body.contains(ov)) return;
+        if(r[0].error) throw r[0].error;
+        var todos=(r[0].data||[]).slice().sort(function(a,b){ return String(a.fecha)<String(b.fecha) ? -1 : String(a.fecha)>String(b.fecha) ? 1 : 0; }), emp=r[1];
+        var dia=function(m){ return String(m.fecha).slice(0,10); };
+        var saldoAnt=Number(c.saldo||0)-todos.reduce(function(s,m){ return s+Number(m.cargo)-Number(m.abono); },0);
+        var movs=todos.filter(function(m){ return dia(m)<=hasta; });
+        var saldoFin=saldoAnt+movs.reduce(function(s,m){ return s+Number(m.cargo)-Number(m.abono); },0);
+        return dibujarEstadoCuenta({ cliente:c.nombre, desde:desde, hasta:hasta, saldoAnt:saldoAnt, saldoFin:saldoFin, movs:movs }, emp).then(function(cv){
+          mostrarTiquete(ov, cv, ("Estado-cuenta-"+c.nombre+"-"+desde+"-a-"+hasta).replace(/[^\w\-]+/g,"_")+".png", cerrar);
+        });
+      }).catch(function(e){
+        ov.innerHTML='<div class="fac-msg">No se pudo armar el estado de cuenta: '+esc(e && e.message || e)+'<br><br><button class="xls" id="ecX2">Cerrar</button></div>'; el("ecX2").onclick=cerrar;
+      });
+    };
+  }
+  function dibujarEstadoCuenta(ec, emp){
+    var W=576, M=22, SANS='Arial,Helvetica,sans-serif';
+    var cv=document.createElement("canvas"); cv.width=W; cv.height=1400+ec.movs.length*34;
+    var g=cv.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,W,cv.height); g.fillStyle="#000"; g.textBaseline="top";
+    var y=18;
+    function f(px,bold){ g.font=(bold?"bold ":"")+px+"px "+SANS; }
+    function ancho(t){ return g.measureText(t).width; }
+    function centro(t,px,bold){ f(px,bold); while(px>14 && ancho(t)>W-2*M){ px--; f(px,bold); } g.textAlign="center"; g.fillText(t,W/2,y); y+=Math.round(px*1.3); }
+    function recortar(t,max){ t=String(t||""); if(ancho(t)<=max) return t; while(t.length>1 && ancho(t+"…")>max) t=t.slice(0,-1); return t+"…"; }
+    function linea(){ y+=6; g.fillRect(M,y,W-2*M,2); y+=12; }
+    function campo(etq,val,px,bold){ f(24,false); g.textAlign="left"; g.fillText(etq,M,y); f(px,bold); g.textAlign="right"; g.fillText(recortar(val,W-2*M-150),W-M,y); y+=Math.round(Math.max(px,24)*1.3); }
+    function saldoLinea(etq,val,px,bold,subrayar){
+      f(px,bold); g.textAlign="left"; g.fillText(etq,M+40,y); g.textAlign="right"; g.fillText(val,W-M,y); y+=Math.round(px*1.35);
+      if(subrayar){ g.fillRect(W-M-220,y,220,2); g.fillRect(W-M-220,y+5,220,2); y+=14; }
+    }
+    function fechaCorta(s){ s=String(s); return s.slice(8,10)+"/"+s.slice(5,7)+"/"+s.slice(2,4); }
+    function fechaLarga(s){ s=String(s); return s.slice(8,10)+"/"+s.slice(5,7)+"/"+s.slice(0,4); }
+    function num(n){ return Math.round(Number(n||0)).toLocaleString("es-CO"); }
+    function cuerpo(logo){
+      if(logo){ var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; }
+        g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+12; }
+      if(emp.nombre) centro(String(emp.nombre).toUpperCase(),42,true);
+      if(emp.nit) centro("NIT: "+emp.nit,26,false);
+      if(emp.direccion) centro("Dirección: "+emp.direccion,26,false);
+      if(emp.telefono) centro("Teléfono: "+emp.telefono,26,false);
+      linea();
+      centro("ESTADO DE CUENTA",30,true);
+      // El nombre del cliente grande; si no cabe se achica y, como último recurso, baja a otro renglón.
+      (function(){
+        var nom=String(ec.cliente||"").toUpperCase(), max=W-2*M-110, px=32;
+        f(24,false); g.textAlign="left"; g.fillText("Cliente:",M,y+4);
+        f(px,true); while(px>24 && ancho(nom)>max){ px--; f(px,true); }
+        var lineas=[nom];
+        if(ancho(nom)>max){ var pal=nom.split(" "), a=""; lineas=[]; pal.forEach(function(p){ var t2=a?a+" "+p:p; if(ancho(t2)>max && a){ lineas.push(a); a=p; } else a=t2; }); if(a) lineas.push(a); }
+        g.textAlign="right"; lineas.forEach(function(l){ g.fillText(recortar(l,max),W-M,y); y+=Math.round(px*1.25); });
+        y+=4;
+      })();
+      var ah=new Date();
+      campo("Impreso el:", ah.toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+ah.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"}), 24, false);
+      campo("Reporte del:", fechaLarga(ec.desde)+" al "+fechaLarga(ec.hasta), 24, true);
+      linea();
+      saldoLinea("Saldo Anterior:", num(ec.saldoAnt), 25, false, false);
+      saldoLinea("Saldo Final:", num(ec.saldoFin), 29, true, false);
+      y+=10;
+      var xF=M, xP=112, xC=372, xU=462, xV=W-M;
+      if(!ec.movs.length){ f(24,false); centro("(sin movimientos en el período)",24,false); }
+      else {
+        f(20,true); g.textAlign="left"; g.fillText("FECHA",xF,y); g.fillText("PRODUCTO",xP,y);
+        g.textAlign="right"; g.fillText("CANT",xC,y); g.fillText("PRECIO",xU,y); g.fillText("VALOR",xV,y); y+=26;
+        g.fillRect(M,y,W-2*M,2); y+=8;
+        ec.movs.forEach(function(m){
+          var tipo=String(m.tipo||""), prod="", cant="", precio="", valor="";
+          if(tipo==="venta"){
+            prod=m.producto || m.detalle || "Venta";
+            cant=Number(m.kilos) ? Number(m.kilos).toLocaleString("es-CO",{maximumFractionDigits:2}) : "";
+            precio=String(m.precio||"").replace(/\s@$/,"");   // por arroba sin marca, como el reporte del terminal
+            valor=num(m.cargo);
+          } else if(tipo==="abono"){
+            prod="ABONO "+String(m.detalle||"").split(" · ")[0].toUpperCase();
+            valor="-"+num(m.abono);
+          } else if(tipo==="devolucion"){
+            prod="DEVOL. "+String(m.detalle||"").replace(/^Devolución:\s*/,"");
+            valor="-"+num(m.abono);
+          } else {
+            prod=tipo==="saldo_inicial" ? "SALDO INICIAL" : (m.detalle||cap(tipo));
+            valor=num(Number(m.cargo)-Number(m.abono));
+          }
+          f(22,false);
+          // El producto usa todo el espacio hasta donde empieza la cantidad (si no hay cantidad, hasta el precio/valor).
+          var hastaX = cant ? xC-ancho(cant)-12 : (precio ? xU-ancho(precio)-12 : xV-ancho(valor)-12);
+          g.textAlign="left"; g.fillText(fechaCorta(m.fecha),xF,y); g.fillText(recortar(String(prod).toUpperCase(), hastaX-xP),xP,y);
+          g.textAlign="right"; g.fillText(cant,xC,y); g.fillText(recortar(precio,80),xU,y); g.fillText(valor,xV,y);
+          y+=31;
+        });
+      }
+      y+=8;
+      saldoLinea("Saldo Final:", num(ec.saldoFin), 29, true, true);
+      centro(Number(ec.saldoFin)<0 ? "(saldo a favor del cliente al "+fechaLarga(ec.hasta)+")" : "(lo que debe al "+fechaLarga(ec.hasta)+")",20,false);
+      y+=8;
+      var pie=String(emp.pie||"¡Gracias por su compra!");
+      pie.split(/\r?\n/).forEach(function(lin){ lin=lin.trim(); if(lin) centro(lin,22,false); });
       y+=10;
       var by=y; g.fillStyle="#e5e7eb"; g.fillRect(M,by,W-2*M,64); g.fillStyle="#000"; y+=8;
       centro("Proveedor del software: PescaFácil",20,true);
@@ -1644,7 +1979,8 @@
     cli.addEventListener("input", verCliente); cli.addEventListener("change", verCliente); verCliente();
 
     el("vEnviar").onclick=function(){
-      var btn=this, items=[], resumenL=[], tot=0, malo=null;
+      var btn=this, items=[], resumenL=[], tot=0, malo=null, paraTiquete=[];
+      var ABREV={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un"};
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
         var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
         if(!nom && !k) return;
@@ -1656,6 +1992,7 @@
         items.push(p ? {producto_id:p.id, kilos:k, precio:pr, tipo_precio:tp}
                      : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:unidadNueva}, kilos:k, precio:pr, tipo_precio:tp});
         tot+=subtotalVenta(k,pr,tp);
+        paraTiquete.push({ producto:nombreProd, kilos:k, precio:pr.toLocaleString("es-CO",{maximumFractionDigits:2})+" "+(ABREV[tp]||"@"), valor:subtotalVenta(k,pr,tp) });
         resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+(TIPOS_PRECIO.filter(function(t){ return t[0]===tp; })[0]||["","@"])[1]);
       });
       if(malo){ say(malo); return; }
@@ -1667,6 +2004,7 @@
       var resumen = "Venta externa a "+cliTxt+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+(pago==="credito"?"a crédito":"de contado ("+nombreCaja(caja)+")")
         +(el("vDet").value.trim()?" · "+el("vDet").value.trim():"");
       if(!confirm("¿Registrar esta venta?\n\n"+resumen)) return;
+      var detTxt=el("vDet").value.trim();
       btn.disabled=true; btn.textContent="Enviando…";
       sb.auth.getSession().then(function(ss){
         var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
@@ -1687,6 +2025,18 @@
         say("📨 Venta enviada. El computador la registra en unos minutos.");
         delete state.cache["cat_"+state.negocioId];
         loadVentaExterna();
+        // Tiquete para imprimir ya mismo con la impresora del celular (aún sin número: el PC se lo pone).
+        var saldoCli = c && c.extra ? Number(c.extra.saldo||0) : 0;
+        var datosCli = null;
+        if(t){ datosCli={ nombre: c ? c.nombre : t.toUpperCase() }; if(c && c.extra) Object.keys(c.extra).forEach(function(k){ datosCli[k]=c.extra[k]; }); }
+        var facCel={ ventaId:"celular", numLab:"Venta", numVal:"del celular", num:"COMPROBANTE DE VENTA", titulo:detTxt,
+          fecha:new Date(), pago: pago==="credito" ? "Crédito" : "Contado", cliente: t ? (c ? c.nombre : t.toUpperCase()) : "CONTADO",
+          datosCliente: datosCli, lineas: paraTiquete, total: tot,
+          saldo: (pago==="credito" && c) ? { antes: saldoCli, despues: saldoCli+tot } : null };
+        if(confirm("✅ Venta enviada.\n\n¿Ver e imprimir el comprobante?")){
+          var o=abrirOverlay();
+          cargarEmpresa().then(function(emp){ mostrarFactura(o.ov, facCel, emp, o.cerrar); });
+        }
       });
     };
   }
@@ -2119,7 +2469,9 @@
 
   // ----- Exportar a Excel (CSV) -----
   document.addEventListener("click", function(e){
-    var b=e.target.closest(".xls"); if(!b) return;
+    // Solo los botones de Excel (con data-xls): "Ver todo", "Cerrar" o "Estado de cuenta" usan la misma
+    // forma y antes mostraban "No hay datos para exportar" al tocarlos.
+    var b=e.target.closest(".xls"); if(!b || !b.dataset.xls) return;
     var k=b.dataset.xls; exportar(k);
   });
   function exportar(k){
