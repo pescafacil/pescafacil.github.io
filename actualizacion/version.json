@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.25",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.25/PescaFacil-Actualizacion-1.4.25.exe",
-    "sha256":  "e884c6037847fd1ca71a76659f4b690e869548ed4e6d15ea5d3971275d482b44",
-    "notas":  "Excel: toda la hoja en pesos sin decimales (kilos con 2 decimales y precios sin redondear: 62,5 ya no sale 63). Factura y casillas de precio con 2 decimales. El PC recibe abonos, clientes y productos nuevos registrados desde el celular.",
+    "version":  "1.4.26",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.26/PescaFacil-Actualizacion-1.4.26.exe",
+    "sha256":  "6d3ffb319d289ab491c0347d3939892d26fa6ab0e96ed410f2c02186a5a24b07",
+    "notas":  "Transacciones con la columna DESDE (celular o PC). Venta del celular con imprimir factura y con o sin saldo.",
     "fecha":  "2026-11-10"
 }
