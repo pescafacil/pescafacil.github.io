@@ -274,9 +274,36 @@
   /* Ingreso de mercancía (entra al viaje; no es plata del día): gris pizarra, como en el programa */
   table.ttx tbody tr.ing{background:#e2e8f0} table.ttx tbody tr.ing td.tv,table.ttx tbody tr.ing td.tt{color:#334155}
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) table.ttx tbody tr.ing td{color:#15242e} }
+  /* Transacciones: tarjetas chicas (3 por fila en el celular) y atajos Vender / Abonar arriba */
+  .tiles.mini{grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; margin-bottom:10px}
+  .tiles.mini .tile{padding:7px 9px; border-radius:12px; box-shadow:none}
+  .tiles.mini .tile .lab{font-size:.62rem; gap:4px}
+  .tiles.mini .tile .val{font-size:.98rem; margin-top:2px; letter-spacing:-.2px}
+  .tiles.mini .tile .val small{font-size:.68rem}
+  .atajos{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 0 10px}
+  .atajos button{appearance:none; border:none; border-radius:12px; padding:12px 10px; font:inherit; font-weight:800; font-size:.95rem; cursor:pointer; color:#fff}
+  .atajos .av{background:linear-gradient(135deg,#16a34a,#15803d)}
+  .atajos .aa{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+  .imp-card label{display:block; font-size:.78rem; font-weight:800; opacity:.85; margin:12px 0 5px; text-transform:uppercase; letter-spacing:.04em}
+  .imp-card input:not([type=date]), .imp-card select{width:100%; box-sizing:border-box; appearance:none; border:none; border-radius:10px; padding:10px 11px; font:inherit; font-size:1rem; background:#fff; color:#15242e}
+  .imp-card .grande{font-size:1.5rem !important; font-weight:800}
+  .imp-card .info{font-size:.85rem; margin-top:6px; opacity:.95}
+  .imp-card .saldo-abono{margin-top:8px; background:#1e293b; border-radius:12px; padding:10px 12px; font-size:.85rem; display:flex; justify-content:space-between; align-items:baseline}
+  .imp-card .saldo-abono b{font-size:1.45rem}
+  .imp-card .todo-btn{margin-top:8px; width:100%; appearance:none; border:2px solid #22c55e; background:transparent; color:#4ade80; border-radius:10px; padding:10px; font:inherit; font-weight:800; cursor:pointer}
+  /* Buscador de clientes/productos (lista propia: la del navegador casi no se ve en el celular) */
+  .acbox{position:fixed; z-index:90; background:#fff; color:#15242e; border:1px solid #cbd5e1; border-radius:12px;
+         box-shadow:0 12px 30px rgba(0,0,0,.25); max-height:260px; overflow:auto; -webkit-overflow-scrolling:touch}
+  .acbox div{display:flex; gap:8px; align-items:baseline; padding:11px 12px; border-bottom:1px solid #e2e8f0; cursor:pointer; font-size:.92rem}
+  .acbox div:last-child{border-bottom:none}
+  .acbox div:active, .acbox div:hover{background:#dbeafe}
+  .acbox b{color:#2563eb; min-width:2.2em}
+  .acbox .i{margin-left:auto; font-size:.74rem; color:#64748b; white-space:nowrap}
+  .acbox .nuevo{color:#15803d; font-weight:700; background:#f0fdf4}
+  .acbox .nuevo b{color:#15803d; min-width:0}
   /* Impresora del celular */
   .fac-bar .imp{background:#16a34a; color:#fff}
-  .imp-card{width:100%; max-width:440px; color:#fff; margin-top:18px}
+  .imp-card{width:100%; max-width:440px; color:#fff; margin-top:10px; background:#0f172a; border-radius:16px; padding:16px; box-sizing:border-box; box-shadow:0 12px 30px rgba(0,0,0,.35)}
   .imp-card h3{margin:0 0 6px; font-size:1.05rem}
   .imp-card .lab{font-size:.78rem; font-weight:800; opacity:.8; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.04em}
   .imp-card .fac-bar{justify-content:flex-start; max-width:none}
@@ -396,17 +423,18 @@
 
   <div class="chips"><div class="chips-in" role="tablist">
     <div class="sidebrand">🐟 PescaFácil<small>Tablero del negocio</small></div>
-    <button class="chip" role="tab" aria-selected="true"  data-s="resumen">📊 Resumen</button>
-    <button class="chip" role="tab" aria-selected="false" data-s="trans">🧾 Transacciones</button>
-    <button class="chip" role="tab" aria-selected="false" data-s="caja">🧮 Cierre de caja</button>
-    <button class="chip" role="tab" aria-selected="false" data-s="bancos">🏦 Cuentas y bancos</button>
+    <!-- Lo que más se usa primero (pedido del dueño): Transacciones abre al entrar. -->
+    <button class="chip" role="tab" aria-selected="true"  data-s="trans">🧾 Transacciones</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="vext">🛒 Vender</button>
     <button class="chip" role="tab" aria-selected="false" data-s="cartera">👥 Cartera</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="caja">🧮 Cierre de caja</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="prestamos">🤝 Préstamos</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="ingreso">📥 Ingreso</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="resumen">📊 Resumen</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="venta">📈 Venta día</button>
     <button class="chip" role="tab" aria-selected="false" data-s="inv">📦 Inventario</button>
     <button class="chip" role="tab" aria-selected="false" data-s="prov">🚛 Proveedores</button>
-    <button class="chip" role="tab" aria-selected="false" data-s="venta">📈 Venta día</button>
-    <button class="chip" role="tab" aria-selected="false" data-s="prestamos">🤝 Préstamos</button>
-    <button class="chip" role="tab" aria-selected="false" data-s="vext">🛒 Venta externa</button>
-    <button class="chip" role="tab" aria-selected="false" data-s="ingreso">📥 Ingreso</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="bancos">🏦 Cuentas y bancos</button>
     <button class="chip" role="tab" aria-selected="false" data-s="cambios">🛡️ Cambios <span class="badge" id="badgeCambios" hidden>0</span></button>
     <button class="chip" role="tab" aria-selected="false" data-s="usuarios">👤 Usuarios</button>
   </div></div>
@@ -446,7 +474,7 @@
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // ----- Estado -----
-  var state = { negocioId:null, negocios:[], fecha:isoToday(), section:"resumen", cache:{} };
+  var state = { negocioId:null, negocios:[], fecha:isoToday(), section:"trans", cache:{} };
 
   // ----- Utilidades -----
   function isoToday(){ var d=new Date(); return iso(d); }
@@ -591,6 +619,8 @@
   el("hoy").onclick=function(){ state.fecha=isoToday(); updateDay(); render(true); };
 
   // ----- Chips -----
+  // Ir a una sección como si se tocara su botón (atajos).
+  function irA(s){ var c=document.querySelector('.chip[data-s="'+s+'"]'); if(c){ c.click(); try{ c.scrollIntoView({inline:"center", block:"nearest"}); }catch(e){} } }
   Array.prototype.forEach.call(document.querySelectorAll(".chip"), function(c){
     c.addEventListener("click", function(){
       state.section=c.dataset.s;
@@ -794,14 +824,15 @@
       else if(r.tipo==="Pago Comisión") k.pagosCom+=v;
     });
     var h='<div class="sechead"><h2 class="sec">Transacciones del día</h2><button class="xls" data-xls="trans">⬇️ Excel</button></div>';
-    h+='<div class="tiles">'
+    h+='<div class="atajos"><button class="av" id="atVender">🛒 Vender</button><button class="aa" id="atAbonar">💰 Abonar</button></div>';
+    h+='<div class="tiles mini">'
       +'<div class="tile"><div class="lab">💵 Contado</div><div class="val num" style="color:#047857">'+money(k.contado)+'</div></div>'
       +'<div class="tile"><div class="lab">💳 Crédito</div><div class="val num" style="color:#c2410c">'+money(k.credito)+'</div></div>'
       +'<div class="tile"><div class="lab">💰 Abonos</div><div class="val num" style="color:#2563eb">'+money(k.abonos)+'</div></div>'
       +'<div class="tile accent"><div class="lab">📊 Neto caja</div><div class="val num">'+money(k.contado+k.abonos)+'</div></div>'
       +'<div class="tile"><div class="lab">⚖️ Kilos</div><div class="val num">'+kilos(k.kilos)+' <small>kg</small></div></div>'
       +'<div class="tile"><div class="lab">📤 Gastos</div><div class="val num" style="color:#b91c1c">'+money(k.gastos)+'</div></div>'
-      +(k.pagosCom?'<div class="tile span"><div class="lab">💵 Pagos comisión</div><div class="val num" style="color:#0f766e">'+money(k.pagosCom)+'</div></div>':'')
+      +(k.pagosCom?'<div class="tile"><div class="lab">💵 Comisión</div><div class="val num" style="color:#0f766e">'+money(k.pagosCom)+'</div></div>':'')
       +'</div>';
     // Filtros: tipo + buscar cliente
     var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Devolución","Ingreso"];
@@ -837,6 +868,8 @@
       tr.onclick=function(){ var v=Number(tr.dataset.v); abrirFactura(v, todas.filter(function(x){ return x.tipo==="Venta" && ventaDeRef(x.ref)===v; })); };
     });
     Array.prototype.forEach.call(host.querySelectorAll(".tchip"), function(b){ b.onclick=function(){ state.transTipo=b.dataset.tt; pintarTrans(); }; });
+    el("atVender").onclick=function(){ irA("vext"); };
+    el("atAbonar").onclick=function(){ abrirAbono(); };
     var bus=el("tBus"); if(bus){ bus.oninput=function(){ state.transBuscar=this.value; var p=this.selectionStart; pintarTrans(); var nb=el("tBus"); nb.focus(); try{ nb.setSelectionRange(p,p); }catch(e){} }; }
   }
 
@@ -1574,12 +1607,278 @@
     return { ov:ov, cerrar:cerrar };
   }
 
+  // ===== 🔎 BUSCADOR de clientes y productos (como los cuadros del PC) =====
+  // Toda casilla con list="dl…" usa este buscador en vez de la lista del navegador (que en el celular casi
+  // no se ve): se escribe el CÓDIGO o cualquier parte del NOMBRE (sin importar tildes) y sale la lista con
+  // código · nombre · dato (lo que debe el cliente, la unidad del producto); se toca uno y queda puesto.
+  // Escribir el código exacto y salir de la casilla también lo pone.
+  function sinTildesG(s){ return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase(); }
+  function opcionesCliente(lista){
+    return (lista||[]).map(function(c){ var x=c.extra||{}, s=Number(x.saldo||0);
+      return '<option value="'+esc(c.nombre)+'" data-c="'+esc(x.codigo||"")+'" data-i="'+(s?(s<0?"a favor ":"debe ")+money(Math.abs(s)):"")+'"></option>'; }).join("");
+  }
+  function opcionesProducto(lista){
+    return (lista||[]).map(function(p){ var x=p.extra||{};
+      return '<option value="'+esc(p.nombre)+'" data-c="'+esc(x.codigo||"")+'" data-i="'+esc(x.unidad && x.unidad!=="Arroba" ? "por "+String(x.unidad).toLowerCase() : "")+'"></option>'; }).join("");
+  }
+  var acCaja=null, acInput=null;
+  function acOpciones(inp){
+    var dl=document.getElementById(inp.dataset.dl); if(!dl) return [];
+    return Array.prototype.map.call(dl.options, function(o){ return { nombre:o.value, cod:o.getAttribute("data-c")||"", info:o.getAttribute("data-i")||"" }; });
+  }
+  function acCerrar(){ if(acCaja){ acCaja.remove(); acCaja=null; acInput=null; } }
+  function acElegir(inp, o){
+    inp.value=o.nombre; inp._acPoniendo=true;
+    inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true}));
+    inp._acPoniendo=false; acCerrar();
+  }
+  function acMostrar(inp){
+    var t=sinTildesG(inp.value.trim()), todas=acOpciones(inp);
+    var res=todas.map(function(o){
+      var n=sinTildesG(o.nombre), c=sinTildesG(o.cod), pts=-1;
+      if(!t) pts=0;
+      else if(c && c===t) pts=100;
+      else if(c && c.indexOf(t)===0) pts=80;
+      else if(n.indexOf(t)===0) pts=70;
+      else if(n.indexOf(" "+t)>=0) pts=60;
+      else if(n.indexOf(t)>=0) pts=40;
+      return { o:o, pts:pts };
+    }).filter(function(x){ return x.pts>=0; }).sort(function(a,b){ return b.pts-a.pts || a.o.nombre.localeCompare(b.o.nombre); }).slice(0,40);
+    acCerrar();
+    // Al final, crear uno nuevo con lo escrito (como el ➕ Nuevo de los buscadores del PC).
+    var tipoNuevo = /^dlProd/.test(inp.dataset.dl) ? "producto" : (/^dlCli/.test(inp.dataset.dl) && inp.dataset.dl!=="dlCliA") ? "cliente" : null;
+    var exacto = res.some(function(x){ return sinTildesG(x.o.nombre)===t; });
+    if(tipoNuevo && t && !exacto) res.push({ o:{ nombre:inp.value.trim(), cod:"", info:"", nuevo:tipoNuevo }, pts:-1 });
+    if(!res.length || (res.length===1 && res[0].o.nombre===inp.value && !res[0].o.nuevo)) return;
+    var r=inp.getBoundingClientRect(), caja=document.createElement("div"); caja.className="acbox";
+    caja.style.left=Math.max(4,r.left)+"px"; caja.style.width=Math.max(220,r.width)+"px";
+    var abajo=window.innerHeight-r.bottom, alto=Math.min(260, res.length*44+4);
+    if(abajo<alto+8 && r.top>abajo){ caja.style.bottom=(window.innerHeight-r.top+2)+"px"; } else { caja.style.top=(r.bottom+2)+"px"; }
+    caja.innerHTML=res.map(function(x,i){
+      if(x.o.nuevo) return '<div data-i="'+i+'" class="nuevo">➕ Nuevo '+x.o.nuevo+': <b>'+esc(x.o.nombre.toUpperCase())+'</b></div>';
+      return '<div data-i="'+i+'">'+(x.o.cod?'<b>'+esc(x.o.cod)+'</b>':'')+'<span>'+esc(x.o.nombre)+'</span>'+(x.o.info?'<span class="i">'+esc(x.o.info)+'</span>':'')+'</div>'; }).join("");
+    // mousedown (no click): se elige antes de que la casilla pierda el foco.
+    caja.addEventListener("mousedown", function(e){
+      var d=e.target.closest("[data-i]"); if(!d) return; e.preventDefault();
+      var o=res[Number(d.dataset.i)].o;
+      if(o.nuevo){ acCerrar(); abrirNuevo(o.nuevo, inp); } else acElegir(inp, o);
+    });
+    document.body.appendChild(caja); acCaja=caja; acInput=inp; caja._res=res;
+  }
+  // Código exacto escrito a mano → pone el nombre (como el PC).
+  function acResolverCodigo(inp){
+    var t=sinTildesG(inp.value.trim()); if(!t) return;
+    var o=acOpciones(inp).filter(function(x){ return x.cod && sinTildesG(x.cod)===t; })[0];
+    if(o && o.nombre!==inp.value) acElegir(inp, o);
+  }
+  document.addEventListener("focusin", function(e){
+    var inp=e.target; if(!inp || inp.tagName!=="INPUT") return;
+    if(inp.getAttribute("list")){ inp.dataset.dl=inp.getAttribute("list"); inp.removeAttribute("list"); }
+    if(inp.dataset.dl) acMostrar(inp);
+  });
+  document.addEventListener("input", function(e){
+    var inp=e.target; if(!inp || inp.tagName!=="INPUT") return;
+    if(inp.getAttribute("list")){ inp.dataset.dl=inp.getAttribute("list"); inp.removeAttribute("list"); }
+    if(inp.dataset.dl && !inp._acPoniendo) acMostrar(inp);
+  });
+  document.addEventListener("focusout", function(e){
+    var inp=e.target; if(!inp || !inp.dataset || !inp.dataset.dl) return;
+    setTimeout(function(){ if(acInput===inp) acCerrar(); acResolverCodigo(inp); }, 180);
+  });
+  document.addEventListener("keydown", function(e){
+    if(!acCaja || e.target!==acInput) return;
+    if(e.key==="Enter" && acCaja._res && acCaja._res.length){ e.preventDefault(); acElegir(acInput, acCaja._res[0].o); }
+    else if(e.key==="Escape") acCerrar();
+  });
+  window.addEventListener("resize", function(){ if(acInput && document.activeElement===acInput) acMostrar(acInput); else acCerrar(); });
+  window.addEventListener("scroll", function(e){ if(acCaja && !acCaja.contains(e.target)) acCerrar(); }, true);
+
+  // ===== ➕ NUEVO CLIENTE / PRODUCTO desde el celular =====
+  // Queda en solicitud_movil (tipo 'cliente' / 'producto', ya aprobada) y el computador lo crea con el
+  // siguiente código libre. Mientras tanto queda puesto en la casilla y la venta/préstamo lo manda como nuevo:
+  // el PC lo encuentra por el nombre y no lo repite.
+  var UNIDADES=[["Arroba","@ Arroba"],["Kilo","kg Kilo"],["Caja","Caja"],["Unidad","Unidad"]];
+  function abrirNuevo(tipo, inp){
+    var o=abrirOverlay(), ov=o.ov, cerrar=o.cerrar, esCli = tipo==="cliente", nombre0=(inp && inp.value || "").trim().toUpperCase();
+    ov.innerHTML='<div class="imp-card"><h3>'+(esCli?'👤 Nuevo cliente':'🐟 Nuevo producto')+'</h3>'
+      +'<label for="nNom">Nombre</label><input id="nNom" maxlength="60" autocomplete="off" value="'+esc(nombre0)+'" style="text-transform:uppercase">'
+      +(esCli
+        ? '<label for="nTel">Teléfono</label><input id="nTel" inputmode="tel" maxlength="30" autocomplete="off">'
+          +'<label for="nCed">Cédula / NIT (opcional)</label><input id="nCed" maxlength="30" autocomplete="off">'
+          +'<label for="nDir">Dirección (opcional)</label><input id="nDir" maxlength="80" autocomplete="off">'
+        : '<label for="nUni">Se vende / compra por</label><select id="nUni">'+UNIDADES.map(function(u){ return '<option value="'+u[0]+'">'+u[1]+'</option>'; }).join("")+'</select>'
+          +'<label for="nPre">Precio de venta en miles (opcional)</label><input id="nPre" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 100">')
+      +'<div class="fac-bar" style="margin-top:16px"><button class="imp" id="nGuardar">➕ Crear</button><button class="sec2" id="nX">✕ Cancelar</button></div>'
+      +'<p>El computador lo crea solo en unos minutos, con el siguiente código.</p></div>';
+    el("nX").onclick=cerrar;
+    el("nNom").focus();
+    el("nGuardar").onclick=function(){
+      var nom=el("nNom").value.trim().toUpperCase(); if(!nom){ say("Escribe el nombre."); return; }
+      var datos = esCli ? { nombre:nom, telefono:el("nTel").value.trim(), cedula:el("nCed").value.trim(), direccion:el("nDir").value.trim() }
+                        : { nombre:nom, unidad:el("nUni").value, precio_venta:leerNum(el("nPre").value) };
+      var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+      sb.auth.getSession().then(function(ss){
+        var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
+        return sb.from("solicitud_movil").insert({ negocio_id:state.negocioId, origen:"celular", tipo:tipo, estado:"aprobada", creado_por:email,
+          resumen:(esCli?"Cliente nuevo: ":"Producto nuevo: ")+nom, datos:datos });
+      }).then(function(res){
+        btn.disabled=false; btn.textContent="➕ Crear";
+        if(res.error){ say(/row-level security|policy/i.test(res.error.message) ? "La nube todavía no acepta crear "+tipo+"s desde el celular (falta actualizar el servidor)." : "No se pudo enviar: "+res.error.message); return; }
+        cerrar();
+        say("➕ "+(esCli?"Cliente":"Producto")+" "+nom+": el computador lo crea en unos minutos.");
+        delete state.cache["cat_"+state.negocioId];
+        if(inp){
+          inp.value=nom; inp._acPoniendo=true;
+          inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true}));
+          inp._acPoniendo=false;
+          if(!esCli){
+            var fila=inp.closest(".ilin"), t=fila && fila.querySelector(".t");
+            if(t){
+              t.value = datos.unidad==="Kilo"?"x Kilo": datos.unidad==="Caja"?"x Caja": datos.unidad==="Unidad"?"x Unidad":"x Arroba";
+              var p=fila.querySelector(".p"); if(p && !p.value && datos.precio_venta) p.value=String(datos.precio_venta);
+              t.dispatchEvent(new Event("change",{bubbles:true}));
+            }
+          }
+          if(esCli && el("vCliTel") && !el("vCliTel").value) el("vCliTel").value=datos.telefono;
+        }
+      });
+    };
+  }
+
+  // ===== 💰 ABONO desde el celular =====
+  // Como la venta externa: queda en solicitud_movil (tipo 'abono', ya aprobada) y el computador lo registra
+  // en su siguiente sincronización (ClientesDatos.RegistrarAbono: baja la cartera y entra a la caja elegida).
+  function leerPlata(v){ var s=String(v==null?"":v).replace(/[^\d]/g,""); return s ? Number(s) : 0; }
+  function abrirAbono(){
+    var o=abrirOverlay(), ov=o.ov, cerrar=o.cerrar;
+    ov.innerHTML='<div class="fac-msg">Cargando clientes…</div>';
+    cargarCatalogo().then(function(cat){
+      if(!document.body.contains(ov)) return;
+      var clientes=cat.cliente||[];
+      ov.innerHTML='<div class="imp-card"><h3>💰 Registrar abono</h3>'
+        +'<label for="aCli">Cliente</label><input id="aCli" list="dlCliA" placeholder="Código o nombre del cliente" autocomplete="off">'
+        +'<datalist id="dlCliA">'+opcionesCliente(clientes)+'</datalist>'
+        +'<div id="aSaldo" class="saldo-abono" hidden></div>'+'<div class="info" id="aInfo"></div>'
+        +'<label for="aMonto">Valor del abono</label><input id="aMonto" class="grande" type="text" inputmode="numeric" placeholder="$0" autocomplete="off">'
+        +'<div class="info" id="aMontoTxt"></div>'+'<button type="button" class="todo-btn" id="aTodo" hidden>💯 Cancelar todo</button>'
+        +'<label for="aCaja">Forma de pago</label><select id="aCaja">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[1]+' '+c[2]+'</option>'; }).join("")+'</select>'
+        +'<label for="aNota">Nota (opcional)</label><input id="aNota" maxlength="60" autocomplete="off">'
+        +'<div class="fac-bar" style="margin-top:16px"><button class="imp" id="aGuardar">💾 Registrar abono</button><button class="sec2" id="aX">✕ Cancelar</button></div>'
+        +'<p>El computador lo registra solo en unos minutos: baja lo que debe el cliente y entra a la caja elegida.</p></div>';
+      el("aX").onclick=cerrar;
+      function clienteSel(){ return buscarPorNombre(clientes, el("aCli").value); }
+      function pintarInfo(){
+        var c=clienteSel(), m=leerPlata(el("aMonto").value), s=c && c.extra ? Number(c.extra.saldo||0) : 0;
+        // Saldo grande del cliente elegido y, con valor, en cuánto queda (paz y salvo si llega a cero).
+        el("aSaldo").hidden = !c;
+        if(c) el("aSaldo").innerHTML = (s<0 ? "Saldo a favor" : "Debe hoy")+"<b>"+money(Math.abs(s))+"</b>";
+        el("aTodo").hidden = !(c && s>0);
+        if(c && s>0) el("aTodo").textContent = "💯 Cancelar todo ("+money(s)+")";
+        el("aInfo").innerHTML = !el("aCli").value.trim() ? "" : !c ? "⚠️ Ese cliente no está en la lista."
+          : (m ? (s-m===0 ? "✅ Queda a <b>PAZ Y SALVO</b>" : (s-m<0 ? "Queda con saldo a favor de <b>"+money(m-s)+"</b>" : "Queda debiendo <b>"+money(s-m)+"</b>")) : "");
+        el("aMontoTxt").textContent = m ? money(m) : "";
+      }
+      ["input","change"].forEach(function(ev){ el("aCli").addEventListener(ev, pintarInfo); el("aMonto").addEventListener(ev, pintarInfo); });
+      // Cancelar todo: el abono es exactamente lo que debe hoy (queda a paz y salvo).
+      el("aTodo").onclick=function(){ var c=clienteSel(), s=c && c.extra ? Number(c.extra.saldo||0) : 0; if(s>0){ el("aMonto").value=String(Math.round(s)); pintarInfo(); } };
+      el("aGuardar").onclick=function(){
+        var c=clienteSel(), m=leerPlata(el("aMonto").value), caja=el("aCaja").value, nota=el("aNota").value.trim();
+        if(!c){ say("Elige el cliente de la lista."); el("aCli").focus(); return; }
+        if(!(m>0)){ say("Escribe el valor del abono."); el("aMonto").focus(); return; }
+        var saldo=c.extra ? Number(c.extra.saldo||0) : 0;
+        var resumen="Abono de "+c.nombre+": "+money(m)+" · "+nombreCaja(caja)+(nota?" · "+nota:"");
+        if(!confirm("¿Registrar este abono?\n\n"+resumen)) return;
+        var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+        sb.auth.getSession().then(function(ss){
+          var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
+          return sb.from("solicitud_movil").insert({
+            negocio_id:state.negocioId, origen:"celular", tipo:"abono", estado:"aprobada", creado_por:email, resumen:resumen,
+            datos:{ cliente_id:Number(c.id), monto:m, caja:caja, nota:nota }
+          });
+        }).then(function(res){
+          btn.disabled=false; btn.textContent="💾 Registrar abono";
+          if(res.error){
+            say(/row-level security|policy/i.test(res.error.message) ? "La nube todavía no acepta abonos desde el celular (falta actualizar el servidor)." : "No se pudo enviar: "+res.error.message);
+            return;
+          }
+          delete state.cache["cat_"+state.negocioId];
+          if(!confirm("✅ Abono enviado. El computador lo registra en unos minutos.\n\n¿Ver e imprimir el recibo?")){ cerrar(); return; }
+          ov.innerHTML='<div class="fac-msg">Armando el recibo…</div>';
+          var dc={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; });
+          var cfgF=((cat.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
+          cargarEmpresa().then(function(emp){
+            emp.pie=cfgF.pie;
+            return dibujarRecibo({ cliente:c.nombre, datosCliente:dc, monto:m, caja:caja, nota:nota, fecha:new Date(),
+              saldoAntes:saldo, saldoDespues:saldo-m, destacado:!!cfgF.saldo_destacado }, emp);
+          }).then(function(cv){ mostrarTiquete(ov, cv, ("Recibo-abono-"+c.nombre).replace(/[^\w\-]+/g,"_")+".png", cerrar); });
+        });
+      };
+      el("aCli").focus();
+    });
+  }
+  // Recibo del abono con la forma del comprobante de abono del PC.
+  function dibujarRecibo(r, emp){
+    var W=576, M=22, SANS='Arial,Helvetica,sans-serif';
+    var cv=document.createElement("canvas"); cv.width=W; cv.height=1800;
+    var g=cv.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,W,cv.height); g.fillStyle="#000"; g.textBaseline="top";
+    var y=18;
+    function f(px,bold){ g.font=(bold?"bold ":"")+px+"px "+SANS; }
+    function ancho(t){ return g.measureText(t).width; }
+    function centro(t,px,bold){ f(px,bold); while(px>14 && ancho(t)>W-2*M){ px--; f(px,bold); } g.textAlign="center"; g.fillText(t,W/2,y); y+=Math.round(px*1.3); }
+    function linea(){ y+=6; g.fillRect(M,y,W-2*M,2); y+=12; }
+    function dos(a,b,px,bold){ f(px,bold); g.textAlign="left"; g.fillText(a,M,y); g.textAlign="right"; g.fillText(b,W-M,y); y+=Math.round(px*1.35); }
+    function campo(etq,val,px,bold){ f(24,false); g.textAlign="left"; g.fillText(etq,M,y); f(px,bold); while(px>18 && ancho(val)>W-2*M-170){ px--; f(px,bold); } g.textAlign="right"; g.fillText(val,W-M,y); y+=Math.round(Math.max(px,24)*1.3); }
+    function cuerpo(logo){
+      if(logo){ var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; } g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+12; }
+      if(emp.nombre) centro(String(emp.nombre).toUpperCase(),42,true);
+      if(emp.nit) centro("NIT: "+emp.nit,26,false);
+      if(emp.direccion) centro("Dirección: "+emp.direccion,26,false);
+      if(emp.telefono) centro("Teléfono: "+emp.telefono,26,false);
+      linea();
+      centro("COMPROBANTE DE ABONO",30,true);
+      var fe=r.fecha.toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"}), ho=r.fecha.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
+      dos("Fecha: "+fe, "Hora: "+ho, 24, false);
+      linea();
+      centro("Datos cliente",26,true); y+=2;
+      var dc=r.datosCliente||{};
+      campo("NOMBRE:", String(r.cliente||"").toUpperCase(), 30, true);
+      campo("NIT / C.C:", dc.cedula||"N/A", 24, false);
+      campo("TELÉFONO:", dc.telefono||"N/A", 24, false);
+      linea();
+      dos("Forma de pago:", nombreCaja(r.caja), 24, true);
+      if(r.nota) dos("Nota:", r.nota, 22, false);
+      linea();
+      dos("Saldo anterior:", money(r.saldoAntes), 25, false);
+      dos("- Abono:", "-"+money(r.monto), 25, r.destacado);
+      if(!r.destacado){ y+=4; dos(r.saldoDespues<0 ? "Saldo a favor:" : "Saldo pendiente:", money(Math.abs(r.saldoDespues)), 29, true); }
+      if(Math.round(r.saldoDespues)===0){ y+=6; centro("✔ PAZ Y SALVO",34,true); }
+      linea(); y+=4;
+      var etq=r.destacado ? "Saldo pendiente" : "Monto abonado", val=money(r.destacado ? r.saldoDespues : r.monto), px=46;
+      f(px,true); while(px>26 && ancho(etq)+ancho(val)+40>W-2*M){ px-=2; f(px,true); }
+      f(Math.min(px,34),true); g.textAlign="left"; g.fillText(etq,M,y+(px-Math.min(px,34))*0.6);
+      f(px,true); g.textAlign="right"; g.fillText(val,W-M,y); y+=Math.round(px*1.3);
+      linea();
+      String(emp.pie||"¡Gracias por su pago!").split(/\r?\n/).forEach(function(l){ l=l.trim(); if(l) centro(l,22,false); });
+      y+=10;
+      var by=y; g.fillStyle="#e5e7eb"; g.fillRect(M,by,W-2*M,64); g.fillStyle="#000"; y+=8;
+      centro("Proveedor del software: PescaFácil",20,true);
+      centro("pescafacilbykevin@gmail.com  ·  320 967 1137",20,false);
+      y=by+64;
+      var out=document.createElement("canvas"); out.width=W; out.height=y+18; out.getContext("2d").drawImage(cv,0,0); return out;
+    }
+    return new Promise(function(ok){
+      if(!emp.logo_png){ ok(cuerpo(null)); return; }
+      var im=new Image(); im.onload=function(){ ok(cuerpo(im)); }; im.onerror=function(){ ok(cuerpo(null)); };
+      im.src="data:image/png;base64,"+emp.logo_png;
+    });
+  }
+
   // ===== 📄 ESTADO DE CUENTA para imprimir (igual al tiquete del programa) =====
   // Saldo anterior al DESDE y saldo final AL HASTA (no el de hoy), contados hacia atrás desde lo que el
   // cliente debe hoy; una fila por pesada, abono (con su forma de pago) y devolución.
   function abrirEstadoCuenta(c){
     var o=abrirOverlay(), ov=o.ov, cerrar=o.cerrar;
-    var hoyS=isoToday(), d8=new Date(); d8.setDate(d8.getDate()-8);
+    var hoyS=isoToday(), d8=new Date(); d8.setDate(d8.getDate()-6);   // últimos 7 días contando hoy
     ov.innerHTML='<div class="imp-card"><h3>📄 Estado de cuenta · '+esc(c.nombre)+'</h3>'
       +'<div class="lab">Desde</div><input type="date" id="ecDesde" value="'+iso(d8)+'" max="'+hoyS+'">'
       +'<div class="lab">Hasta</div><input type="date" id="ecHasta" value="'+hoyS+'" max="'+hoyS+'">'
@@ -1769,7 +2068,7 @@
       +'<label><input type="radio" name="iTipoViaje" value="COMPRA" checked> Normal (compra: la mercancía es mía)</label>'
       +'<label><input type="radio" name="iTipoViaje" value="COMISION"> Comisión (vendo por cuenta del proveedor)</label></div></div>'
       +'<label>Productos (kilos · precio de compra en miles, por la unidad del producto)</label><div id="iLineas"></div>'
-      +'<datalist id="dlProd">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc((p.extra&&p.extra.codigo)||"")+'</option>'; }).join("")+'</datalist>'
+      +'<datalist id="dlProd">'+opcionesProducto(cat.producto)+'</datalist>'
       +'<button type="button" class="addl" id="iAdd">➕ Otro producto</button>'
       +'<div id="iFormaBox"><label>¿Cómo se paga?</label><div class="formas">'
       +'<label><input type="radio" name="iForma" value="credito" checked> A crédito (le quedo debiendo)</label>'
@@ -1919,11 +2218,11 @@
     var h='<div class="sechead"><h2 class="sec">Venta externa (fuera del mostrador)</h2></div>';
     h+='<div class="card"><div class="form">'
       +'<label for="vCli">Cliente (vacío = contado)</label><input id="vCli" list="dlCli" placeholder="Escribe o elige el cliente" autocomplete="off">'
-      +'<datalist id="dlCli">'+clientes.map(function(c){ return '<option value="'+esc(c.nombre)+'">'+(c.extra&&Number(c.extra.saldo)?'debe '+money(c.extra.saldo):'')+'</option>'; }).join("")+'</datalist>'
+      +'<datalist id="dlCli">'+opcionesCliente(clientes)+'</datalist>'
       +'<div class="m" id="vCliInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
       +'<div id="vCliNuevoBox" hidden><label for="vCliTel">Teléfono del cliente nuevo (opcional)</label><input id="vCliTel" inputmode="tel" maxlength="30"></div>'
       +'<label>Productos (kilos · precio de venta en miles)</label><div id="vLineas"></div>'
-      +'<datalist id="dlProdV">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'">'+esc((p.extra&&p.extra.codigo)||"")+'</option>'; }).join("")+'</datalist>'
+      +'<datalist id="dlProdV">'+opcionesProducto(cat.producto)+'</datalist>'
       +'<button type="button" class="addl" id="vAdd">➕ Otro producto</button>'
       // Igual que en el programa: sin cliente es de contado, con cliente es a crédito. No se pregunta.
       +'<div id="vContadoBox"><label for="vCaja">💵 Venta de contado: la plata entró a</label><select id="vCaja">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></div>'
@@ -2197,9 +2496,9 @@
 
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
-  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t; }
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t==="abono"?"💰 Abono": t==="cliente"?"👤 Cliente nuevo": t==="producto"?"🐟 Producto nuevo": t; }
   var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
-  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta": t==="prestamo"?"k-sol":"k-otro"; }
+  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta": t==="abono"?"k-vta": t==="prestamo"?"k-sol":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
     if(/SOLICITUD|APROBADO|RECHAZ/.test(a)) return "Solicitudes";
     if(/ANUL/.test(a)) return "Anulaciones";
@@ -2397,10 +2696,10 @@
       +'<label><input type="radio" name="pDir" value="NOS_DEBEN" checked> ↩️ Yo presté (me deben)</label>'
       +'<label><input type="radio" name="pDir" value="DEBEMOS"> ↪️ Me prestaron (debo)</label></div>'
       +'<label for="pCli">Cliente</label><input id="pCli" list="dlCliP" placeholder="Escribe o elige el cliente" autocomplete="off">'
-      +'<datalist id="dlCliP">'+clientes.map(function(c){ return '<option value="'+esc(c.nombre)+'"></option>'; }).join("")+'</datalist>'
+      +'<datalist id="dlCliP">'+opcionesCliente(clientes)+'</datalist>'
       +'<div id="pCliInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
       +'<label for="pProd">Producto</label><input id="pProd" list="dlProdP" placeholder="Escribe o elige el producto" autocomplete="off">'
-      +'<datalist id="dlProdP">'+cat.producto.map(function(p){ return '<option value="'+esc(p.nombre)+'"></option>'; }).join("")+'</datalist>'
+      +'<datalist id="dlProdP">'+opcionesProducto(cat.producto)+'</datalist>'
       +'<div id="pProdInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
       +'<label for="pKg">Kilos</label><input id="pKg" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos">'
       +'<label for="pViaje">Viaje</label><select id="pViaje"><option value="">Automático</option>'
