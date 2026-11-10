@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.23",
-    "url":  "https://pescafacil.github.io/actualizacion/PescaFacil-Actualizacion-1.4.23.exe",
-    "sha256":  "10dfb1c4a23224fa344c8b723bd4161c2cc55bd58f85a008361eb62af0400aec",
-    "notas":  "Estado de cuenta mas claro (como el reporte del terminal): saldo anterior, cada pesada, abonos con su forma de pago y devoluciones, saldo final a la fecha del reporte. Una factura o un abono reimpreso sale con el saldo de ese dia, no el de hoy.",
-    "fecha":  "2026-11-08"
+    "version":  "1.4.24",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.24/PescaFacil-Actualizacion-1.4.24.exe",
+    "sha256":  "94df7ebcb6b4c52a23e384f926d8106b282be5271ab8a3c5faa9b040c8c7adc9",
+    "notas":  "Prestamos y gastos con fecha. Los ingresos de mercancia salen en Transacciones (se pueden editar y anular desde ahi). El permiso de Gastos (F9) ya se puede dar en Usuarios. Celular: imprimir factura, venta externa y estado de cuenta en impresora portatil de 58 u 80 mm.",
+    "fecha":  "2026-11-10"
 }
