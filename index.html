@@ -2,6 +2,42 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<script>
+  // AVISO DE ERRORES (para diagnosticar desde el celular): cualquier error de la página sale en un cuadro
+  // rojo abajo con el mensaje, dónde pasó y el navegador. Y si a los 8 s no se ve ni el ingreso ni el
+  // tablero (pantalla en blanco), lo dice también. Va primero, así atrapa hasta los errores de carga.
+  (function(){
+    var errores=[];
+    function caja(){
+      var c=document.getElementById("pfErrores");
+      if(c) return c;
+      if(!document.body) return null;
+      c=document.createElement("div"); c.id="pfErrores";
+      c.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;background:#b91c1c;color:#fff;font:13px/1.35 -apple-system,Segoe UI,Arial,sans-serif;"
+        +"padding:10px 12px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);max-height:45vh;overflow:auto;white-space:pre-wrap;word-break:break-word";
+      document.body.appendChild(c); return c;
+    }
+    function pintar(){
+      var c=caja(); if(!c) return;
+      c.innerHTML='<b>⚠️ La página tuvo un error</b> <span style="float:right;cursor:pointer" onclick="this.parentNode.remove()">✕</span>\n'
+        +errores.join("\n").replace(/[<>&]/g,function(x){return {"<":"&lt;",">":"&gt;","&":"&amp;"}[x];})
+        +'\n\nNavegador: '+navigator.userAgent+'\nMándale una foto de este cuadro a soporte.';
+    }
+    function agregar(t){ errores.push(t); if(errores.length>8) errores.shift(); if(document.body) pintar(); else document.addEventListener("DOMContentLoaded", pintar); }
+    window.addEventListener("error", function(e){
+      if(e && e.target && e.target!==window && (e.target.src||e.target.href)){ agregar("No cargó: "+(e.target.src||e.target.href)+" (¿sin internet o bloqueado?)"); return; }
+      agregar((e.message||"Error")+(e.filename?"\n  en "+String(e.filename).split("/").pop()+":"+e.lineno+":"+e.colno:""));
+    }, true);
+    window.addEventListener("unhandledrejection", function(e){ var r=e && e.reason; agregar("Promesa: "+(r && (r.message||r.error_description) || String(r))); });
+    setTimeout(function(){
+      var lg=document.getElementById("login"), ap=document.getElementById("app");
+      var nada=(!lg || lg.hidden) && (!ap || ap.hidden);
+      if(nada) agregar("La pantalla quedó en blanco: no se mostró ni el ingreso ni el tablero."
+        +(window.supabase ? "" : "\nNo cargó la librería de la nube (supabase).")
+        +(errores.length ? "" : "\nSin errores anotados: puede ser el navegador o la conexión."));
+    }, 8000);
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PescaFácil Móvil</title>
 <style>
