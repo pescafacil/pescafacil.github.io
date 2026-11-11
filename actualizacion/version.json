@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.27",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.27/PescaFacil-Actualizacion-1.4.27.exe",
-    "sha256":  "15973bcc1a0e0ee3e6ae7bfbc288ecb26a522be6ae36ae7e12c29799d1642b33",
-    "notas":  "Proveedores con dos pestanas: proveedores y comisionistas, cada una con lo que les debo. Boton Ingreso en cada proveedor. Desde el celular: gastos, devoluciones, pagos a proveedor y comisionista, corregir y anular facturas. Configuracion: Restablecer el sistema (con respaldo antes).",
+    "version":  "1.4.28",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.28/PescaFacil-Actualizacion-1.4.28.exe",
+    "sha256":  "70c6b8984cef4b24715dcf9731ec01a6e59f0b6fcda76df1534512381b243379",
+    "notas":  "Arqueo por persona (cuánto recogió cada quien: domiciliario, el que factura desde el celular, cada usuario). Pagos a proveedor en Transacciones: editarlos y anularlos (PC y celular). Fecha en los ingresos (PC y celular). Tamaño del logo en la factura. Estado de cuenta del celular por factura. Sincroniza apenas se guarda algo.",
     "fecha":  "2026-11-11"
 }
