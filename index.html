@@ -317,6 +317,10 @@
   .audr{padding:10px 14px; border-top:1px solid var(--line); font-size:.82rem}
   .audr:first-child{border-top:none}
   .audr .a{font-weight:700} .audr .d{color:var(--muted); font-size:.74rem; margin-top:3px; white-space:normal; word-break:break-word}
+  .aud-sobre{font-size:.8rem; margin-top:2px; color:var(--ink,#15242e); word-break:break-word}
+  .aud-cambios{margin-top:6px; padding:6px 8px; border-radius:8px; background:var(--surface,#fff); border:1px solid var(--line,#e2e8f0)}
+  .aud-c{font-size:.8rem; padding:2px 0; word-break:break-word}
+  .aud-a{color:#b91c1c; text-decoration:line-through} .aud-d{color:#047857; font-weight:700}
 
   /* Venta externa registrada desde el celular: celeste (igual que en Transacciones del programa) */
   table.ttx tbody tr.cel{background:#a5f3fc} table.ttx tbody tr.cel td.tv,table.ttx tbody tr.cel td.tt{color:#0e7490}
@@ -3347,7 +3351,7 @@
           +(s.error?'<div class="m" style="color:var(--bad)">'+esc(s.error)+'</div>':'')+'</div>';
       }).join("")+'</div>' : '<div class="empty">Sin solicitudes este día.</div>';
     h+='<div class="sechead" style="margin-top:18px"><h2 class="sec">Registro de cambios del '+esc(dayLabel(state.fecha))+'</h2></div>';
-    h+='<div class="tfil" id="audFil">'+["Todo","Anulaciones","Ediciones","Ingresos","Solicitudes","Otros"].map(function(t){ return '<button class="tchip '+(CLASE_COLOR[t]||'')+(state.audFiltro===t?' on':'')+'" data-af="'+t+'">'+t+'</button>'; }).join("")+'</div>';
+    h+='<div class="tfil" id="audFil">'+["Todo","Ediciones","Anulaciones","Ingresos","Solicitudes","Otros"].map(function(t){ return '<button class="tchip '+(CLASE_COLOR[t]||'')+(state.audFiltro===t?' on':'')+'" data-af="'+t+'">'+t+'</button>'; }).join("")+'</div>';
     h+='<div id="audLista"></div>';
     host.innerHTML=h;
     Array.prototype.forEach.call(host.querySelectorAll("[data-si]"), function(b){ b.onclick=function(){ decidir(Number(b.dataset.si), true); }; });
@@ -3360,12 +3364,45 @@
     var rows=(state.cache.aud||[]).filter(function(a){ return state.audFiltro==="Todo" || claseAccion(a.accion)===state.audFiltro; });
     if(!rows.length){ box.innerHTML='<div class="empty">'+(state.audFiltro==="Todo"?"Sin cambios registrados este día.":"Nada de esto este día.")+'</div>'; return; }
     box.innerHTML='<div class="card">'+rows.slice(0,200).map(function(a){
-      var acc=cap(String(a.accion||"").replace(/_/g," ").toLowerCase());
-      var cambio=(a.antes?esc(a.antes):"")+(a.antes&&a.despues?" → ":"")+(a.despues?esc(a.despues):"");
-      var cls=claseAccion(a.accion); return '<div class="audr '+CLASE_COLOR[cls]+'"><div style="display:flex;justify-content:space-between;gap:8px"><span class="a"><span class="ktag">'+({Anulaciones:"Anulación",Ediciones:"Edición",Ingresos:"Ingreso",Solicitudes:"Solicitud",Otros:"Otro"})[cls]+'</span>'+esc(acc)+(a.registro?' · '+esc(a.registro):'')+'</span>'
+      var cls=claseAccion(a.accion);
+      return '<div class="audr '+CLASE_COLOR[cls]+'"><div style="display:flex;justify-content:space-between;gap:8px"><span class="a">'+esc(nombreAccion(a.accion))+'</span>'
         +'<span class="m" style="white-space:nowrap">'+new Date(a.momento).toLocaleString("es-CO",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit"})+'</span></div>'
-        +'<div class="d">'+(a.usuario?'👤 '+esc(a.usuario)+' · ':'')+esc(a.modulo)+(cambio?'<br>'+cambio:'')+'</div></div>';
+        +(a.registro?'<div class="aud-sobre">'+esc(a.registro)+'</div>':'')
+        +cambiosHTML(a.antes, a.despues)
+        +(a.usuario?'<div class="d">👤 '+esc(a.usuario)+'</div>':'')+'</div>';
     }).join("")+'</div>';
+  }
+  // Auditoría que se entiende (igual que el programa, CambiosAuditoria): nombre claro de la acción y,
+  // de cada corrección, solo lo que cambió: "MOJARRA kilos: 10 kg → 12 kg", un renglón por campo.
+  var NOMBRES_ACCION={VENTA:"🧾 Venta",EDITAR_VENTA:"✏️ Corrigió una venta",ANULAR_VENTA:"🚫 Anuló una venta",
+    ABONO:"💰 Abono",EDITAR_ABONO:"✏️ Corrigió un abono",ANULAR_ABONO:"🚫 Anuló un abono",
+    PAGO:"💵 Pago a proveedor",EDITAR_PAGO:"✏️ Corrigió un pago a proveedor",ANULAR_PAGO:"🚫 Anuló un pago a proveedor",
+    EGRESO:"📤 Gasto / salida",INGRESO:"📥 Entrada de plata",EDITAR_MOVIMIENTO:"✏️ Corrigió un gasto",ANULAR_MOVIMIENTO:"🚫 Anuló un gasto",
+    GASTO_A_PROVEEDOR:"📤 Gasto descontado al proveedor",INGRESO_RAPIDO:"📥 Ingreso de mercancía",EDITAR_INGRESO:"✏️ Corrigió un ingreso de mercancía",
+    ANULAR_INGRESO:"🚫 Anuló un ingreso de mercancía",EDITAR_COMPRA:"✏️ Corrigió una compra a proveedor",
+    DEVOLUCION:"↩️ Devolución",EDITAR_DEVOLUCION:"✏️ Corrigió una devolución",ANULAR_DEVOLUCION:"🚫 Anuló una devolución",
+    PRESTAMO:"🤝 Préstamo",EDITAR:"✏️ Corrigió",ANULAR:"🚫 Anuló",CREAR:"➕ Creó",PAGO_COMISION:"💼 Pago a comisionista",
+    EDITAR_PAGO_COMISION:"✏️ Corrigió un pago a comisionista",ANULAR_PAGO_COMISION:"🚫 Anuló un pago a comisionista",
+    CIERRE_CAJA:"🧮 Cierre de caja",ARQUEO_PERSONA:"🛵 Arqueo por persona",SOLICITUD_RECHAZADA:"❌ Rechazó una solicitud"};
+  function nombreAccion(a){ a=String(a||""); if(NOMBRES_ACCION[a]) return NOMBRES_ACCION[a];
+    var t=cap(a.replace(/_/g," ").toLowerCase()); return (/ANUL/.test(a)?"🚫 ":/EDITAR|CORREG|DESHACER|QUITAR/.test(a)?"✏️ ":"")+t; }
+  function cambiosHTML(antes, despues){
+    antes=String(antes||"").trim(); despues=String(despues||"").trim();
+    if(!antes && !despues) return "";
+    var a=antes.split("\n"), d=despues.split("\n");
+    if(antes && despues && a.length===d.length){
+      var filas=[], ok=true;
+      for(var i=0;i<a.length && ok;i++){
+        var pa=a[i].indexOf(": "), pd=d[i].indexOf(": ");
+        if(pa>0 && pd>0 && a[i].slice(0,pa)===d[i].slice(0,pd))
+          filas.push('<div class="aud-c"><b>'+esc(a[i].slice(0,pa))+'</b> <span class="aud-a">'+esc(a[i].slice(pa+2))+'</span> → <span class="aud-d">'+esc(d[i].slice(pd+2))+'</span></div>');
+        else ok=false;
+      }
+      if(ok) return '<div class="aud-cambios">'+filas.join("")+'</div>';
+    }
+    if(!antes) return '<div class="aud-cambios"><div class="aud-c">'+esc(despues).replace(/\n/g," · ")+'</div></div>';
+    if(!despues) return '<div class="aud-cambios"><div class="aud-c">'+esc(antes).replace(/\n/g," · ")+'</div></div>';
+    return '<div class="aud-cambios"><div class="aud-c"><span class="aud-a">'+esc(antes).replace(/\n/g," · ")+'</span> → <span class="aud-d">'+esc(despues).replace(/\n/g," · ")+'</span></div></div>';
   }
   function decidir(id, aprobar){
     if(!confirm(aprobar ? "¿APROBAR? El computador lo hace solo en unos minutos." : "¿RECHAZAR esta solicitud? No se cambia nada.")) return;
