@@ -340,6 +340,46 @@
   .vext-imp label{display:flex; align-items:center; gap:8px; font-weight:700; font-size:.92rem}
   .vext-imp input{width:20px; height:20px}
   .acbox .nuevo b{color:#15803d; min-width:0}
+  /* Hoja blanca que sube desde abajo (abono) */
+  .fac-ov.con-hoja{justify-content:flex-end; padding:0}
+  .hoja{width:100%; max-width:480px; background:#fff; color:#15242e; border-radius:20px 20px 0 0; padding:14px 16px calc(16px + env(safe-area-inset-bottom));
+        box-sizing:border-box; box-shadow:0 -10px 30px rgba(0,0,0,.25); max-height:92vh; overflow:auto; animation:subeHoja .18s ease-out}
+  @keyframes subeHoja{from{transform:translateY(40px); opacity:.6} to{transform:none; opacity:1}}
+  @media (min-width:700px){ .fac-ov.con-hoja{justify-content:center; padding:20px} .hoja{border-radius:20px} }
+  .hoja-cab{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; font-size:1.08rem}
+  .hoja-x{appearance:none; border:none; background:#f1f5f9; color:#334155; width:34px; height:34px; border-radius:50%; font-size:1rem; cursor:pointer}
+  .hoja-lab{display:block; font-size:.74rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:.04em; margin:14px 0 6px}
+  .hoja-in{width:100%; box-sizing:border-box; border:1.5px solid #cbd5e1; border-radius:12px; padding:12px; font:inherit; font-size:1rem; background:#f8fafc; color:#15242e}
+  .hoja-in:focus{outline:none; border-color:#3b82f6; background:#fff}
+  .cli-tarjeta{display:grid; grid-template-columns:1fr auto; gap:4px 10px; align-items:center; border:1.5px solid #bfdbfe; background:#eff6ff; border-radius:14px; padding:12px 14px; margin-top:4px}
+  .ct-nom{font-weight:800; font-size:1.02rem}
+  .ct-cod{display:inline-block; background:#2563eb; color:#fff; border-radius:6px; padding:1px 7px; font-size:.78rem; margin-right:8px; vertical-align:2px}
+  .ct-saldo{grid-column:1; display:flex; align-items:baseline; gap:8px; color:#475569; font-size:.85rem}
+  .ct-saldo b{font-size:1.45rem; color:#0f172a}
+  .ct-cambiar{grid-column:2; grid-row:1 / span 2; appearance:none; border:none; background:#fff; color:#2563eb; font-weight:800; border-radius:10px; padding:8px 12px; cursor:pointer}
+  .hoja-off{opacity:.35; pointer-events:none}
+  .monto-caja{display:flex; align-items:center; gap:6px; border:2px solid #cbd5e1; border-radius:14px; padding:6px 14px; background:#f8fafc}
+  .monto-caja:focus-within{border-color:#16a34a; background:#fff}
+  .monto-caja span{font-size:1.6rem; font-weight:800; color:#64748b}
+  .monto-caja input{flex:1; min-width:0; border:none; background:transparent; font:inherit; font-size:2rem; font-weight:800; color:#0f172a; padding:4px 0}
+  .monto-caja input:focus{outline:none}
+  .rapidos{display:flex; gap:8px; margin-top:8px}
+  .rapidos button{appearance:none; border:1.5px solid #16a34a; color:#15803d; background:#f0fdf4; border-radius:999px; padding:7px 16px; font:inherit; font-weight:800; font-size:.86rem; cursor:pointer}
+  .queda{margin-top:8px; font-size:.92rem; color:#475569; min-height:1.2em}
+  .queda.ok{color:#15803d} .queda.aviso{color:#b45309}
+  .segm{display:grid; grid-template-columns:repeat(4,1fr); gap:6px}
+  .segm button{appearance:none; border:1.5px solid #cbd5e1; background:#fff; color:#334155; border-radius:12px; padding:10px 4px; font:inherit; font-size:.82rem; font-weight:700; cursor:pointer}
+  .segm button.on{border-color:#2563eb; background:#2563eb; color:#fff}
+  .nota-link{appearance:none; border:none; background:none; color:#2563eb; font:inherit; font-weight:700; padding:12px 0 2px; cursor:pointer}
+  #aNota{margin-top:10px}
+  .hoja-ok{width:100%; margin-top:16px; appearance:none; border:none; border-radius:14px; padding:15px; font:inherit; font-size:1.05rem; font-weight:800; color:#fff;
+           background:linear-gradient(135deg,#16a34a,#15803d); cursor:pointer}
+  .hoja-ok:disabled{background:#cbd5e1; color:#64748b; cursor:default}
+  .hoja-sec{width:100%; margin-top:8px; appearance:none; border:1.5px solid #cbd5e1; background:#fff; color:#334155; border-radius:14px; padding:13px; font:inherit; font-weight:800; cursor:pointer}
+  .hoja-pie{font-size:.78rem; color:#64748b; text-align:center; margin:10px 0 0}
+  .hecho{text-align:center; padding:10px 0 4px; color:#475569}
+  .hecho-monto{font-size:2.2rem; font-weight:800; color:#15803d}
+  .hecho-queda{margin-top:8px; font-size:1rem; color:#0f172a}
   /* Impresora del celular */
   .fac-bar .imp{background:#16a34a; color:#fff}
   .imp-card{width:100%; max-width:440px; color:#fff; margin-top:10px; background:#0f172a; border-radius:16px; padding:16px; box-sizing:border-box; box-shadow:0 12px 30px rgba(0,0,0,.35)}
@@ -1677,6 +1717,7 @@
   }
   function acMostrar(inp){
     var t=sinTildesG(inp.value.trim()), todas=acOpciones(inp);
+    if(!t){ acCerrar(); return; }
     var res=todas.map(function(o){
       var n=sinTildesG(o.nombre), c=sinTildesG(o.cod), pts=-1;
       if(!t) pts=0;
@@ -1717,7 +1758,7 @@
   document.addEventListener("focusin", function(e){
     var inp=e.target; if(!inp || inp.tagName!=="INPUT") return;
     if(inp.getAttribute("list")){ inp.dataset.dl=inp.getAttribute("list"); inp.removeAttribute("list"); }
-    if(inp.dataset.dl) acMostrar(inp);
+    if(inp.dataset.dl && inp.value.trim()) acMostrar(inp);
   });
   document.addEventListener("input", function(e){
     var inp=e.target; if(!inp || inp.tagName!=="INPUT") return;
@@ -1794,43 +1835,75 @@
   function leerPlata(v){ var s=String(v==null?"":v).replace(/[^\d]/g,""); return s ? Number(s) : 0; }
   function abrirAbono(){
     var o=abrirOverlay(), ov=o.ov, cerrar=o.cerrar;
-    ov.innerHTML='<div class="fac-msg">Cargando clientes…</div>';
+    ov.classList.add("con-hoja");
+    ov.innerHTML='<div class="hoja"><div class="fac-msg" style="color:#334155">Cargando clientes…</div></div>';
     cargarCatalogo().then(function(cat){
       if(!document.body.contains(ov)) return;
-      var clientes=cat.cliente||[];
-      ov.innerHTML='<div class="imp-card"><h3>💰 Registrar abono</h3>'
-        +'<label for="aCli">Cliente</label><input id="aCli" list="dlCliA" placeholder="Código o nombre del cliente" autocomplete="off">'
-        +'<datalist id="dlCliA">'+opcionesCliente(clientes)+'</datalist>'
-        +'<div id="aSaldo" class="saldo-abono" hidden></div>'+'<div class="info" id="aInfo"></div>'
-        +'<label for="aMonto">Valor del abono</label><input id="aMonto" class="grande" type="text" inputmode="numeric" placeholder="$0" autocomplete="off">'
-        +'<div class="info" id="aMontoTxt"></div>'+'<button type="button" class="todo-btn" id="aTodo" hidden>💯 Cancelar todo</button>'
-        +'<label for="aCaja">Forma de pago</label><select id="aCaja">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[1]+' '+c[2]+'</option>'; }).join("")+'</select>'
-        +'<label for="aNota">Nota (opcional)</label><input id="aNota" maxlength="60" autocomplete="off">'
-        +'<div class="fac-bar" style="margin-top:16px"><button class="imp" id="aGuardar">💾 Registrar abono</button><button class="sec2" id="aX">✕ Cancelar</button></div>'
-        +'<p>El computador lo registra solo en unos minutos: baja lo que debe el cliente y entra a la caja elegida.</p></div>';
+      var clientes=cat.cliente||[], elegido=null, caja=CAJAS[0][0];
+      var cfgF=((cat.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
+      ov.innerHTML='<div class="hoja" role="dialog" aria-label="Registrar abono">'
+        +'<div class="hoja-cab"><b>💰 Registrar abono</b><button class="hoja-x" id="aX" aria-label="Cerrar">✕</button></div>'
+        +'<div id="aBuscar"><label class="hoja-lab" for="aCli">Cliente</label>'
+        +'<input id="aCli" class="hoja-in" list="dlCliA" placeholder="🔎 Código o nombre del cliente" autocomplete="off">'
+        +'<datalist id="dlCliA">'+opcionesCliente(clientes)+'</datalist></div>'
+        +'<div id="aTarjeta" class="cli-tarjeta" hidden></div>'
+        +'<div id="aResto" class="hoja-off">'
+        +'<label class="hoja-lab" for="aMonto">Valor del abono</label>'
+        +'<div class="monto-caja"><span>$</span><input id="aMonto" type="text" inputmode="numeric" placeholder="0" autocomplete="off"></div>'
+        +'<div class="rapidos"><button type="button" id="aTodo">Todo</button><button type="button" id="aMitad">Mitad</button></div>'
+        +'<div id="aQueda" class="queda"></div>'
+        +'<label class="hoja-lab">Forma de pago</label>'
+        +'<div class="segm" id="aCajas">'+CAJAS.map(function(c,i){ return '<button type="button" data-c="'+c[0]+'"'+(i===0?' class="on"':'')+'>'+c[1]+' '+(c[0]==="Transferencia"?"Transf.":c[0])+'</button>'; }).join("")+'</div>'
+        +'<button type="button" class="nota-link" id="aNotaBtn">+ Agregar nota</button>'
+        +'<input id="aNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional)" autocomplete="off" hidden>'
+        +'</div>'
+        +'<button class="hoja-ok" id="aGuardar" disabled>Elige el cliente</button>'
+        +'<p class="hoja-pie">El computador lo registra en unos minutos: baja lo que debe el cliente y entra a la caja elegida.</p>'
+        +'</div>';
       el("aX").onclick=cerrar;
-      function clienteSel(){ return buscarPorNombre(clientes, el("aCli").value); }
-      function pintarInfo(){
-        var c=clienteSel(), m=leerPlata(el("aMonto").value), s=c && c.extra ? Number(c.extra.saldo||0) : 0;
-        // Saldo grande del cliente elegido y, con valor, en cuánto queda (paz y salvo si llega a cero).
-        el("aSaldo").hidden = !c;
-        if(c) el("aSaldo").innerHTML = (s<0 ? "Saldo a favor" : "Debe hoy")+"<b>"+money(Math.abs(s))+"</b>";
-        el("aTodo").hidden = !(c && s>0);
-        if(c && s>0) el("aTodo").textContent = "💯 Cancelar todo ("+money(s)+")";
-        el("aInfo").innerHTML = !el("aCli").value.trim() ? "" : !c ? "⚠️ Ese cliente no está en la lista."
-          : (m ? (s-m===0 ? "✅ Queda a <b>PAZ Y SALVO</b>" : (s-m<0 ? "Queda con saldo a favor de <b>"+money(m-s)+"</b>" : "Queda debiendo <b>"+money(s-m)+"</b>")) : "");
-        el("aMontoTxt").textContent = m ? money(m) : "";
+      function saldo(){ return elegido && elegido.extra ? Number(elegido.extra.saldo||0) : 0; }
+      function monto(){ return leerPlata(el("aMonto").value); }
+      function pintar(){
+        var m=monto(), s=saldo();
+        el("aResto").classList.toggle("hoja-off", !elegido);
+        var q=el("aQueda");
+        if(!elegido || !m){ q.textContent=""; q.className="queda"; }
+        else if(s-m===0){ q.innerHTML="✅ Queda a <b>PAZ Y SALVO</b>"; q.className="queda ok"; }
+        else if(s-m<0){ q.innerHTML="Queda con saldo a favor de <b>"+money(m-s)+"</b>"; q.className="queda aviso"; }
+        else { q.innerHTML="Queda debiendo <b>"+money(s-m)+"</b>"; q.className="queda"; }
+        var b=el("aGuardar");
+        b.disabled = !(elegido && m>0);
+        b.textContent = !elegido ? "Elige el cliente" : !m ? "Escribe el valor" : "💾 Registrar abono de "+money(m);
+        el("aTodo").hidden = !(elegido && s>0);
+        el("aMitad").hidden = !(elegido && s>1);
       }
-      ["input","change"].forEach(function(ev){ el("aCli").addEventListener(ev, pintarInfo); el("aMonto").addEventListener(ev, pintarInfo); });
-      // Cancelar todo: el abono es exactamente lo que debe hoy (queda a paz y salvo).
-      el("aTodo").onclick=function(){ var c=clienteSel(), s=c && c.extra ? Number(c.extra.saldo||0) : 0; if(s>0){ el("aMonto").value=String(Math.round(s)); pintarInfo(); } };
+      function elegir(c){
+        elegido=c;
+        var s=saldo(), x=c.extra||{};
+        el("aBuscar").hidden=true; el("aTarjeta").hidden=false;
+        el("aTarjeta").innerHTML='<div class="ct-nom">'+(x.codigo?'<span class="ct-cod">'+esc(x.codigo)+'</span>':'')+esc(c.nombre)+'</div>'
+          +'<div class="ct-saldo"><span>'+(s<0?"Saldo a favor":"Debe hoy")+'</span><b>'+money(Math.abs(s))+'</b></div>'
+          +'<button type="button" class="ct-cambiar" id="aCambiar">Cambiar</button>';
+        el("aCambiar").onclick=function(){ elegido=null; el("aTarjeta").hidden=true; el("aBuscar").hidden=false; el("aCli").value=""; el("aCli").focus(); pintar(); };
+        pintar();
+        setTimeout(function(){ el("aMonto").focus(); }, 60);
+      }
+      el("aCli").addEventListener("change", function(){ var c=buscarPorNombre(clientes, this.value); if(c) elegir(c); });
+      // Valor: solo dígitos y con los puntos de miles mientras se escribe ($ 50.000).
+      el("aMonto").addEventListener("input", function(){
+        var m=leerPlata(this.value); this.value = m ? m.toLocaleString("es-CO") : ""; pintar();
+      });
+      el("aTodo").onclick=function(){ var s=saldo(); if(s>0){ el("aMonto").value=Math.round(s).toLocaleString("es-CO"); pintar(); } };
+      el("aMitad").onclick=function(){ var s=saldo(); if(s>1){ el("aMonto").value=Math.round(s/2).toLocaleString("es-CO"); pintar(); } };
+      Array.prototype.forEach.call(el("aCajas").querySelectorAll("button"), function(b){
+        b.onclick=function(){ caja=b.dataset.c; Array.prototype.forEach.call(el("aCajas").querySelectorAll("button"), function(x){ x.classList.toggle("on", x===b); }); };
+      });
+      el("aNotaBtn").onclick=function(){ this.hidden=true; el("aNota").hidden=false; el("aNota").focus(); };
       el("aGuardar").onclick=function(){
-        var c=clienteSel(), m=leerPlata(el("aMonto").value), caja=el("aCaja").value, nota=el("aNota").value.trim();
-        if(!c){ say("Elige el cliente de la lista."); el("aCli").focus(); return; }
-        if(!(m>0)){ say("Escribe el valor del abono."); el("aMonto").focus(); return; }
-        var saldo=c.extra ? Number(c.extra.saldo||0) : 0;
+        var c=elegido, m=monto(), nota=el("aNota").value.trim();
+        if(!c || !(m>0)) return;
+        var s=saldo();
         var resumen="Abono de "+c.nombre+": "+money(m)+" · "+nombreCaja(caja)+(nota?" · "+nota:"");
-        if(!confirm("¿Registrar este abono?\n\n"+resumen)) return;
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
         sb.auth.getSession().then(function(ss){
           var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
@@ -1839,24 +1912,34 @@
             datos:{ cliente_id:Number(c.id), monto:m, caja:caja, nota:nota }
           });
         }).then(function(res){
-          btn.disabled=false; btn.textContent="💾 Registrar abono";
           if(res.error){
+            btn.disabled=false; btn.textContent="💾 Registrar abono de "+money(m);
             say(/row-level security|policy/i.test(res.error.message) ? "La nube todavía no acepta abonos desde el celular (falta actualizar el servidor)." : "No se pudo enviar: "+res.error.message);
             return;
           }
           delete state.cache["cat_"+state.negocioId];
-          if(!confirm("✅ Abono enviado. El computador lo registra en unos minutos.\n\n¿Ver e imprimir el recibo?")){ cerrar(); return; }
-          ov.innerHTML='<div class="fac-msg">Armando el recibo…</div>';
-          var dc={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; });
-          var cfgF=((cat.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
-          cargarEmpresa().then(function(emp){
-            emp.pie=cfgF.pie;
-            return dibujarRecibo({ cliente:c.nombre, datosCliente:dc, monto:m, caja:caja, nota:nota, fecha:new Date(),
-              saldoAntes:saldo, saldoDespues:saldo-m, destacado:!!cfgF.saldo_destacado }, emp);
-          }).then(function(cv){ mostrarTiquete(ov, cv, ("Recibo-abono-"+c.nombre).replace(/[^\w\-]+/g,"_")+".png", cerrar); });
+          var queda=s-m;
+          ov.querySelector(".hoja").innerHTML='<div class="hoja-cab"><b>✅ Abono enviado</b><button class="hoja-x" id="aX2" aria-label="Cerrar">✕</button></div>'
+            +'<div class="hecho"><div class="hecho-monto">'+money(m)+'</div><div>'+esc(c.nombre)+' · '+esc(nombreCaja(caja))+'</div>'
+            +'<div class="hecho-queda">'+(Math.round(queda)===0 ? "Queda a <b>PAZ Y SALVO</b>" : queda<0 ? "Saldo a favor: <b>"+money(-queda)+"</b>" : "Queda debiendo: <b>"+money(queda)+"</b>")+'</div></div>'
+            +'<button class="hoja-ok" id="aRecibo">🖨️ Imprimir recibo</button>'
+            +'<button class="hoja-sec" id="aOtro">💰 Registrar otro abono</button>'
+            +'<p class="hoja-pie">El computador lo registra en unos minutos.</p>';
+          el("aX2").onclick=cerrar;
+          el("aOtro").onclick=function(){ cerrar(); abrirAbono(); };
+          el("aRecibo").onclick=function(){
+            var dc={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; });
+            ov.classList.remove("con-hoja");
+            ov.innerHTML='<div class="fac-msg">Armando el recibo…</div>';
+            cargarEmpresa().then(function(emp){
+              emp.pie=cfgF.pie;
+              return dibujarRecibo({ cliente:c.nombre, datosCliente:dc, monto:m, caja:caja, nota:nota, fecha:new Date(),
+                saldoAntes:s, saldoDespues:queda, destacado:!!cfgF.saldo_destacado }, emp);
+            }).then(function(cv){ mostrarTiquete(ov, cv, ("Recibo-abono-"+c.nombre).replace(/[^\w\-]+/g,"_")+".png", cerrar); });
+          };
         });
       };
-      el("aCli").focus();
+      pintar();
     });
   }
   // Recibo del abono con la forma del comprobante de abono del PC.
