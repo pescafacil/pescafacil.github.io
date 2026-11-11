@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.26",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.26/PescaFacil-Actualizacion-1.4.26.exe",
-    "sha256":  "6d3ffb319d289ab491c0347d3939892d26fa6ab0e96ed410f2c02186a5a24b07",
-    "notas":  "Transacciones con la columna DESDE (celular o PC). Venta del celular con imprimir factura y con o sin saldo.",
-    "fecha":  "2026-11-10"
+    "version":  "1.4.27",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.27/PescaFacil-Actualizacion-1.4.27.exe",
+    "sha256":  "15973bcc1a0e0ee3e6ae7bfbc288ecb26a522be6ae36ae7e12c29799d1642b33",
+    "notas":  "Proveedores con dos pestanas: proveedores y comisionistas, cada una con lo que les debo. Boton Ingreso en cada proveedor. Desde el celular: gastos, devoluciones, pagos a proveedor y comisionista, corregir y anular facturas. Configuracion: Restablecer el sistema (con respaldo antes).",
+    "fecha":  "2026-11-11"
 }
