@@ -227,6 +227,8 @@
   table.ttx tbody tr.pre{background:#ede9fe} table.ttx tbody tr.pre td.tv,table.ttx tbody tr.pre td.tt{color:#6d28d9}
   table.ttx tbody tr.gas{background:#fee2e2} table.ttx tbody tr.gas td.tv,table.ttx tbody tr.gas td.tt{color:#b91c1c}
   table.ttx tbody tr.com{background:#ccfbf1} table.ttx tbody tr.com td.tv,table.ttx tbody tr.com td.tt{color:#0f766e}
+  table.ttx tbody tr.ppv{background:#e0e7ff} table.ttx tbody tr.ppv td.tv,table.ttx tbody tr.ppv td.tt{color:#4338ca}
+  tr.vpp{cursor:pointer}
   table.ttx tbody tr.marc{background:#fff59d; font-weight:800}
   table.ttx tbody tr.anul td{color:#94a3b8; text-decoration:line-through}
   /* en modo oscuro las filas de colores claros llevan letra oscura para que se lean */
@@ -236,6 +238,17 @@
 
   /* ---------- FACTURA (descargar / compartir desde el celular) ---------- */
   tr.vta{cursor:pointer}
+  .ecl{padding:0}
+  .eci{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:12px 14px; border-top:1px solid var(--line)}
+  .eci:first-child{border-top:none}
+  .eci.vta{cursor:pointer} .eci.vta:active{background:var(--chip)}
+  .eci-izq{min-width:0; flex:1}
+  .eci-tit{font-weight:800; font-size:.95rem}
+  .eci-det{font-weight:600; color:var(--muted)}
+  .eci-sub{font-size:.76rem; color:var(--muted); margin-top:2px; white-space:normal; word-break:break-word}
+  .eci-der{text-align:right; white-space:nowrap}
+  .eci-val{font-weight:800; font-size:1rem; font-variant-numeric:tabular-nums}
+  .eci-saldo{font-size:.72rem; color:var(--muted); margin-top:3px}
   .fbtn{appearance:none; border:1px solid var(--chip-line); background:var(--chip); border-radius:8px; padding:2px 6px; font-size:.8rem; cursor:pointer; margin-left:4px}
   .fac-ov{position:fixed; inset:0; z-index:60; background:rgba(8,20,30,.72); display:flex; flex-direction:column; align-items:center;
     padding:max(14px,env(safe-area-inset-top,0px)) 12px max(14px,env(safe-area-inset-bottom,0px)); overflow-y:auto}
@@ -350,6 +363,22 @@
   .prov-tap{cursor:pointer}
   .ptabs{margin-bottom:10px}
   .prov-acc{display:flex; gap:6px; margin-top:6px}
+  .arq-dias{display:flex; gap:6px; overflow-x:auto; padding:2px 0 10px}
+  .arq-dias button{appearance:none; border:1px solid var(--line,#e2e8f0); background:#fff; border-radius:999px; padding:6px 12px; font:inherit; font-size:.82rem; font-weight:700; white-space:nowrap; cursor:pointer; color:inherit}
+  .arq-dias button[aria-pressed="true"]{background:#0f172a; color:#fff; border-color:#0f172a}
+  .arq{border-bottom:1px solid var(--line,#e2e8f0); padding:12px 2px}
+  .arq:last-child{border-bottom:none}
+  .arq-cab{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; cursor:pointer}
+  .arq-ent{text-align:right}
+  .arq-ent small{display:block; font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase}
+  .arq-ent b{font-size:1.25rem}
+  .arq-det{font-size:.8rem; color:var(--muted); margin-top:4px; line-height:1.45}
+  .arq-est{display:inline-block; margin-top:6px; padding:3px 8px; border-radius:8px; font-size:.75rem; font-weight:800}
+  .arq-est.ok{background:#d1fae5; color:#047857} .arq-est.mal{background:#fee2e2; color:#b91c1c} .arq-est.pend{background:#fef3c7; color:#92400e}
+  .arq-movs{margin-top:8px; font-size:.8rem}
+  .arq-movs div{display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-top:1px dashed var(--line,#e2e8f0)}
+  .arq-movs span:first-child{overflow:hidden; text-overflow:ellipsis}
+  .arq-movs .s{color:#b91c1c} .arq-movs .c{color:var(--muted)}
   .pacc{appearance:none; border:none; border-radius:8px; padding:6px 10px; font:inherit; font-size:.8rem; font-weight:800; cursor:pointer; color:#fff}
   .pacc.pg{background:#16a34a} .pacc.in{background:#ea580c}
   .imp-card label{display:block; font-size:.78rem; font-weight:800; opacity:.85; margin:12px 0 5px; text-transform:uppercase; letter-spacing:.04em}
@@ -539,6 +568,7 @@
     <button class="chip" role="tab" aria-selected="false" data-s="vext">🛒 Vender</button>
     <button class="chip" role="tab" aria-selected="false" data-s="cartera">👥 Cartera</button>
     <button class="chip" role="tab" aria-selected="false" data-s="caja">🧮 Cierre de caja</button>
+    <button class="chip" role="tab" aria-selected="false" data-s="arqueo">🛵 Arqueo</button>
     <button class="chip" role="tab" aria-selected="false" data-s="prestamos">🤝 Préstamos</button>
     <button class="chip" role="tab" aria-selected="false" data-s="ingreso">📥 Ingreso</button>
     <button class="chip" role="tab" aria-selected="false" data-s="resumen">📊 Resumen</button>
@@ -556,6 +586,7 @@
     <section id="s-resumen"><div class="loading">Cargando…</div></section>
     <section id="s-trans" hidden></section>
     <section id="s-caja" hidden></section>
+    <section id="s-arqueo" hidden></section>
     <section id="s-bancos" hidden></section>
     <section id="s-cartera" hidden></section>
     <section id="s-cliente" hidden></section>
@@ -773,7 +804,7 @@
   // ----- Render por sección -----
   function sec(id){ return el("s-"+id); }
   function showSection(id){
-    ["resumen","trans","caja","bancos","cartera","cliente","inv","prov","venta","prestamos","vext","ingreso","cambios","usuarios"].forEach(function(x){ sec(x).hidden=(x!==id); });
+    ["resumen","trans","caja","arqueo","bancos","cartera","cliente","inv","prov","venta","prestamos","vext","ingreso","cambios","usuarios"].forEach(function(x){ sec(x).hidden=(x!==id); });
   }
   function render(forceDateOnly){
     if(!state.negocioId) return;
@@ -781,6 +812,7 @@
     showSection(s);
     if(s==="resumen") loadResumen();
     else if(s==="caja") loadCaja();
+    else if(s==="arqueo") loadArqueo();
     else if(s==="trans") loadTrans();
     else if(s==="bancos") loadBancos();
     else if(s==="cartera") loadCartera();
@@ -932,7 +964,7 @@
       if(r.tipo==="Venta"){ if(r.pago==="Contado") k.contado+=v; else k.credito+=v; k.kilos+=Number(r.kilos||0); }
       else if(r.tipo==="Abono") k.abonos+=v;
       else if(r.tipo==="Gasto") k.gastos+=v;
-      else if(r.tipo==="Pago Comisión") k.pagosCom+=v;
+      else if(r.tipo==="Pago Comisión" || r.tipo==="Pago Proveedor") k.pagosCom+=v;   // PAGOS: a proveedores y de comisión
     });
     var h='<div class="sechead"><h2 class="sec">Transacciones del día</h2><button class="xls" data-xls="trans">⬇️ Excel</button></div>';
     h+='<div class="atajos"><button class="av" id="atVender">🛒 Vender</button><button class="aa" id="atAbonar">💰 Abonar</button>'
@@ -945,11 +977,11 @@
       +'<div class="tile accent"><div class="lab">📊 Neto caja</div><div class="val num">'+money(k.contado+k.abonos)+'</div></div>'
       +'<div class="tile"><div class="lab">⚖️ Kilos</div><div class="val num">'+kilos(k.kilos)+' <small>kg</small></div></div>'
       +'<div class="tile"><div class="lab">📤 Gastos</div><div class="val num" style="color:#b91c1c">'+money(k.gastos)+'</div></div>'
-      +(k.pagosCom?'<div class="tile"><div class="lab">💵 Comisión</div><div class="val num" style="color:#0f766e">'+money(k.pagosCom)+'</div></div>':'')
+      +(k.pagosCom?'<div class="tile"><div class="lab">💵 Pagos</div><div class="val num" style="color:#0f766e">'+money(k.pagosCom)+'</div></div>':'')
       +'</div>';
     // Filtros: tipo + buscar cliente
-    var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Devolución","Ingreso"];
-    var plural={ "Todas":"Todas", "Devolución":"Devoluciones" };
+    var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Pago Proveedor","Devolución","Ingreso"];
+    var plural={ "Todas":"Todas", "Devolución":"Devoluciones", "Pago Proveedor":"Pagos prov." };
     h+='<div class="tfil">'+tipos.map(function(t){ return '<button class="tchip'+(state.transTipo===t?' on':'')+'" data-tt="'+t+'">'+(plural[t]||t+"s")+'</button>'; }).join("")+'</div>';
     h+='<input class="tbus" id="tBus" type="search" placeholder="🔎 Buscar cliente o producto…" value="'+esc(state.transBuscar)+'">';
     var q=state.transBuscar.toLowerCase();
@@ -965,20 +997,24 @@
       filas.forEach(function(r){
         var delCel = r.tipo==="Venta" && String(r.detalle||"").indexOf("📱 celular")>=0;   // venta externa del celular
         var cls = r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : delCel ? "cel" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
-                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.tipo==="Ingreso" ? "ing" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "";
+                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.tipo==="Pago Proveedor" ? "ppv" : r.tipo==="Ingreso" ? "ing" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "";
         var prod = r.producto || r.detalle || "";
         var vid = (r.tipo==="Venta" && r.estado!=="Anulada") ? ventaDeRef(r.ref) : null;
-        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+'"><td>'+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(vid?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+'</td>'
+        var pid = (r.tipo==="Pago Proveedor" && r.estado!=="Anulada" && esDueno()) ? pagoDeRef(r.ref) : null;   // el dueño lo corrige o anula
+        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+(pid?' vpp" data-p="'+pid:'')+'"><td>'+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(vid?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+(pid?' <span class="fbtn" aria-label="Corregir pago">✏️</span>':'')+'</td>'
           +'<td>'+(Number(r.kilos)?kilos(r.kilos):'')+'</td><td>'+esc(r.precio||'')+'</td>'
           +'<td class="tv">'+(Number(r.valor)?money(r.valor):'')+'</td><td class="tc">'+esc(r.cliente)+'</td>'
           +'<td>'+esc(r.pago)+'</td><td>'+(String(r.detalle||"").indexOf("📱 celular")>=0 ? "📱 Celular" : "💻 PC")+'</td><td class="tt">'+(delCel?'📱 ':'')+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
       });
       h+='</tbody></table></div></div>';
-      h+='<p class="updated">'+filas.length+' de '+todas.length+' movimientos · desliza la tabla hacia los lados para ver todo · toca una venta (🧾) para su factura</p>';
+      h+='<p class="updated">'+filas.length+' de '+todas.length+' movimientos · desliza la tabla hacia los lados para ver todo · toca una venta (🧾) para su factura'+(esDueno()?' · toca un pago a proveedor (✏️) para corregirlo':'')+'</p>';
     }
     host.innerHTML=h;
     Array.prototype.forEach.call(host.querySelectorAll("tr.vta"), function(tr){
       tr.onclick=function(){ var v=Number(tr.dataset.v); abrirFactura(v, todas.filter(function(x){ return x.tipo==="Venta" && ventaDeRef(x.ref)===v; })); };
+    });
+    Array.prototype.forEach.call(host.querySelectorAll("tr.vpp"), function(tr){
+      tr.onclick=function(){ var p=Number(tr.dataset.p); var r=todas.filter(function(x){ return x.tipo==="Pago Proveedor" && pagoDeRef(x.ref)===p; })[0]; if(r) abrirEditarPago(p, r); };
     });
     Array.prototype.forEach.call(host.querySelectorAll(".tchip"), function(b){ b.onclick=function(){ state.transTipo=b.dataset.tt; pintarTrans(); }; });
     el("atVender").onclick=function(){ irA("vext"); };
@@ -1045,7 +1081,7 @@
   // "transacciones" (la manda el PC al sincronizar) y avisa con notificación del celular + mensaje.
   // Funciona mientras el tablero esté abierto (aunque sea en otra pestaña o en segundo plano).
   var TIPOS_AVISO=[["Abono","💰","Abonos"],["Venta","🧾","Ventas"],["Gasto","📤","Gastos"],["Préstamo","🤝","Préstamos"],
-                   ["Devolución","↩️","Devoluciones"],["Pago Comisión","💵","Pagos de comisión"],
+                   ["Devolución","↩️","Devoluciones"],["Pago Comisión","💵","Pagos de comisión"],["Pago Proveedor","🚛","Pagos a proveedores"],
                    // Avisos de CAMBIOS (no salen de "transacciones"): ver revisarAvisosCambios
                    ["__sol","🛡️","Solicitudes por aprobar (cajero)"],["__cambio","✏️","Anulaciones y ediciones hechas"],
                    ["__ing","📥","Ingresos y usuarios del celular ya registrados"]];
@@ -1095,6 +1131,7 @@
     if(tipo==="Gasto") return "📤 Gasto "+money(total)+" · "+String(a.detalle||"").replace(/^📤\s*/,"")+(a.cliente?" ("+a.cliente+")":"");
     if(tipo==="Préstamo") return "🤝 Préstamo · "+a.cliente+" · "+(a.producto||"")+(Number(a.kilos)?" "+kilos(a.kilos)+" kg":"")+(a.pago?" ("+a.pago+")":"");
     if(tipo==="Devolución") return "↩️ Devolución "+money(total)+" · "+a.cliente+" · "+(a.producto||"")+(Number(a.kilos)?" "+kilos(a.kilos)+" kg":"");
+    if(tipo==="Pago Proveedor") return "🚛 Pago a "+a.cliente+" "+money(total)+(a.pago?" ("+nombreCaja(a.pago)+")":"");
     if(tipo==="Pago Comisión") return "💵 Pago de comisión "+money(total)+(a.detalle?" · "+String(a.detalle).replace(/^💵\s*/,""):"");
     return tipo+" "+money(total);
   }
@@ -1259,13 +1296,22 @@
       return todo ? qy : qy.limit(MOVS_RAPIDO+1);
     }
     // Si la nube aún no tiene la columna venta_id (SQL nuevo sin correr), se carga igual sin el botón 🧾.
-    consulta("ref,fecha,tipo,detalle,cargo,abono,venta_id").then(function(res){
+    consulta("ref,fecha,tipo,detalle,cargo,abono,venta_id,producto,kilos,factura,titulo").then(function(res){
+      return res.error ? consulta("ref,fecha,tipo,detalle,cargo,abono,venta_id") : res;
+    }).then(function(res){
       return res.error ? consulta("ref,fecha,tipo,detalle,cargo,abono") : res;
     }).then(function(res){
       if(state.section!=="cliente") return;
       if(res.error){ host.innerHTML=cab+'<div class="empty">No se pudo cargar: '+esc(res.error.message)+'</div>'; el("volver2").onclick=volver; return; }
       var desc=res.data||[];
       var hayMas=!todo && desc.length>MOVS_RAPIDO; if(hayMas) desc=desc.slice(0,MOVS_RAPIDO);
+      // Con el límite, la factura más vieja puede quedar cortada a la mitad: se deja por fuera entera
+      // (sus renglones pasan al "Saldo anterior"), así cada factura que se ve sale con su valor completo.
+      if(hayMas && desc.length && desc[desc.length-1].venta_id!=null){
+        var ult=desc[desc.length-1].venta_id, k=desc.length;
+        while(k>0 && desc[k-1].venta_id===ult) k--;
+        if(k>0) desc=desc.slice(0,k);
+      }
       // Saldo después de cada movimiento, del más nuevo al más viejo, partiendo del saldo actual.
       var s=Number(c.saldo||0);
       desc.forEach(function(m){ m._saldo=s; s-=Number(m.cargo)-Number(m.abono); });
@@ -1274,22 +1320,42 @@
       if(!movs.length){ h+='<div class="empty">Sin movimientos registrados.</div>'; host.innerHTML=h; el("volver2").onclick=volver; return; }
       // Lo más reciente ARRIBA (pedido del dueño): se recorre del más nuevo al más viejo; el saldo de
       // cada fila es el que quedó después de ese movimiento, y el "Saldo anterior" va al final.
-      var filas="";
+      // UNA fila por FACTURA (pedido del dueño: renglón por renglón se veía desordenado): número de
+      // factura, día, productos resumidos y el valor total; los abonos y devoluciones van en su fila.
+      // Tocar la factura la abre completa (🧾). El Excel sigue con el detalle por renglón.
+      var grupos=[], porVenta={};
       desc.forEach(function(m){
-        var f=new Date(m.fecha).toLocaleDateString("es-CO",{day:"2-digit",month:"short"});
-        var esVenta=m.venta_id!=null;
-        filas+='<tr'+(esVenta?' class="vta" data-v="'+m.venta_id+'"':'')+'><td>'+f+'</td><td style="text-align:left">'+esc(m.detalle||cap(m.tipo))+(esVenta?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+'</td>'
-          +'<td class="num c-cargo">'+(Number(m.cargo)?money(m.cargo):"")+'</td>'
-          +'<td class="num c-abono">'+(Number(m.abono)?money(m.abono):"")+'</td>'
-          +'<td class="num">'+money(m._saldo)+'</td></tr>';
+        // por venta_id (no solo seguidos: dos ventas a la misma hora pueden venir mezcladas)
+        var g=m.venta_id!=null ? porVenta[m.venta_id] : null;
+        if(g){ g.items.push(m); g.cargo+=Number(m.cargo||0); g.abono+=Number(m.abono||0); return; }
+        g={ venta_id:m.venta_id, fecha:m.fecha, items:[m], cargo:Number(m.cargo||0), abono:Number(m.abono||0), saldo:m._saldo };
+        grupos.push(g); if(m.venta_id!=null) porVenta[m.venta_id]=g;
       });
-      if(hayMas) filas+='<tr><td></td><td style="text-align:left"><b>◂ Saldo anterior</b></td><td></td><td></td><td class="num"><b>'+money(saldoAnterior)+'</b></td></tr>';
-      h+='<div class="card"><div class="tblwrap"><table><thead><tr><th>Fecha</th><th>Detalle</th><th>Cargo</th><th>Abono</th><th>Saldo</th></tr></thead><tbody>'+filas+'</tbody></table></div></div>';
-      h+='<p class="updated">Toca una venta (🧾) para ver, descargar o compartir su factura'+(hayMas?' · mostrando los últimos '+MOVS_RAPIDO:'')+'</p>';
+      // Lista de tarjetas (en el celular una tabla de 5 columnas quedaba apretada): a la izquierda qué fue
+      // (Factura N°, abono, devolución) con el día y los productos; a la derecha el valor y el saldo.
+      var filas="";
+      grupos.forEach(function(g){
+        var m=g.items[0], f=new Date(m.fecha).toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"numeric"});
+        var esVenta=g.venta_id!=null, tit, sub="";
+        if(esVenta){
+          tit=(m.factura ? "🧾 Factura "+esc(m.factura) : "🧾 Venta #"+g.venta_id);
+          var prods = g.items.map(function(x){ return x.producto ? x.producto+(Number(x.kilos)?" "+kilos(x.kilos)+" kg":"") : String(x.detalle||"").replace(/^Fact #\S+ · /,""); });
+          sub=(m.titulo?'<div class="eci-sub">📝 '+esc(m.titulo)+'</div>':'')
+            +'<div class="eci-sub">'+esc(prods.length>3 ? prods.slice(0,3).join(", ")+" y "+(prods.length-3)+" más" : prods.join(", "))+'</div>';
+        } else if(m.tipo==="abono") tit="💰 Abono"+(m.detalle?' <span class="eci-det">· '+esc(m.detalle)+'</span>':'');
+        else if(m.tipo==="devolucion") tit="↩️ "+esc(m.detalle||"Devolución");
+        else tit=esc(m.detalle||cap(m.tipo));
+        var val = g.cargo ? '<div class="eci-val c-cargo">+'+money(g.cargo)+'</div>' : '<div class="eci-val c-abono">−'+money(g.abono)+'</div>';
+        filas+='<div class="eci'+(esVenta?' vta" data-v="'+g.venta_id:'')+'"><div class="eci-izq"><div class="eci-tit">'+tit+'</div><div class="eci-sub">'+f+'</div>'+sub+'</div>'
+          +'<div class="eci-der">'+val+'<div class="eci-saldo">Saldo '+money(g.saldo)+'</div></div></div>';
+      });
+      if(hayMas) filas+='<div class="eci"><div class="eci-izq"><div class="eci-tit">◂ Saldo anterior</div></div><div class="eci-der"><div class="eci-val">'+money(saldoAnterior)+'</div></div></div>';
+      h+='<div class="card ecl">'+filas+'</div>';
+      h+='<p class="updated">Toca una factura para ver sus productos, descargarla o compartirla'+(hayMas?' · mostrando lo más reciente':'')+'</p>';
       if(hayMas) h+='<div style="text-align:center;margin-top:10px"><button class="xls" id="verTodo">Ver todo el historial</button></div>';
       host.innerHTML=h; el("volver2").onclick=volver;
       if(hayMas) el("verTodo").onclick=function(){ verCliente(c, true); };
-      Array.prototype.forEach.call(host.querySelectorAll("tr.vta"), function(tr){ tr.onclick=function(){ abrirFactura(Number(tr.dataset.v), null); }; });
+      Array.prototype.forEach.call(host.querySelectorAll(".eci.vta"), function(d){ d.onclick=function(){ abrirFactura(Number(d.dataset.v), null); }; });
       state.cache.cliente={c:c, movs:movs, saldoAnterior: hayMas?saldoAnterior:null};
     });
   }
@@ -1297,6 +1363,46 @@
   // ===== FACTURA: ver / descargar / compartir (igual al tiquete POS del programa) =====
   // Sale del estado de cuenta (cliente_movimiento, agrupado por venta_id: trae N° de factura, título
   // y el saldo) o de Transacciones (últimos 7 días, también ventas de contado, sin saldo).
+  function pagoDeRef(ref){ var m=/^Pago Proveedor-(\d+)-/.exec(String(ref||"")); return m?Number(m[1]):null; }
+  // Corregir un pago a proveedor (solo el dueño): valor, fecha, caja o "por fuera" y nota. El PC corrige
+  // ESE mismo pago (cuenta del proveedor, caja y cierre de caja de ese día). También se puede anular.
+  function abrirEditarPago(pagoId, r){
+    if(!esDueno()){ say("Solo la cuenta del dueño puede corregir pagos."); return; }
+    var o=abrirHoja("Corregir pago a proveedor");
+    var caja = CAJAS.some(function(c){ return c[0]===r.pago; }) ? r.pago : "";
+    var det=String(r.detalle||""), sep=det.indexOf(" · "), nota = sep>=0 ? det.slice(sep+3) : "";
+    o.hoja().innerHTML=cabHoja("✏️ Corregir pago a proveedor", "eX")
+      +'<div class="cli-tarjeta"><div class="ct-nom">'+esc(r.cliente)+'</div>'
+      +'<div class="ct-saldo"><span>Pago del '+esc(fechaCorta(r.fecha))+' · '+esc(caja?nombreCaja(caja):"por fuera de caja")+'</span><b>'+money(r.valor)+'</b></div></div>'
+      +'<label class="hoja-lab" for="eMonto">Valor correcto</label>'+montoHTML("eMonto")
+      +'<label class="hoja-lab" for="eFecha">Fecha del pago</label><input id="eFecha" class="hoja-in" type="date" value="'+esc(r.fecha)+'" max="'+isoToday()+'">'
+      +'<label class="hoja-lab">Salió de</label>'+segmCajas("eCajas", true, caja)
+      +'<label class="hoja-lab" for="eNota">Nota</label><input id="eNota" class="hoja-in" maxlength="60" autocomplete="off">'
+      +'<button class="hoja-ok" id="eGuardar">💾 Guardar corrección</button>'
+      +'<button class="hoja-sec e-anular" id="eAnular">🚫 Anular este pago</button>'
+      +'<p class="hoja-pie">El computador lo corrige en unos minutos: la cuenta del proveedor, la caja y el cierre de caja de ese día se ajustan solos.</p>';
+    el("eX").onclick=o.cerrar;
+    el("eNota").value=nota;
+    ponerMonto("eMonto", r.valor);
+    conectarMonto("eMonto", function(){});
+    conectarSegm("eCajas", function(c){ caja=c; });
+    el("eGuardar").onclick=function(){
+      var m=leerPlata(el("eMonto").value), f=el("eFecha").value||r.fecha, n=el("eNota").value.trim();
+      if(!(m>0)){ say("Escribe el valor del pago."); return; }
+      var resumen="Corregir pago a "+r.cliente+": "+money(r.valor)+" → "+money(m)+" · "+(caja?nombreCaja(caja):"por fuera de caja")+" · "+fechaCorta(f);
+      var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+      enviarSolicitud("editar_pago_proveedor", resumen, { pago_id:pagoId, monto:m, caja:caja, nota:n, fecha:f }).then(function(){
+        hojaHecha(o, "Corrección enviada", money(m), [esc(r.cliente)+" · "+esc(caja?nombreCaja(caja):"Por fuera de caja"), "Fecha: "+esc(fechaCorta(f))], null, null);
+      }, function(e){ btn.disabled=false; btn.textContent="💾 Guardar corrección"; say(e.message); });
+    };
+    el("eAnular").onclick=function(){
+      if(!confirm("¿Anular el pago de "+money(r.valor)+" a "+r.cliente+"?\n\nSe le vuelve a deber ese valor y, si salió de una caja, la plata vuelve a esa caja.")) return;
+      var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+      enviarSolicitud("anular_pago_proveedor", "Anular pago a "+r.cliente+" de "+money(r.valor), { pago_id:pagoId }).then(function(){
+        hojaHecha(o, "Anulación enviada", money(r.valor), [esc(r.cliente)+": se le vuelve a deber"], null, null);
+      }, function(e){ btn.disabled=false; btn.textContent="🚫 Anular este pago"; say(e.message); });
+    };
+  }
   function ventaDeRef(ref){ var m=/^Venta-(\d+)-/.exec(String(ref||"")); return m?Number(m[1]):null; }
   function cargarEmpresa(){
     var k="empresa_"+state.negocioId;
@@ -1471,7 +1577,7 @@
       f(px,true); g.textAlign="right"; g.fillText(val,W-M,y); y+=Math.round(px*1.3);
     }
     function cuerpo(logo){
-      if(logo){ var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; }
+      if(logo){ var tl=tamLogo(logo,W), lw=tl[0], lh=tl[1];
         g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+12; }
       if(emp.nombre) centro(String(emp.nombre).toUpperCase(),42,true);
       if(emp.nit) centro("NIT: "+emp.nit,26,false);
@@ -2145,6 +2251,67 @@
       });
     });
   }
+  // ===== 🛵 ARQUEO POR PERSONA (lo arma el computador: Finanzas → Arqueo por persona) =====
+  // Cuánto recogió cada quien: el domiciliario y el que factura desde el celular (por su correo) y cada
+  // usuario del PC. El dueño ve a todos; los demás solo lo suyo.
+  function loadArqueo(){
+    var host=sec("arqueo"); host.innerHTML='<div class="loading">Cargando…</div>';
+    delete state.cache["cat_"+state.negocioId];
+    Promise.all([cargarCatalogo(), sb.auth.getSession()]).then(function(res){
+      if(state.section!=="arqueo") return;
+      var cat=res[0], ss=res[1];
+      var yo=String((ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"").toLowerCase();
+      var todos=(cat.arqueo||[]).filter(function(r){ return esDueno() || String((r.extra||{}).persona||"").toLowerCase()===yo; });
+      var dias=[]; for(var i=0;i<7;i++){ var d=new Date(); d.setDate(d.getDate()-i); dias.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")); }
+      if(!state.arqDia || dias.indexOf(state.arqDia)<0) state.arqDia=dias[0];
+      var rows=todos.filter(function(r){ return (r.extra||{}).fecha===state.arqDia; })
+        .sort(function(a,b){ return Number(b.extra.a_entregar||0)-Number(a.extra.a_entregar||0); });
+      var h='<div class="sechead"><h2 class="sec">'+(esDueno()?'Arqueo por persona':'Mi arqueo')+'</h2></div><div class="arq-dias">';
+      dias.forEach(function(d,i){ h+='<button type="button" data-d="'+d+'" aria-pressed="'+(d===state.arqDia)+'">'+(i===0?'Hoy':i===1?'Ayer':fechaCorta(d))+'</button>'; });
+      h+='</div>';
+      if(!rows.length){
+        host.innerHTML=h+'<div class="empty">'+(esDueno()?'Nadie recibió plata ni vendió este día.':'No tienes ventas ni cobros este día.')
+          +' (Si sí hubo, el computador necesita la versión 1.4.28 y sincronizar.)</div>';
+        conectarDias(); return;
+      }
+      if(esDueno() && rows.length>1){
+        var tot=rows.reduce(function(s,r){ return s+Number(r.extra.a_entregar||0); },0);
+        h+='<div class="tile span" style="margin-bottom:0"><div class="lab">💵 Efectivo a entregar entre todos</div><div class="val num">'+money(tot)+'</div></div>';
+      }
+      h+='<div class="card">';
+      rows.forEach(function(r,idx){
+        var x=r.extra||{}, ent=x.entregado, aE=Number(x.a_entregar||0);
+        var est = ent===null || ent===undefined ? '<span class="arq-est pend">⏳ Falta entregar</span>'
+          : Math.round(Number(ent)-aE)===0 ? '<span class="arq-est ok">✅ Entregó '+money(ent)+' · cuadra</span>'
+          : '<span class="arq-est mal">Entregó '+money(ent)+' · '+(Number(ent)>aE?'sobran ':'faltan ')+money(Math.abs(Number(ent)-aE))+'</span>';
+        var cajas=x.cajas||{}, dig=Object.keys(cajas).filter(function(k){ return k!=="Efectivo" && Number(cajas[k]); }).map(function(k){ return k+' '+money(cajas[k]); });
+        h+='<div class="arq"><div class="arq-cab" data-i="'+idx+'"><div><div class="name">'+(x.celular?'📱 ':'💻 ')+esc(r.nombre)+'</div>'
+          +'<div class="arq-det">Contado '+money(x.contado)+' · Abonos '+money(x.abonos)+(Number(x.salidas)?' · Gastos/pagos −'+money(x.salidas):'')
+          +'<br>A crédito '+money(x.credito)+' · '+Number(x.ventas||0)+' venta'+(Number(x.ventas)===1?'':'s')
+          +(dig.length?'<br>En la cuenta: '+esc(dig.join(' · ')):'')+'</div>'+est+'</div>'
+          +'<div class="arq-ent"><small>Efectivo a entregar</small><b class="num">'+money(aE)+'</b></div></div>'
+          +'<div class="arq-movs" id="arqM'+idx+'" hidden></div></div>';
+      });
+      h+='</div><p class="updated">Toca una persona para ver cada venta y cobro. Lo que entrega se anota en el computador (Finanzas → Arqueo por persona). Se actualiza con cada sincronización.</p>';
+      host.innerHTML=h;
+      conectarDias();
+      Array.prototype.forEach.call(host.querySelectorAll(".arq-cab"), function(c){
+        c.onclick=function(){
+          var i=Number(c.dataset.i), box=el("arqM"+i), x=rows[i].extra||{};
+          if(!box.hidden){ box.hidden=true; return; }
+          box.innerHTML=(x.movs||[]).map(function(m){
+            var v=Number(m.e||0)?money(m.e):Number(m.s||0)?'−'+money(m.s):money(m.cr);
+            var cls=Number(m.s||0)?' class="s"':Number(m.cr||0)?' class="c"':'';
+            return '<div'+cls+'><span>'+esc(m.h)+' · '+esc(m.t)+(m.c&&m.c!=="Efectivo"?' ('+esc(m.c)+')':'')+(m.d?' · '+esc(m.d):'')+'</span><span class="num">'+v+'</span></div>';
+          }).join("") || '<div><span>Sin movimientos</span></div>';
+          box.hidden=false;
+        };
+      });
+      function conectarDias(){
+        Array.prototype.forEach.call(host.querySelectorAll(".arq-dias button"), function(b){ b.onclick=function(){ state.arqDia=b.dataset.d; loadArqueo(); }; });
+      }
+    }).catch(function(e){ host.innerHTML='<div class="empty">No se pudo cargar: '+esc(e&&e.message||e)+'</div>'; });
+  }
   function fechaCorta(iso){ var p=String(iso||"").split("-"); return p.length===3 ? p[2]+"/"+p[1]+"/"+p[0].slice(2) : String(iso||""); }
   function abrirPagoComision(r){
     if(!esDueno()){ say("Solo la cuenta del dueño puede registrar pagos."); return; }
@@ -2429,7 +2596,7 @@
     function dos(a,b,px,bold){ f(px,bold); g.textAlign="left"; g.fillText(a,M,y); g.textAlign="right"; g.fillText(b,W-M,y); y+=Math.round(px*1.35); }
     function campo(etq,val,px,bold){ f(24,false); g.textAlign="left"; g.fillText(etq,M,y); f(px,bold); while(px>18 && ancho(val)>W-2*M-170){ px--; f(px,bold); } g.textAlign="right"; g.fillText(val,W-M,y); y+=Math.round(Math.max(px,24)*1.3); }
     function cuerpo(logo){
-      if(logo){ var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; } g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+12; }
+      if(logo){ var tl=tamLogo(logo,W), lw=tl[0], lh=tl[1]; g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+12; }
       if(emp.nombre) centro(String(emp.nombre).toUpperCase(),42,true);
       if(emp.nit) centro("NIT: "+emp.nit,26,false);
       if(emp.direccion) centro("Dirección: "+emp.direccion,26,false);
@@ -2531,7 +2698,7 @@
     function fechaLarga(s){ s=String(s); return s.slice(8,10)+"/"+s.slice(5,7)+"/"+s.slice(0,4); }
     function num(n){ return Math.round(Number(n||0)).toLocaleString("es-CO"); }
     function cuerpo(logo){
-      if(logo){ var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; }
+      if(logo){ var tl=tamLogo(logo,W), lw=tl[0], lh=tl[1];
         g.drawImage(logo,(W-lw)/2,y,lw,lh); y+=lh+12; }
       if(emp.nombre) centro(String(emp.nombre).toUpperCase(),42,true);
       if(emp.nit) centro("NIT: "+emp.nit,26,false);
@@ -2620,8 +2787,19 @@
       var c={producto:[],proveedor:[],viaje:[],cliente:[],config:[], _t:Date.now()};
       ((r&&r.data)||[]).forEach(function(x){ (c[x.tipo]||(c[x.tipo]=[])).push(x); });
       Object.keys(c).forEach(function(t){ if(Array.isArray(c[t])) c[t].sort(function(a,b){ return String(a.nombre).localeCompare(String(b.nombre),"es"); }); });
+      var cfgF=((c.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
+      LOGO_PCT=Number(cfgF.logo_pct)||100;
       state.cache[k]=c; return c;
     });
+  }
+  // Tamaño del logo en la factura/recibo/estado de cuenta: el de fábrica (≤300×190 en 576) por el
+  // % de Configuración → Impresora del PC ("Tamaño del logo"), sin pasarse del ancho del papel.
+  var LOGO_PCT=100;
+  function tamLogo(logo, W){
+    var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; }
+    var k=Math.max(0.5, Math.min(2.5, (Number(LOGO_PCT)||100)/100)); lw*=k; lh*=k;
+    var max=W-44; if(lw>max){ lh=lh*max/lw; lw=max; }
+    return [lw, lh];
   }
   // Valor según la UNIDAD (igual que el programa): solo la arroba divide entre 12,5.
   function valorCompra(kg,precio,unidad){ return Number(kg||0)*Number(precio||0)*1000/(String(unidad||"Arroba")==="Arroba"?12.5:1); }
@@ -2675,6 +2853,7 @@
       +'<label><input type="radio" name="iForma" value="contado"> De contado, sale de la caja <select id="iCaja" style="width:auto;padding:5px 8px;margin-left:auto">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></label>'
       +'<label><input type="radio" name="iForma" value="fuera"> Ya pagado por fuera de la caja</label>'
       +'</div></div>'
+      +'<label for="iFecha">Fecha de la factura (si no es de hoy)</label><input id="iFecha" type="date" value="'+isoToday()+'" max="'+isoToday()+'">'
       +'<label for="iNota">Nota (opcional)</label><input id="iNota" maxlength="120" placeholder="Ej: factura 1234, llegó a las 5 a. m.">'
       +'<div class="total-row" style="margin:14px -14px -14px"><span>Total de la factura</span><span class="big num" id="iTotal">$0</span></div>'
       +'</div></div>'
@@ -2781,7 +2960,9 @@
       var provNom = provNuevo ? provNombreNuevo+" (nuevo)" : prov.value ? prov.options[prov.selectedIndex].text : "";
       var viajeNom = viajeNuevo ? viajeRefNuevo+(comi?" (nuevo, comisión)":" (nuevo)") : el("iViaje").options[el("iViaje").selectedIndex].text;
       var formaTxt = comi ? "viaje de comisión (sin cargo a la cuenta)" : !prov.value ? "solo inventario" : forma==="credito" ? "a crédito" : forma==="contado" ? "de contado ("+nombreCaja(caja)+")" : "pagado por fuera de caja";
-      var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+formaTxt+" · viaje "+viajeNom+(el("iNota").value?" · "+el("iNota").value:"");
+      var fechaIng = el("iFecha").value || isoToday();
+      var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+formaTxt+" · viaje "+viajeNom
+        +(fechaIng!==isoToday()?" · fecha "+fechaCorta(fechaIng):"")+(el("iNota").value?" · "+el("iNota").value:"");
       if(!confirm("¿Enviar este ingreso al sistema?\n\n"+resumen)) return;
       btn.disabled=true; btn.textContent="Enviando…";
       sb.auth.getSession().then(function(ss){
@@ -2793,7 +2974,7 @@
             viaje_nuevo: viajeNuevo ? { referencia:viajeRefNuevo, tipo: comi ? "COMISION" : "COMPRA" } : null,
             proveedor_id: prov.value && !provNuevo ? Number(prov.value) : null,
             proveedor_nuevo: provNuevo ? { nombre:provNombreNuevo, telefono:el("iProvTel").value.trim() } : null,
-            forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"" }
+            forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"", fecha:fechaIng }
         });
       }).then(function(res){
         btn.disabled=false; btn.textContent="📨 Enviar al sistema";
@@ -3121,9 +3302,9 @@
 
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
-  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t==="abono"?"💰 Abono": t==="cliente"?"👤 Cliente nuevo": t==="producto"?"🐟 Producto nuevo": t==="gasto"?"📤 Gasto": t==="devolucion"?"↩️ Devolución": t==="pago_proveedor"?"🚛 Pago a proveedor": t==="pago_comision"?"💼 Pago a comisionista": t==="corregir_venta"?"✏️ Corregir venta (celular)": t; }
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t==="abono"?"💰 Abono": t==="cliente"?"👤 Cliente nuevo": t==="producto"?"🐟 Producto nuevo": t==="gasto"?"📤 Gasto": t==="devolucion"?"↩️ Devolución": t==="pago_proveedor"?"🚛 Pago a proveedor": t==="pago_comision"?"💼 Pago a comisionista": t==="corregir_venta"?"✏️ Corregir venta (celular)": t==="editar_pago_proveedor"?"✏️ Corregir pago a proveedor": t==="anular_pago_proveedor"?"🚫 Anular pago a proveedor": t; }
   var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
-  function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta": t==="abono"?"k-vta": t==="prestamo"?"k-sol":"k-otro"; }
+  function colorTipoSolicitud(t){ return t==="anular_venta"||t==="anular_pago_proveedor"?"k-anul": t==="editar_venta"||t==="editar_pago_proveedor"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta": t==="abono"?"k-vta": t==="prestamo"?"k-sol":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
     if(/SOLICITUD|APROBADO|RECHAZ/.test(a)) return "Solicitudes";
     if(/ANUL/.test(a)) return "Anulaciones";
