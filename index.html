@@ -320,6 +320,38 @@
   .atajos button{appearance:none; border:none; border-radius:12px; padding:12px 10px; font:inherit; font-weight:800; font-size:.95rem; cursor:pointer; color:#fff}
   .atajos .av{background:linear-gradient(135deg,#16a34a,#15803d)}
   .atajos .aa{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+  .atajos{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .atajos button{font-size:.84rem; padding:11px 6px}
+  .atajos .ag{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+  .atajos .ad{background:linear-gradient(135deg,#ea580c,#c2410c)}
+  .atajos .ap{background:linear-gradient(135deg,#475569,#334155)}
+  .atajos .ac{background:linear-gradient(135deg,#0d9488,#0f766e)}
+  .segm.cinco{grid-template-columns:repeat(3,1fr)}
+  .rapidos.chips-gasto{flex-wrap:wrap}
+  .rapidos.chips-gasto button{padding:7px 12px}
+  .dev-fila{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px}
+  .ilin.dev-prod{display:block; margin-top:0}
+  .e-cli{display:flex; gap:8px; align-items:stretch}
+  .e-cli .hoja-sec{width:auto; margin:0; padding:0 14px}
+  .hoja .ilin input, .hoja .ilin select{border:1.5px solid #cbd5e1; border-radius:10px; padding:10px 8px; font:inherit; background:#f8fafc; color:#15242e; box-sizing:border-box}
+  .hoja .ilin.v{border-top-color:#e2e8f0}
+  .hoja .ilin .sub{color:#64748b}
+  .e-total{display:flex; justify-content:space-between; align-items:baseline; margin-top:16px; padding-top:10px; border-top:2px solid #e2e8f0; font-weight:800}
+  .e-total b{font-size:1.5rem; color:#0f172a}
+  .hoja-sec.e-anular{color:#b91c1c; border-color:#fecaca}
+  .fac-bar .fac-anular{color:#b91c1c}
+  .comi{padding:12px 14px; border-bottom:1px solid var(--line)}
+  .comi:last-child{border-bottom:none}
+  .comi-cab{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+  .comi .sub{font-size:.78rem; color:var(--muted)}
+  .comi .amt.neg{color:var(--good)}
+  .comi-det{font-size:.78rem; color:var(--muted); margin-top:4px}
+  .comi-pagar{margin-top:8px; appearance:none; border:none; border-radius:10px; padding:9px 14px; font:inherit; font-weight:800; color:#fff; background:#0f766e; cursor:pointer}
+  .prov-tap{cursor:pointer}
+  .ptabs{margin-bottom:10px}
+  .prov-acc{display:flex; gap:6px; margin-top:6px}
+  .pacc{appearance:none; border:none; border-radius:8px; padding:6px 10px; font:inherit; font-size:.8rem; font-weight:800; cursor:pointer; color:#fff}
+  .pacc.pg{background:#16a34a} .pacc.in{background:#ea580c}
   .imp-card label{display:block; font-size:.78rem; font-weight:800; opacity:.85; margin:12px 0 5px; text-transform:uppercase; letter-spacing:.04em}
   .imp-card input:not([type=date]), .imp-card select{width:100%; box-sizing:border-box; appearance:none; border:none; border-radius:10px; padding:10px 11px; font:inherit; font-size:1rem; background:#fff; color:#15242e}
   .imp-card .grande{font-size:1.5rem !important; font-weight:800}
@@ -903,7 +935,9 @@
       else if(r.tipo==="Pago Comisión") k.pagosCom+=v;
     });
     var h='<div class="sechead"><h2 class="sec">Transacciones del día</h2><button class="xls" data-xls="trans">⬇️ Excel</button></div>';
-    h+='<div class="atajos"><button class="av" id="atVender">🛒 Vender</button><button class="aa" id="atAbonar">💰 Abonar</button></div>';
+    h+='<div class="atajos"><button class="av" id="atVender">🛒 Vender</button><button class="aa" id="atAbonar">💰 Abonar</button>'
+      +'<button class="ag" id="atGasto">📤 Gasto</button><button class="ad" id="atDevol">↩️ Devolución</button>'
+      +'<button class="ap" id="atPagoProv">🚛 Pagar prov.</button><button class="ac" id="atComis">💼 Comisionistas</button></div>';
     h+='<div class="tiles mini">'
       +'<div class="tile"><div class="lab">💵 Contado</div><div class="val num" style="color:#047857">'+money(k.contado)+'</div></div>'
       +'<div class="tile"><div class="lab">💳 Crédito</div><div class="val num" style="color:#c2410c">'+money(k.credito)+'</div></div>'
@@ -949,6 +983,10 @@
     Array.prototype.forEach.call(host.querySelectorAll(".tchip"), function(b){ b.onclick=function(){ state.transTipo=b.dataset.tt; pintarTrans(); }; });
     el("atVender").onclick=function(){ irA("vext"); };
     el("atAbonar").onclick=function(){ abrirAbono(); };
+    el("atGasto").onclick=function(){ abrirGasto(); };
+    el("atDevol").onclick=function(){ abrirDevolucion(); };
+    el("atPagoProv").onclick=function(){ abrirPagoProveedor(); };
+    el("atComis").onclick=function(){ state.provTab="comis"; irA("prov"); };
     var bus=el("tBus"); if(bus){ bus.oninput=function(){ state.transBuscar=this.value; var p=this.selectionStart; pintarTrans(); var nb=el("tBus"); nb.focus(); try{ nb.setSelectionRange(p,p); }catch(e){} }; }
   }
 
@@ -1120,11 +1158,11 @@
     }
     if(act.indexOf("__ing")>=0){
       var desdeI=marca("_ing"); if(!desdeI){ marca("_ing", new Date().toISOString()); }
-      else sb.from("solicitud_movil").select("id,tipo,estado,resumen,error,aplicado").eq("negocio_id",neg).in("tipo",["ingreso","usuario"]).in("estado",["aplicada","error"]).gt("aplicado",desdeI).order("aplicado",{ascending:true}).then(function(r){
+      else sb.from("solicitud_movil").select("id,tipo,estado,resumen,error,aplicado").eq("negocio_id",neg).eq("origen","celular").in("tipo",["ingreso","usuario","gasto","devolucion","pago_proveedor","pago_comision","corregir_venta","anular_venta"]).in("estado",["aplicada","error"]).gt("aplicado",desdeI).order("aplicado",{ascending:true}).then(function(r){
         var filas=(r&&r.data)||[];
         filas.forEach(function(s){
-          var ic = s.tipo==="usuario" ? "👤 " : "📥 ";
-          avisar(s.tipo==="usuario" ? "Usuario" : "Ingreso", s.estado==="aplicada" ? ic+"Ya quedó en el sistema: "+s.resumen : "❌ No se pudo registrar: "+s.resumen+(s.error?" ("+s.error+")":""), "ing-"+s.id);
+          var ic = s.tipo==="usuario" ? "👤 " : s.tipo==="ingreso" ? "📥 " : "";
+          avisar(s.tipo==="usuario" ? "Usuario" : s.tipo==="ingreso" ? "Ingreso" : tipoSolicitud(s.tipo), s.estado==="aplicada" ? ic+"Ya quedó en el sistema: "+s.resumen : "❌ No se pudo registrar: "+s.resumen+(s.error?" ("+s.error+")":""), "ing-"+s.id);
         });
         if(filas.length){ marca("_ing", filas[filas.length-1].aplicado); mostrarCola(); if(state.section==="ingreso") loadIngreso(); if(state.section==="usuarios") loadUsuarios(); }
       });
@@ -1331,7 +1369,7 @@
     }).then(function(par){
       if(!document.body.contains(ov)) return;
       if(!par[0]){ ov.innerHTML='<div class="fac-msg">No encontré esa venta en la nube.<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar; return; }
-      mostrarFactura(ov, par[0], par[1], cerrar);
+      mostrarFactura(ov, par[0], par[1], cerrar, { editable:true });
     }).catch(function(e){
       ov.innerHTML='<div class="fac-msg">No se pudo armar la factura: '+esc(e && e.message || e)+'<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar;
     });
@@ -1355,10 +1393,12 @@
           +(puedeCompartir?'<button class="prim" id="facShare">📤 Compartir</button>':'')
           +'<button class="'+(puedeCompartir?'sec2':'prim')+'" id="facDown">⬇️ Descargar</button>'
           +'<button class="sec2" id="facClose">✕ Cerrar</button></div>'
+          +(opc.editable && fac.ventaId && esDueno() ? '<div class="fac-bar"><button class="sec2" id="facEdit">✏️ Corregir factura</button><button class="sec2 fac-anular" id="facAnular">🚫 Anular venta</button></div>' : '')
           +'<img class="fac-img" alt="Factura" src="'+cv.toDataURL("image/png")+'">';
         el("facClose").onclick=cerrar;
         el("facPrint").onclick=function(){ imprimirCanvas(actual, nombreArchivoFactura(fac)); };
         el("facCfg").onclick=function(){ abrirCfgImpresora(); };
+        if(el("facEdit")){ el("facEdit").onclick=function(){ abrirCorregirFactura(fac, cerrar); }; el("facAnular").onclick=function(){ anularVentaCel(fac, cerrar); }; }
         if(fac.saldo){ el("facCon").onclick=function(){ conSaldo=true; pintar(); }; el("facSin").onclick=function(){ conSaldo=false; pintar(); }; }
         el("facDown").onclick=function(){
           var a=document.createElement("a"); a.href=actual.toDataURL("image/png"); a.download=nombreArchivoFactura(fac);
@@ -1730,7 +1770,7 @@
     }).filter(function(x){ return x.pts>=0; }).sort(function(a,b){ return b.pts-a.pts || a.o.nombre.localeCompare(b.o.nombre); }).slice(0,40);
     acCerrar();
     // Al final, crear uno nuevo con lo escrito (como el ➕ Nuevo de los buscadores del PC).
-    var tipoNuevo = /^dlProd/.test(inp.dataset.dl) ? "producto" : (/^dlCli/.test(inp.dataset.dl) && inp.dataset.dl!=="dlCliA") ? "cliente" : null;
+    var tipoNuevo = /^dlProd/.test(inp.dataset.dl) ? "producto" : (/^dlCli/.test(inp.dataset.dl) && !/^dlCliA/.test(inp.dataset.dl)) ? "cliente" : null;
     var exacto = res.some(function(x){ return sinTildesG(x.o.nombre)===t; });
     if(tipoNuevo && t && !exacto) res.push({ o:{ nombre:inp.value.trim(), cod:"", info:"", nuevo:tipoNuevo }, pts:-1 });
     if(!res.length || (res.length===1 && res[0].o.nombre===inp.value && !res[0].o.nuevo)) return;
@@ -1827,6 +1867,440 @@
         }
       });
     };
+  }
+
+  // ===== ACCIONES DESDE EL CELULAR (1.4.27): gasto, devolución, pago a proveedor, pago a comisionista,
+  // corregir y anular factura. Igual que el abono: quedan en solicitud_movil ya aprobadas y el computador
+  // las aplica en su siguiente sincronización con la misma lógica de sus pantallas (F9, F11, F7, Comisión,
+  // Editar/Anular de Transacciones). Plata que sale y facturas: solo la cuenta del dueño (política de la nube).
+  function enviarSolicitud(tipo, resumen, datos){
+    return sb.auth.getSession().then(function(ss){
+      var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
+      return sb.from("solicitud_movil").insert({ negocio_id:state.negocioId, origen:"celular", tipo:tipo, estado:"aprobada", creado_por:email, resumen:resumen, datos:datos });
+    }).then(function(res){
+      if(res.error) throw new Error(/row-level security|policy/i.test(res.error.message)
+        ? (esDueno() ? "La nube todavía no acepta esto desde el celular (falta actualizar el servidor)." : "Esto solo lo puede hacer la cuenta del dueño.")
+        : "No se pudo enviar: "+res.error.message);
+      delete state.cache["cat_"+state.negocioId];
+      return res;
+    });
+  }
+  // Botones de caja (como la forma de pago del abono); conFuera agrega "Por fuera" (no sale de ninguna caja).
+  function segmCajas(id, conFuera, sel){
+    var ops=CAJAS.map(function(c){ return [c[0], c[1]+' '+(c[0]==="Transferencia"?"Transf.":c[0])]; });
+    if(conFuera) ops.push(["", "🚫 Por fuera"]);
+    return '<div class="segm'+(conFuera?' cinco':'')+'" id="'+id+'">'+ops.map(function(o){ return '<button type="button" data-c="'+o[0]+'"'+(o[0]===sel?' class="on"':'')+'>'+o[1]+'</button>'; }).join("")+'</div>';
+  }
+  function conectarSegm(id, alCambiar){
+    var cont=el(id); if(!cont) return;
+    Array.prototype.forEach.call(cont.querySelectorAll("button"), function(b){
+      b.onclick=function(){ Array.prototype.forEach.call(cont.querySelectorAll("button"), function(x){ x.classList.toggle("on", x===b); }); alCambiar(b.dataset.c); };
+    });
+  }
+  function abrirHoja(etiqueta){
+    var o=abrirOverlay(); o.ov.classList.add("con-hoja");
+    o.ov.innerHTML='<div class="hoja" role="dialog" aria-label="'+esc(etiqueta)+'"><div class="fac-msg" style="color:#334155">Cargando…</div></div>';
+    o.hoja=function(){ return o.ov.querySelector(".hoja"); };
+    return o;
+  }
+  function cabHoja(titulo, idX){ return '<div class="hoja-cab"><b>'+titulo+'</b><button class="hoja-x" id="'+idX+'" aria-label="Cerrar">✕</button></div>'; }
+  function hojaHecha(o, titulo, grande, lineas, otroTxt, otroFn){
+    o.hoja().innerHTML=cabHoja("✅ "+titulo, "hhX")
+      +'<div class="hecho"><div class="hecho-monto">'+grande+'</div>'+lineas.map(function(l){ return '<div>'+l+'</div>'; }).join("")+'</div>'
+      +(otroTxt?'<button class="hoja-sec" id="hhOtro">'+otroTxt+'</button>':'')
+      +'<button class="hoja-ok" id="hhOk">Listo</button>'
+      +'<p class="hoja-pie">El computador lo registra en unos minutos (tiene que estar prendido y con internet).</p>';
+    el("hhX").onclick=o.cerrar; el("hhOk").onclick=o.cerrar;
+    if(otroTxt) el("hhOtro").onclick=function(){ o.cerrar(); otroFn(); };
+  }
+  function montoHTML(id){ return '<div class="monto-caja"><span>$</span><input id="'+id+'" type="text" inputmode="numeric" placeholder="0" autocomplete="off"></div>'; }
+  function conectarMonto(id, alCambiar){
+    el(id).addEventListener("input", function(){ var m=leerPlata(this.value); this.value = m ? m.toLocaleString("es-CO") : ""; alCambiar(); });
+  }
+  function ponerMonto(id, v){ v=Math.round(Number(v||0)); el(id).value = v>0 ? v.toLocaleString("es-CO") : ""; }
+  function opcionesProveedor(lista){
+    return (lista||[]).map(function(p){ var x=p.extra||{}, s=Number(x.saldo||0);
+      return '<option value="'+esc(p.nombre)+'" data-c="'+esc(x.codigo||"")+'" data-i="'+(s?"le debo "+money(s):"")+'"></option>'; }).join("");
+  }
+
+  // ----- 📤 GASTO (como F9) -----
+  var CONCEPTOS_GASTO=["Hielo","Transporte","Almuerzo","Bolsas","Cargue","Flete"];
+  function abrirGasto(){
+    var o=abrirHoja("Registrar gasto"), caja="Efectivo";
+    cargarCatalogo().then(function(cat){
+      if(!document.body.contains(o.ov)) return;
+      o.hoja().innerHTML=cabHoja("📤 Registrar gasto", "gX")
+        +'<label class="hoja-lab" for="gMonto">Valor del gasto</label>'+montoHTML("gMonto")
+        +'<label class="hoja-lab" for="gCon">¿En qué se gastó?</label>'
+        +'<input id="gCon" class="hoja-in" maxlength="60" placeholder="Ej: Hielo para el viaje" autocomplete="off">'
+        +'<div class="rapidos chips-gasto">'+CONCEPTOS_GASTO.map(function(c){ return '<button type="button" data-g="'+c+'">'+c+'</button>'; }).join("")+'</div>'
+        +'<label class="hoja-lab">Sale de</label>'+segmCajas("gCajas", true, "Efectivo")
+        +'<div id="gFueraTxt" class="queda" hidden>No sale de ninguna caja ni va al cierre (se pagó por fuera).</div>'
+        +'<button type="button" class="nota-link" id="gMasBtn">+ Viaje o descontar a un proveedor</button>'
+        +'<div id="gMas" hidden>'
+        +'<label class="hoja-lab" for="gViaje">Viaje (opcional: cuenta en su balance)</label><select id="gViaje" class="hoja-in"><option value="">— Ninguno —</option>'
+        +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+'</option>'; }).join("")+'</select>'
+        +'<label class="hoja-lab" for="gProv">Descontar de la cuenta de un proveedor (opcional)</label>'
+        +'<input id="gProv" class="hoja-in" list="dlProvG" placeholder="🔎 Proveedor" autocomplete="off"><datalist id="dlProvG">'+opcionesProveedor(cat.proveedor)+'</datalist>'
+        +'</div>'
+        +'<button class="hoja-ok" id="gGuardar" disabled>Escribe el valor</button>'
+        +'<p class="hoja-pie">Si sale de una caja, el computador lo pone también en GASTOS del cierre de hoy.</p>';
+      el("gX").onclick=o.cerrar;
+      function pintar(){
+        var m=leerPlata(el("gMonto").value), b=el("gGuardar");
+        b.disabled=!(m>0); b.textContent = m>0 ? "💾 Registrar gasto de "+money(m) : "Escribe el valor";
+        el("gFueraTxt").hidden = caja!=="";
+      }
+      conectarMonto("gMonto", pintar);
+      conectarSegm("gCajas", function(c){ caja=c; pintar(); });
+      Array.prototype.forEach.call(o.ov.querySelectorAll(".chips-gasto button"), function(b){ b.onclick=function(){ el("gCon").value=b.dataset.g; }; });
+      el("gMasBtn").onclick=function(){ this.hidden=true; el("gMas").hidden=false; };
+      setTimeout(function(){ el("gMonto").focus(); }, 60);
+      el("gGuardar").onclick=function(){
+        var m=leerPlata(el("gMonto").value); if(!(m>0)) return;
+        var con=el("gCon").value.trim() || "Gasto";
+        var vId=Number(el("gViaje").value||0), vNom=vId ? el("gViaje").selectedOptions[0].textContent : "";
+        var provTxt=el("gProv").value.trim(), prov=provTxt ? buscarPorNombre(cat.proveedor||[], provTxt) : null;
+        if(provTxt && !prov){ say("Ese proveedor no está en el programa: elígelo de la lista."); return; }
+        var resumen="Gasto "+money(m)+" · "+con+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(vNom?" · viaje "+vNom:"")+(prov?" · descontado a "+prov.nombre:"");
+        var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+        enviarSolicitud("gasto", resumen, { monto:m, concepto:con, caja:caja, viaje_id:vId, proveedor_id: prov ? Number(prov.id) : 0 }).then(function(){
+          hojaHecha(o, "Gasto enviado", money(m), [esc(con), esc(caja?nombreCaja(caja):"Por fuera de caja")+(prov?" · descontado a "+esc(prov.nombre):"")], "📤 Registrar otro gasto", abrirGasto);
+        }, function(e){ btn.disabled=false; pintar(); say(e.message); });
+      };
+      pintar();
+    });
+  }
+
+  // ----- ↩️ DEVOLUCIÓN (como F11): vuelve al inventario y le baja lo que debe al cliente, sin tocar la caja -----
+  function abrirDevolucion(){
+    var o=abrirHoja("Registrar devolución");
+    cargarCatalogo().then(function(cat){
+      if(!document.body.contains(o.ov)) return;
+      var clientes=cat.cliente||[], elegido=null;
+      o.hoja().innerHTML=cabHoja("↩️ Devolución de mercancía", "dX")
+        +'<div id="dBuscar"><label class="hoja-lab" for="dCli">Cliente que devuelve</label>'
+        +'<input id="dCli" class="hoja-in" list="dlCliAD" placeholder="🔎 Código o nombre del cliente" autocomplete="off">'
+        +'<datalist id="dlCliAD">'+opcionesCliente(clientes)+'</datalist></div>'
+        +'<div id="dTarjeta" class="cli-tarjeta" hidden></div>'
+        +'<div id="dResto" class="hoja-off">'
+        +'<label class="hoja-lab" for="dProd">Producto</label>'
+        +'<div class="ilin dev-prod"><input id="dProd" class="hoja-in" list="dlProdD" placeholder="🔎 Producto" autocomplete="off"><input class="k" hidden><input class="p" hidden><select class="t" hidden>'+TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div>'
+        +'<datalist id="dlProdD">'+opcionesProducto(cat.producto)+'</datalist>'
+        +'<div class="dev-fila"><div><label class="hoja-lab" for="dKg" id="dKgLab">Kilos</label><input id="dKg" class="hoja-in" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>'
+        +'<div><label class="hoja-lab" for="dPre">Precio (miles)</label><input id="dPre" class="hoja-in" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>'
+        +'<div><label class="hoja-lab" for="dTipo">Por</label><select id="dTipo" class="hoja-in">'+TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div></div>'
+        +'<div id="dValor" class="queda"></div>'
+        +'<button type="button" class="nota-link" id="dNotaBtn">+ Agregar nota</button>'
+        +'<input id="dNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional): ej. llegó dañado" autocomplete="off" hidden>'
+        +'</div>'
+        +'<button class="hoja-ok" id="dGuardar" disabled>Elige el cliente</button>'
+        +'<p class="hoja-pie">El computador la registra en unos minutos: el producto vuelve al inventario y se le baja lo que debe (no toca la caja).</p>';
+      el("dX").onclick=o.cerrar;
+      function saldo(){ return elegido && elegido.extra ? Number(elegido.extra.saldo||0) : 0; }
+      function prod(){ return buscarPorNombre(cat.producto||[], el("dProd").value); }
+      function valor(){ return subtotalVenta(leerNum(el("dKg").value), leerNum(el("dPre").value), el("dTipo").value); }
+      function pintar(){
+        el("dResto").classList.toggle("hoja-off", !elegido);
+        var v=valor(), s=saldo(), t=el("dTipo").value, nom=el("dProd").value.trim();
+        el("dKgLab").textContent = t==="x Caja" ? "Cajas" : t==="x Unidad" ? "Unidades" : "Kilos";
+        var q=el("dValor");
+        if(!elegido || !v){ q.innerHTML = nom && !prod() ? '<span class="nuevo-tag">➕ Producto nuevo: se crea al registrar</span>' : ""; q.className="queda"; }
+        else { q.innerHTML="Valor: <b>"+money(v)+"</b> · "+(s-v<0 ? "le queda saldo a favor de <b>"+money(v-s)+"</b>" : "queda debiendo <b>"+money(s-v)+"</b>"); q.className="queda"+(s-v<0?" aviso":""); }
+        var b=el("dGuardar"), k=leerNum(el("dKg").value), pr=leerNum(el("dPre").value);
+        b.disabled=!(elegido && nom && k>0 && pr>0);
+        b.textContent = !elegido ? "Elige el cliente" : !nom ? "Elige el producto" : !(k>0) ? "Escribe "+el("dKgLab").textContent.toLowerCase() : !(pr>0) ? "Escribe el precio" : "↩️ Registrar devolución de "+money(v);
+      }
+      function elegir(c){
+        elegido=c; var s=saldo(), x=c.extra||{};
+        el("dBuscar").hidden=true; el("dTarjeta").hidden=false;
+        el("dTarjeta").innerHTML='<div class="ct-nom">'+(x.codigo?'<span class="ct-cod">'+esc(x.codigo)+'</span>':'')+esc(c.nombre)+'</div>'
+          +'<div class="ct-saldo"><span>'+(s<0?"Saldo a favor":"Debe hoy")+'</span><b>'+money(Math.abs(s))+'</b></div>'
+          +'<button type="button" class="ct-cambiar" id="dCambiar">Cambiar</button>';
+        el("dCambiar").onclick=function(){ elegido=null; el("dTarjeta").hidden=true; el("dBuscar").hidden=false; el("dCli").value=""; el("dCli").focus(); pintar(); };
+        pintar(); setTimeout(function(){ el("dProd").focus(); }, 60);
+      }
+      el("dCli").addEventListener("change", function(){ var c=buscarPorNombre(clientes, this.value); if(c) elegir(c); });
+      el("dProd").addEventListener("change", function(){
+        var p=prod();
+        if(p){ el("dTipo").value=tipoPrecioDe(p); if(!el("dPre").value && p.extra && Number(p.extra.precio_venta)) el("dPre").value=p.extra.precio_venta; }
+        pintar();
+      });
+      var tEsc=o.ov.querySelector(".dev-prod .t"), pEsc=o.ov.querySelector(".dev-prod .p");
+      tEsc.addEventListener("change", function(){ el("dTipo").value=tEsc.value; if(pEsc.value && !el("dPre").value) el("dPre").value=pEsc.value; pintar(); });
+      ["dProd","dKg","dPre"].forEach(function(id){ el(id).addEventListener("input", pintar); });
+      el("dTipo").addEventListener("change", pintar);
+      el("dNotaBtn").onclick=function(){ this.hidden=true; el("dNota").hidden=false; el("dNota").focus(); };
+      el("dGuardar").onclick=function(){
+        var c=elegido, nom=el("dProd").value.trim(), p=prod(), k=leerNum(el("dKg").value), pr=leerNum(el("dPre").value), tp=el("dTipo").value, v=valor(), nota=el("dNota").value.trim();
+        if(!c || !nom || !(k>0) || !(pr>0)) return;
+        var nombreProd = p ? p.nombre : nom.toUpperCase();
+        var unidadNueva = tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad":"Arroba";
+        var datos = { cliente_id:Number(c.id), kilos:k, precio:pr, tipo_precio:tp, viaje_id:0, nota:nota };
+        if(p) datos.producto_id=Number(p.id); else { datos.producto_id=0; datos.producto_nuevo={ nombre:nombreProd, unidad:unidadNueva }; }
+        var resumen="Devolución de "+c.nombre+": "+kilos(k)+" "+(tp==="x Caja"?"cj":tp==="x Unidad"?"und":"kg")+" de "+nombreProd+(p?"":" (nuevo)")+" = "+money(v)+(nota?" · "+nota:"");
+        var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+        enviarSolicitud("devolucion", resumen, datos).then(function(){
+          var queda=saldo()-v;
+          hojaHecha(o, "Devolución enviada", money(v), [esc(c.nombre)+" · "+esc(kilos(k))+" de "+esc(nombreProd),
+            Math.round(queda)===0 ? "Queda a <b>PAZ Y SALVO</b>" : queda<0 ? "Saldo a favor: <b>"+money(-queda)+"</b>" : "Queda debiendo: <b>"+money(queda)+"</b>"],
+            "↩️ Registrar otra devolución", abrirDevolucion);
+        }, function(e){ btn.disabled=false; pintar(); say(e.message); });
+      };
+      pintar();
+    });
+  }
+
+  // ----- 💵 PAGO A PROVEEDOR (como F7) -----
+  function abrirPagoProveedor(nombreProv){
+    if(!esDueno()){ say("Solo la cuenta del dueño puede registrar pagos."); return; }
+    var o=abrirHoja("Pagar a proveedor"), caja="Efectivo";
+    cargarCatalogo().then(function(cat){
+      if(!document.body.contains(o.ov)) return;
+      var provs=cat.proveedor||[], elegido=null;
+      o.hoja().innerHTML=cabHoja("🚛 Pagar a un proveedor", "pX")
+        +'<div id="pBuscar"><label class="hoja-lab" for="pProv">Proveedor</label>'
+        +'<input id="pProv" class="hoja-in" list="dlProvP" placeholder="🔎 Código o nombre del proveedor" autocomplete="off">'
+        +'<datalist id="dlProvP">'+opcionesProveedor(provs)+'</datalist></div>'
+        +'<div id="pTarjeta" class="cli-tarjeta" hidden></div>'
+        +'<div id="pResto" class="hoja-off">'
+        +'<label class="hoja-lab" for="pMonto">Valor del pago</label>'+montoHTML("pMonto")
+        +'<div class="rapidos"><button type="button" id="pTodo">Todo</button><button type="button" id="pMitad">Mitad</button></div>'
+        +'<div id="pQueda" class="queda"></div>'
+        +'<label class="hoja-lab">Sale de</label>'+segmCajas("pCajas", true, "Efectivo")
+        +'<button type="button" class="nota-link" id="pNotaBtn">+ Agregar nota</button>'
+        +'<input id="pNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional)" autocomplete="off" hidden>'
+        +'</div>'
+        +'<button class="hoja-ok" id="pGuardar" disabled>Elige el proveedor</button>'
+        +'<p class="hoja-pie">El computador lo registra en unos minutos: baja lo que le debes y, si sale de una caja, va a PAGOS del cierre.</p>';
+      el("pX").onclick=o.cerrar;
+      function saldo(){ return elegido && elegido.extra ? Number(elegido.extra.saldo||0) : 0; }
+      function pintar(){
+        var m=leerPlata(el("pMonto").value), s=saldo();
+        el("pResto").classList.toggle("hoja-off", !elegido);
+        var q=el("pQueda");
+        if(!elegido || !m){ q.textContent=""; q.className="queda"; }
+        else if(Math.round(s-m)===0){ q.innerHTML="✅ Le quedas debiendo <b>$0</b>"; q.className="queda ok"; }
+        else if(s-m<0){ q.innerHTML="Le quedas con saldo a favor de <b>"+money(m-s)+"</b>"; q.className="queda aviso"; }
+        else { q.innerHTML="Le quedas debiendo <b>"+money(s-m)+"</b>"; q.className="queda"; }
+        var b=el("pGuardar"); b.disabled=!(elegido && m>0);
+        b.textContent = !elegido ? "Elige el proveedor" : !m ? "Escribe el valor" : "💾 Registrar pago de "+money(m);
+        el("pTodo").hidden=!(elegido && s>0); el("pMitad").hidden=!(elegido && s>1);
+      }
+      function elegir(p){
+        elegido=p; var s=saldo(), x=p.extra||{};
+        el("pBuscar").hidden=true; el("pTarjeta").hidden=false;
+        el("pTarjeta").innerHTML='<div class="ct-nom">'+(x.codigo?'<span class="ct-cod">'+esc(x.codigo)+'</span>':'')+esc(p.nombre)+'</div>'
+          +'<div class="ct-saldo"><span>'+(s<0?"Saldo a mi favor":"Le debo")+'</span><b>'+money(Math.abs(s))+'</b></div>'
+          +'<button type="button" class="ct-cambiar" id="pCambiar">Cambiar</button>';
+        el("pCambiar").onclick=function(){ elegido=null; el("pTarjeta").hidden=true; el("pBuscar").hidden=false; el("pProv").value=""; el("pProv").focus(); pintar(); };
+        pintar(); setTimeout(function(){ el("pMonto").focus(); }, 60);
+      }
+      el("pProv").addEventListener("change", function(){ var p=buscarPorNombre(provs, this.value); if(p) elegir(p); });
+      conectarMonto("pMonto", pintar);
+      el("pTodo").onclick=function(){ ponerMonto("pMonto", saldo()); pintar(); };
+      el("pMitad").onclick=function(){ ponerMonto("pMonto", saldo()/2); pintar(); };
+      conectarSegm("pCajas", function(c){ caja=c; });
+      el("pNotaBtn").onclick=function(){ this.hidden=true; el("pNota").hidden=false; el("pNota").focus(); };
+      el("pGuardar").onclick=function(){
+        var p=elegido, m=leerPlata(el("pMonto").value), nota=el("pNota").value.trim();
+        if(!p || !(m>0)) return;
+        var resumen="Pago a "+p.nombre+": "+money(m)+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(nota?" · "+nota:"");
+        var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+        enviarSolicitud("pago_proveedor", resumen, { proveedor_id:Number(p.id), monto:m, caja:caja, nota:nota }).then(function(){
+          var queda=saldo()-m;
+          hojaHecha(o, "Pago enviado", money(m), [esc(p.nombre)+" · "+esc(caja?nombreCaja(caja):"Por fuera de caja"), "Le quedas debiendo: <b>"+money(Math.max(0,queda))+"</b>"], null, null);
+        }, function(e){ btn.disabled=false; pintar(); say(e.message); });
+      };
+      var p0 = nombreProv ? buscarPorNombre(provs, nombreProv) : null;
+      if(p0) elegir(p0); else { pintar(); setTimeout(function(){ el("pProv").focus(); }, 60); }
+    });
+  }
+
+  // ----- 💼 COMISIONISTAS: lo que se le debe a cada uno (como Cartera → Comisionistas del programa) -----
+  function loadComisionistas(){
+    var host=sec("prov"); host.innerHTML=tabsProv()+'<div class="loading">Cargando…</div>';
+    delete state.cache["cat_"+state.negocioId];
+    cargarCatalogo().then(function(cat){
+      if(state.section!=="prov" || state.provTab!=="comis") return;
+      var rows=(cat.comisionista||[]).slice().sort(function(a,b){ return Number((b.extra||{}).pendiente||0)-Number((a.extra||{}).pendiente||0); });
+      var total=rows.reduce(function(s,r){ return s+Math.max(0,Number((r.extra||{}).pendiente||0)); },0);
+      var h=tabsProv()+'<div class="sechead"><h2 class="sec">Comisionistas (lo que se les debe)</h2></div>';
+      h+='<div class="tile span" style="margin-bottom:0"><div class="lab">💼 Les debo en total</div><div class="val num">'+money(total)+'</div></div>';
+      if(!rows.length){ host.innerHTML=h+'<div class="empty">No hay viajes en comisión pendientes. (Si sí los hay, el computador necesita la versión 1.4.27.)</div>'; return; }
+      h+='<div class="card">';
+      rows.forEach(function(r){
+        var x=r.extra||{}, pend=Number(x.pendiente||0);
+        h+='<div class="comi"><div class="comi-cab"><div><div class="name">'+esc(x.comisionista||"(sin comisionista)")+'</div>'
+          +'<div class="sub">Viaje '+esc(r.nombre)+(x.fecha?' · '+esc(fechaCorta(x.fecha)):'')+(x.estado && x.estado!=="Activo"?' · '+esc(x.estado):'')+'</div></div>'
+          +'<div class="amt num'+(pend<0?' neg':'')+'">'+money(pend)+'</div></div>'
+          +'<div class="comi-det">Vendido '+money(x.vendido)+' · Gastos '+money(x.gastos)+' · Comisión '+(Number(x.porcentaje)?Number(x.porcentaje).toLocaleString("es-CO")+'% ':'')+money(x.comision)+' · Pagado '+money(x.pagado)+'</div>'
+          +(esDueno() && pend>0 ? '<button class="comi-pagar" data-v="'+r.id+'">💵 Pagar / anticipo</button>' : '')
+          +'</div>';
+      });
+      h+='</div><p class="updated">Pendiente = vendido − gastos − comisión − lo ya pagado (la liquidación del viaje). Se actualiza con cada sincronización del computador.</p>';
+      host.innerHTML=h;
+      Array.prototype.forEach.call(host.querySelectorAll(".comi-pagar"), function(b){
+        b.onclick=function(){ var r=rows.filter(function(x){ return String(x.id)===b.dataset.v; })[0]; if(r) abrirPagoComision(r); };
+      });
+    });
+  }
+  function fechaCorta(iso){ var p=String(iso||"").split("-"); return p.length===3 ? p[2]+"/"+p[1]+"/"+p[0].slice(2) : String(iso||""); }
+  function abrirPagoComision(r){
+    if(!esDueno()){ say("Solo la cuenta del dueño puede registrar pagos."); return; }
+    var o=abrirHoja("Pagar a comisionista"), caja="Efectivo", x=r.extra||{}, pend=Number(x.pendiente||0);
+    o.hoja().innerHTML=cabHoja("💼 Pago al comisionista", "cX")
+      +'<div class="cli-tarjeta"><div class="ct-nom">'+esc(x.comisionista||"(sin comisionista)")+'</div>'
+      +'<div class="ct-saldo"><span>Le debo</span><b>'+money(pend)+'</b></div><div class="ct-saldo" style="grid-column:1 / -1">Viaje '+esc(r.nombre)+'</div></div>'
+      +'<label class="hoja-lab" for="cMonto">Valor del pago o anticipo</label>'+montoHTML("cMonto")
+      +'<div class="rapidos"><button type="button" id="cTodo">Todo</button><button type="button" id="cMitad">Mitad</button></div>'
+      +'<div id="cQueda" class="queda"></div>'
+      +'<label class="hoja-lab">Sale de</label>'+segmCajas("cCajas", true, "Efectivo")
+      +'<button type="button" class="nota-link" id="cNotaBtn">+ Agregar nota</button>'
+      +'<input id="cNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional)" autocomplete="off" hidden>'
+      +'<button class="hoja-ok" id="cGuardar" disabled>Escribe el valor</button>'
+      +'<p class="hoja-pie">El computador lo registra en unos minutos como pago del viaje (baja lo que se le debe y, si sale de una caja, va a PAGOS del cierre).</p>';
+    el("cX").onclick=o.cerrar;
+    function pintar(){
+      var m=leerPlata(el("cMonto").value), q=el("cQueda");
+      var dq=Math.round(pend)-m;
+      q.innerHTML = !m ? "" : dq===0 ? "✅ Queda <b>saldado</b>" : dq<0 ? "Queda con <b>"+money(-dq)+"</b> de más (anticipo)" : "Le quedo debiendo <b>"+money(dq)+"</b>";
+      q.className="queda"+(!m?"":dq===0?" ok":dq<0?" aviso":"");
+      var b=el("cGuardar"); b.disabled=!(m>0); b.textContent = m>0 ? "💾 Registrar pago de "+money(m) : "Escribe el valor";
+    }
+    conectarMonto("cMonto", pintar);
+    el("cTodo").onclick=function(){ ponerMonto("cMonto", pend); pintar(); };
+    el("cMitad").onclick=function(){ ponerMonto("cMonto", pend/2); pintar(); };
+    el("cTodo").hidden=!(pend>0); el("cMitad").hidden=!(pend>1);
+    conectarSegm("cCajas", function(c){ caja=c; });
+    el("cNotaBtn").onclick=function(){ this.hidden=true; el("cNota").hidden=false; el("cNota").focus(); };
+    el("cGuardar").onclick=function(){
+      var m=leerPlata(el("cMonto").value), nota=el("cNota").value.trim(); if(!(m>0)) return;
+      var resumen="Pago de comisión a "+(x.comisionista||"comisionista")+" (viaje "+r.nombre+"): "+money(m)+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(nota?" · "+nota:"");
+      var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+      enviarSolicitud("pago_comision", resumen, { viaje_id:Number(r.id), monto:m, caja:caja, nota:nota }).then(function(){
+        hojaHecha(o, "Pago enviado", money(m), [esc(x.comisionista||"")+" · viaje "+esc(r.nombre), esc(caja?nombreCaja(caja):"Por fuera de caja")], null, null);
+        if(state.section==="prov" && state.provTab==="comis") setTimeout(loadComisionistas, 300);
+      }, function(e){ btn.disabled=false; pintar(); say(e.message); });
+    };
+    pintar(); setTimeout(function(){ el("cMonto").focus(); }, 60);
+  }
+
+  // ----- 🧾 CORREGIR / ANULAR una factura (como "✏️ Editar" y "Anular" de Transacciones) -----
+  // El PC crea la venta corregida con la MISMA fecha y número de factura y solo entonces anula la original.
+  function precioDeTexto(t){
+    var s=String(t||"").trim(), m=/^([\d.,]+)\s*(@|kg|cj|un|und|caja)?/i.exec(s);
+    var tp = !m || !m[2] || m[2]==="@" ? "x Arroba" : /^kg$/i.test(m[2]) ? "x Kilo" : /^(cj|caja)$/i.test(m[2]) ? "x Caja" : "x Unidad";
+    return { precio: m ? leerNum(m[1]) : 0, tipo: tp };
+  }
+  function anularVentaCel(fac, alTerminar){
+    if(!esDueno()){ say("Solo la cuenta del dueño puede anular ventas."); return; }
+    var quien = fac.cliente && fac.cliente!=="CONTADO" ? fac.cliente : "contado";
+    if(!confirm("¿ANULAR la venta #"+fac.ventaId+" ("+quien+", "+money(fac.total)+")?\n\nEl computador la anula en unos minutos: devuelve el inventario y saca la plata de la caja o de la cartera. No se puede deshacer.")) return;
+    enviarSolicitud("anular_venta", "Anular venta #"+fac.ventaId+" · "+quien+" · "+money(fac.total)+" (desde el celular)", { venta_id:Number(fac.ventaId) }).then(function(){
+      say("🚫 Venta #"+fac.ventaId+": el computador la anula en unos minutos."); if(alTerminar) alTerminar();
+    }, function(e){ say(e.message); });
+  }
+  function abrirCorregirFactura(fac, alTerminar){
+    if(!esDueno()){ say("Solo la cuenta del dueño puede corregir facturas."); return; }
+    var o=abrirHoja("Corregir factura");
+    cargarCatalogo().then(function(cat){
+      if(!document.body.contains(o.ov)) return;
+      var clientes=cat.cliente||[], caja="";
+      var cli0 = fac.cliente && fac.cliente!=="CONTADO" ? fac.cliente : "";
+      o.hoja().innerHTML=cabHoja("✏️ Corregir venta #"+esc(fac.ventaId), "eX")
+        +'<label class="hoja-lab" for="eCli">Cliente (vacío = contado)</label>'
+        +'<div class="e-cli"><input id="eCli" class="hoja-in" list="dlCliAE" placeholder="Contado" autocomplete="off" value="'+esc(cli0)+'"><button type="button" id="eContado" class="hoja-sec">Contado</button></div>'
+        +'<datalist id="dlCliAE">'+opcionesCliente(clientes)+'</datalist>'
+        +'<div id="eCliInfo" class="queda"></div>'
+        +'<div id="eCajaBox"><label class="hoja-lab">Caja (si es de contado)</label>'+segmCajas("eCajas", false, "")
+        +'<div class="queda" id="eCajaTxt">Sin tocar: queda en la misma caja que tenía.</div></div>'
+        +'<label class="hoja-lab">Productos</label><div id="eLineas"></div>'
+        +'<button type="button" class="nota-link" id="eAdd">+ Agregar producto</button>'
+        +'<datalist id="dlProdE">'+opcionesProducto(cat.producto)+'</datalist>'
+        +'<label class="hoja-lab" for="eTit">Título de la factura (opcional)</label><input id="eTit" class="hoja-in" maxlength="40" value="'+esc(fac.titulo||"")+'">'
+        +'<div class="e-total"><span>Total corregido</span><b id="eTotal">$0</b></div><div id="eDif" class="queda"></div>'
+        +'<button class="hoja-ok" id="eGuardar">📨 Guardar corrección</button>'
+        +'<button class="hoja-sec e-anular" id="eAnular">🚫 Anular toda la venta</button>'
+        +'<p class="hoja-pie">El computador la corrige en unos minutos con la misma fecha y número de factura (stock, caja y cartera se ajustan solos).</p>';
+      el("eX").onclick=o.cerrar;
+      var lineas=el("eLineas");
+      function porNombre(t){ return buscarPorNombre(cat.producto||[], t); }
+      function total(){
+        var tot=0;
+        Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
+          var nom=row.querySelector(".n").value.trim(), p=porNombre(nom);
+          var v=subtotalVenta(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), row.querySelector(".t").value); tot+=v;
+          row.querySelector(".sub").innerHTML=(nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo</span> · ' : '')+(v?money(v):"");
+        });
+        el("eTotal").textContent=money(tot);
+        var d=tot-Number(fac.total||0);
+        el("eDif").textContent = Math.round(d)===0 ? "Mismo total que antes ("+money(fac.total)+")." : "Antes: "+money(fac.total)+" · "+(d>0?"sube ":"baja ")+money(Math.abs(d));
+        return tot;
+      }
+      function verCliente(){
+        var t=el("eCli").value.trim(), c=t ? buscarPorNombre(clientes, t) : null;
+        el("eCajaBox").hidden=!!t;
+        el("eCliInfo").innerHTML = !t ? "💵 De contado." : c ? "💳 A crédito · debe hoy "+money((c.extra&&c.extra.saldo)||0) : '<span style="color:#b91c1c">Ese cliente no está en el programa: elígelo de la lista.</span>';
+      }
+      function agregar(l){
+        var row=document.createElement("div"); row.className="ilin v";
+        row.innerHTML='<input class="n" list="dlProdE" placeholder="Producto" autocomplete="off"><input class="k" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos">'
+          +'<input class="p" type="text" inputmode="decimal" autocomplete="off" placeholder="Precio"><select class="t" aria-label="Precio por">'
+          +TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select>'
+          +'<button type="button" class="x" aria-label="Quitar">✕</button><div class="sub"></div>';
+        if(l){
+          var pt=precioDeTexto(l.precio);
+          if(!pt.precio && Number(l.kilos)) pt.precio = Math.round(Number(l.valor||0)/Number(l.kilos)/1000*12.5*100)/100;
+          row.querySelector(".n").value=l.producto||""; row.querySelector(".k").value=String(Number(l.kilos||0)).replace(".",",");
+          row.querySelector(".p").value=pt.precio ? String(pt.precio).replace(".",",") : ""; row.querySelector(".t").value=pt.tipo;
+        }
+        row.querySelector(".n").addEventListener("change", function(){
+          var p=porNombre(this.value), pr=row.querySelector(".p");
+          if(p){ row.querySelector(".t").value=tipoPrecioDe(p); if(!pr.value && p.extra && Number(p.extra.precio_venta)) pr.value=p.extra.precio_venta; }
+          total();
+        });
+        ["input","change"].forEach(function(ev){ row.addEventListener(ev, total); });
+        row.querySelector(".x").addEventListener("click", function(){
+          if(lineas.children.length>1){ row.remove(); total(); } else say("Debe quedar al menos un producto. Para quitarla toda, anula la venta.");
+        });
+        lineas.appendChild(row);
+      }
+      (fac.lineas||[]).forEach(agregar); if(!lineas.children.length) agregar();
+      el("eAdd").onclick=function(){ agregar(); total(); };
+      el("eContado").onclick=function(){ el("eCli").value=""; verCliente(); };
+      el("eCli").addEventListener("input", verCliente); el("eCli").addEventListener("change", verCliente);
+      conectarSegm("eCajas", function(c){ caja=c; el("eCajaTxt").textContent="Queda en "+nombreCaja(c)+"."; });
+      el("eAnular").onclick=function(){ anularVentaCel(fac, function(){ o.cerrar(); if(alTerminar) alTerminar(); }); };
+      verCliente(); total();
+      el("eGuardar").onclick=function(){
+        var items=[], resL=[], malo=null;
+        Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
+          var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
+          if(!nom && !k) return;
+          if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
+          var p=porNombre(nom), nombreProd = p ? p.nombre : nom.toUpperCase();
+          if(!(k>0)){ malo="Faltan los kilos de "+nombreProd+"."; return; }
+          if(!(pr>0)){ malo="Falta el precio de "+nombreProd+"."; return; }
+          var unidadNueva = tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad":"Arroba";
+          items.push(p ? {producto_id:Number(p.id), kilos:k, precio:pr, tipo_precio:tp}
+                       : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:unidadNueva}, kilos:k, precio:pr, tipo_precio:tp});
+          resL.push(nombreProd+" "+kilos(k)+" @"+pr);
+        });
+        if(malo){ say(malo); return; }
+        if(!items.length){ say("Debe quedar al menos un producto. Para quitarla toda, anula la venta."); return; }
+        var t=el("eCli").value.trim(), c=t ? buscarPorNombre(clientes, t) : null;
+        if(t && !c){ say("Ese cliente no está en el programa: elígelo de la lista o déjala de contado."); return; }
+        var tot=total();
+        var resumen="Corregir venta #"+fac.ventaId+": "+(c?c.nombre+" (crédito)":"contado"+(caja?" · "+nombreCaja(caja):""))+" · "+resL.join(" + ")+" = "+money(tot)+" (antes "+money(fac.total)+")";
+        if(!confirm("¿Guardar la corrección?\n\n"+resumen)) return;
+        var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+        enviarSolicitud("corregir_venta", resumen, { venta_id:Number(fac.ventaId), cliente_id: c ? Number(c.id) : 0, caja:caja, detalle:el("eTit").value.trim(), lineas:items }).then(function(){
+          hojaHecha(o, "Corrección enviada", money(tot), ["Venta #"+esc(fac.ventaId)+" · "+esc(c?c.nombre:"contado"), "Antes: "+money(fac.total)], null, null);
+          if(alTerminar) alTerminar();
+        }, function(e){ btn.disabled=false; btn.textContent="📨 Guardar corrección"; say(e.message); });
+      };
+    });
   }
 
   // ===== 💰 ABONO desde el celular =====
@@ -2261,6 +2735,21 @@
     }
     prov.onchange=verForma; viajeSel.onchange=verForma;
     Array.prototype.forEach.call(document.querySelectorAll('input[name="iTipoViaje"]'), function(r){ r.onchange=verForma; });
+    // Viene de Proveedores → 📥 Ingreso: ese proveedor y su viaje de compra más reciente (nunca uno de comisión,
+    // ahí la mercancía no se le carga al proveedor).
+    if(state.ingresoProv){
+      var pv=buscarPorNombre(cat.proveedor||[], state.ingresoProv); state.ingresoProv=null;
+      if(pv){
+        prov.value=String(pv.id);
+        var vj=(cat.viaje||[]).filter(function(v){ var x=v.extra||{}; return String(x.proveedor||"").trim().toUpperCase()===String(pv.nombre).trim().toUpperCase() && !/^COMISI/i.test(String(x.tipo_viaje||"")); })
+          .sort(function(a,b){ return String((b.extra||{}).fecha||"").localeCompare(String((a.extra||{}).fecha||"")) || b.id-a.id; })[0];
+        // Sin viaje de compra propio: el predeterminado si es de compra, si no el primero de compra (nunca uno de comisión).
+        var compra=(cat.viaje||[]).filter(function(v){ return !/^COMISI/i.test(String((v.extra||{}).tipo_viaje||"")); });
+        if(!vj) vj=compra.filter(function(v){ return v.extra && v.extra.predeterminado; })[0] || compra[0];
+        if(vj) viajeSel.value=String(vj.id);
+        say("📥 Ingreso de "+pv.nombre+(vj?" · viaje "+vj.nombre:""));
+      }
+    }
     verForma();
 
     el("iEnviar").onclick=function(){
@@ -2632,7 +3121,7 @@
 
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
-  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t==="abono"?"💰 Abono": t==="cliente"?"👤 Cliente nuevo": t==="producto"?"🐟 Producto nuevo": t; }
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t==="abono"?"💰 Abono": t==="cliente"?"👤 Cliente nuevo": t==="producto"?"🐟 Producto nuevo": t==="gasto"?"📤 Gasto": t==="devolucion"?"↩️ Devolución": t==="pago_proveedor"?"🚛 Pago a proveedor": t==="pago_comision"?"💼 Pago a comisionista": t==="corregir_venta"?"✏️ Corregir venta (celular)": t; }
   var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
   function colorTipoSolicitud(t){ return t==="anular_venta"?"k-anul": t==="editar_venta"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta": t==="abono"?"k-vta": t==="prestamo"?"k-sol":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
@@ -2753,19 +3242,34 @@
   }
 
   // PROVEEDORES
+  // Proveedores tiene dos pestañas, como en el programa: lo que les debo a los proveedores y a los comisionistas.
+  function tabsProv(){
+    return '<div class="tfil ptabs">'+[["prov","🚛 Proveedores"],["comis","💼 Comisionistas"]].map(function(t){
+      return '<button class="tchip ptab'+((state.provTab||"prov")===t[0]?' on':'')+'" data-t="'+t[0]+'">'+t[1]+'</button>'; }).join("")+'</div>';
+  }
+  document.addEventListener("click", function(e){
+    var b=e.target.closest && e.target.closest(".ptab"); if(!b) return;
+    state.provTab=b.dataset.t; loadProveedores();
+  });
   function loadProveedores(){
-    var host=sec("prov"); host.innerHTML='<div class="loading">Cargando…</div>';
+    if(state.provTab==="comis"){ loadComisionistas(); return; }
+    var host=sec("prov"); host.innerHTML=tabsProv()+'<div class="loading">Cargando…</div>';
     base("proveedores").then(function(res){
-      if(state.section!=="prov") return;
+      if(state.section!=="prov" || state.provTab==="comis") return;
       var rows=(res.data||[]).slice(); rows.sort(function(a,b){ return Number(b.saldo)-Number(a.saldo); });
       var total=rows.reduce(function(s,r){return s+Number(r.saldo||0);},0);
-      var h='<div class="sechead"><h2 class="sec">Proveedores (por pagar)</h2><button class="xls" data-xls="proveedores">⬇️ Excel</button></div>';
+      var h=tabsProv()+'<div class="sechead"><h2 class="sec">Proveedores (por pagar)</h2><span>'+(esDueno()?'<button class="xls" id="provPagar">💵 Pagar</button> ':'')+'<button class="xls" data-xls="proveedores">⬇️ Excel</button></span></div>';
       h+='<div class="tile span" style="margin-bottom:0"><div class="lab">🚛 Les debo en total</div><div class="val num">'+money(total)+'</div></div>';
-      if(!rows.length){ h+='<div class="empty">No le debes a ningún proveedor.</div>'; host.innerHTML=h; return; }
+      if(!rows.length){ h+='<div class="empty">No le debes a ningún proveedor.</div>'; host.innerHTML=h; if(el("provPagar")) el("provPagar").onclick=function(){ abrirPagoProveedor(); }; return; }
       h+='<div class="card">';
-      rows.forEach(function(r){ h+='<div class="row"><div class="main"><div class="name">'+esc(r.nombre)+'</div></div><div class="amt num">'+money(r.saldo)+'</div></div>'; });
+      rows.forEach(function(r){ h+='<div class="row"><div class="main"><div class="name">'+esc(r.nombre)+'</div>'
+        +'<div class="prov-acc">'+(esDueno()?'<button class="pacc pg" data-n="'+esc(r.nombre)+'">💵 Pagar</button>':'')+'<button class="pacc in" data-n="'+esc(r.nombre)+'">📥 Ingreso</button></div>'
+        +'</div><div class="amt num">'+money(r.saldo)+'</div></div>'; });
       h+='</div>';
       host.innerHTML=h; state.cache.prov=rows;
+      if(el("provPagar")) el("provPagar").onclick=function(){ abrirPagoProveedor(); };
+      Array.prototype.forEach.call(host.querySelectorAll(".pacc.pg"), function(d){ d.onclick=function(){ abrirPagoProveedor(d.dataset.n); }; });
+      Array.prototype.forEach.call(host.querySelectorAll(".pacc.in"), function(d){ d.onclick=function(){ state.ingresoProv=d.dataset.n; irA("ingreso"); }; });
     });
   }
 
