@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.28",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.28/PescaFacil-Actualizacion-1.4.28.exe",
-    "sha256":  "70c6b8984cef4b24715dcf9731ec01a6e59f0b6fcda76df1534512381b243379",
-    "notas":  "Arqueo por persona (cuánto recogió cada quien: domiciliario, el que factura desde el celular, cada usuario). Pagos a proveedor en Transacciones: editarlos y anularlos (PC y celular). Fecha en los ingresos (PC y celular). Tamaño del logo en la factura. Estado de cuenta del celular por factura. Sincroniza apenas se guarda algo.",
+    "version":  "1.4.29",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.29/PescaFacil-Actualizacion-1.4.29.exe",
+    "sha256":  "1e74ad4334ead49214b14ecf3deb48a21f726ea0076c451f292e0f4c7476cbab",
+    "notas":  "Auditoría clara: cada corrección muestra solo lo que cambió, cómo estaba y cómo quedó (kilos, precio, productos, cliente, total), en el computador y en el celular. Incluye todo lo de la 1.4.28: arqueo por persona, pagos a proveedor en Transacciones, fecha en los ingresos, tamaño del logo, estado de cuenta por factura en el celular y sincronización inmediata.",
     "fecha":  "2026-11-11"
 }
