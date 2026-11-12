@@ -71,6 +71,17 @@
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
     --chip:#16233a; --chip-line:#26344d; --menu:#070d18; --menu-hover:#16233a; color-scheme:dark;
   }
+  /* EDICIONES (como Utilidades/Edicion.cs del PC): CarniFácil rojo vino, PolloFácil naranja con menú café.
+     La edición la manda el PC (catalogo_movil config "factura" → extra.edicion); antes de entrar se usa la
+     última de este celular o la del enlace (?carni / ?pollo). */
+  :root[data-marca="carni"]{ --ocean:#2a0a12; --ocean-deep:#4a1422; --coral:#9b1c31; --coral-deep:#7a1426; --menu:#2a0a12; --menu-hover:#4a1422; --menu-txt:#d6a3ad }
+  :root[data-marca="pollo"]{ --ocean:#371905; --ocean-deep:#572a0a; --coral:#ea580c; --coral-deep:#c2410c; --menu:#371905; --menu-hover:#572a0a; --menu-txt:#d9b38f }
+  @media (prefers-color-scheme: dark){
+    :root[data-marca="carni"]:not([data-theme="light"]){ --ocean:#1a060b; --ocean-deep:#2a0a12; --coral:#be2842; --coral-deep:#9b1c31; --menu:#12040a; --menu-hover:#2a0a12 }
+    :root[data-marca="pollo"]:not([data-theme="light"]){ --ocean:#1f0e03; --ocean-deep:#371905; --coral:#ea580c; --coral-deep:#c2410c; --menu:#170a02; --menu-hover:#371905 }
+  }
+  :root[data-marca="carni"][data-theme="dark"]{ --ocean:#1a060b; --ocean-deep:#2a0a12; --coral:#be2842; --coral-deep:#9b1c31; --menu:#12040a; --menu-hover:#2a0a12 }
+  :root[data-marca="pollo"][data-theme="dark"]{ --ocean:#1f0e03; --ocean-deep:#371905; --coral:#ea580c; --coral-deep:#c2410c; --menu:#170a02; --menu-hover:#371905 }
   *{box-sizing:border-box}
   html,body{margin:0; padding:0}
   body{background:var(--bg); color:var(--ink); font-family:var(--f-ui); -webkit-font-smoothing:antialiased}
@@ -259,7 +270,16 @@
   .fac-bar .tog{background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.35)}
   .fac-bar .tog.on{background:#fff; color:#15242e}
   .fac-img{width:100%; max-width:384px; background:#fff; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  /* Cierre del celular (1.4.31): lo que FALTA o SOBRA en grande, arriba (pedido del dueño). */
+  .cuadre-grande{border-radius:16px; padding:16px 18px; margin:0 0 12px; color:#fff; box-shadow:var(--shadow)}
+  .cuadre-grande .cg-lab{font-size:.95rem; font-weight:800; letter-spacing:.03em}
+  .cuadre-grande .cg-val{font-size:2.3rem; font-weight:800; line-height:1.15; margin-top:2px}
+  .cuadre-grande .cg-sub{font-size:.78rem; opacity:.9; margin-top:4px}
+  .cuadre-grande.good{background:linear-gradient(135deg,#059669,#047857)}
+  .cuadre-grande.bad{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+  .cuadre-grande.info{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
   .fac-msg{color:#fff; font-weight:700; margin-top:40px; text-align:center}
+  .fac-aviso{background:#fef3c7; color:#78350f; border-radius:10px; padding:9px 12px; font-size:.82rem; font-weight:700; margin:0 0 10px; max-width:576px; width:100%; box-sizing:border-box}
 
   /* ---------- INGRESO DESDE EL CELULAR / CAMBIOS ---------- */
   .banner-sol{appearance:none; display:block; width:100%; text-align:left; border:1px solid var(--purple); background:var(--purple-bg); color:var(--purple);
@@ -496,8 +516,8 @@
 <!-- ===================== LOGIN ===================== -->
 <div id="login" hidden>
   <div class="brand">
-    <div class="logo">🐟</div>
-    <h1>PescaFácil</h1>
+    <div class="logo" id="marcaLogo">🐟</div>
+    <h1 id="marcaNombre">PescaFácil</h1>
     <p>Mira tu negocio desde el celular</p>
   </div>
   <form class="lcard" id="loginForm" autocomplete="on">
@@ -566,7 +586,7 @@
   </header>
 
   <div class="chips"><div class="chips-in" role="tablist">
-    <div class="sidebrand">🐟 PescaFácil<small>Tablero del negocio</small></div>
+    <div class="sidebrand"><span id="marcaSide">🐟 PescaFácil</span><small>Tablero del negocio</small></div>
     <!-- Lo que más se usa primero (pedido del dueño): Transacciones abre al entrar. -->
     <button class="chip" role="tab" aria-selected="true"  data-s="trans">🧾 Transacciones</button>
     <button class="chip" role="tab" aria-selected="false" data-s="vext">🛒 Vender</button>
@@ -621,6 +641,94 @@
 
   // ----- Estado -----
   var state = { negocioId:null, negocios:[], fecha:isoToday(), section:"trans", cache:{} };
+
+  // ----- EDICIÓN / MARCA: PescaFácil, CarniFácil, PolloFácil (como Utilidades/Edicion.cs del PC) -----
+  // Es la MISMA página. La edición la manda el PC en catalogo_movil (config "factura" → extra.edicion) y se
+  // recuerda en este celular por negocio; antes de entrar, la última usada o la del enlace (?carni / ?pollo).
+  // Fuera de PescaFácil un traductor cambia los textos que se VEN (Viaje → Lote, PescaFácil → CarniFácil,
+  // 🐟 → 🥩…), igual que el del PC: nunca lo que se escribe en las casillas.
+  var MARCAS={
+    Pesca:{ clave:"pesca", nombre:"PescaFácil", emoji:"🐟", de:"de pescado" },
+    Carni:{ clave:"carni", nombre:"CarniFácil", emoji:"🥩", de:"de carne" },
+    Pollo:{ clave:"pollo", nombre:"PolloFácil", emoji:"🍗", de:"de pollo" }
+  };
+  var MARCA=MARCAS.Pesca;
+  function esPesca(){ return MARCA===MARCAS.Pesca; }
+  function nomMarca(){ return MARCA.nombre; }
+  var PALABRAS=[["VIAJES","LOTES"],["Viajes","Lotes"],["viajes","lotes"],["VIAJE","LOTE"],["Viaje","Lote"],["viaje","lote"],
+    ["PescaFácil","§"],["PESCAFÁCIL","§§"],["El pescado","La mercancía"],["el pescado","la mercancía"],["EL PESCADO","LA MERCANCÍA"],
+    ["de pescado","¤"],["pescado","mercancía"],["$mil/@","$mil/kg"],["por arroba","por kilo"],["POR ARROBA","POR KILO"],["🐟","🜁"],["🚢","🚚"]];
+  function trMarca(t){
+    if(esPesca() || !t) return t;
+    var r=t;
+    for(var i=0;i<PALABRAS.length;i++){
+      var de=PALABRAS[i][0]; if(r.indexOf(de)<0) continue;
+      var a=PALABRAS[i][1];
+      a = a==="§"?MARCA.nombre : a==="§§"?MARCA.nombre.toUpperCase() : a==="🜁"?MARCA.emoji : a==="¤"?MARCA.de : a;
+      r=r.split(de).join(a);
+    }
+    return r;
+  }
+  // Cada texto traducido recuerda el original, así cambiar de negocio (otra edición) lo vuelve a armar bien.
+  var ORIG=new WeakMap(), SALTAR={SCRIPT:1,STYLE:1,TEXTAREA:1}, ATRS=["placeholder","title","aria-label"], obsMarca=null;
+  function trTexto(n){
+    var pa=n.parentNode; if(!pa || SALTAR[pa.nodeName]) return;
+    var v=n.nodeValue, r=ORIG.get(n), base=(r && v===r[1]) ? r[0] : v, t=trMarca(base);
+    if(t!==base) ORIG.set(n,[base,t]); else if(r) ORIG.delete(n);
+    if(t!==v) n.nodeValue=t;
+  }
+  function trAtributos(e){
+    if(!e.hasAttribute) return;
+    var m=ORIG.get(e);
+    for(var i=0;i<ATRS.length;i++){
+      var a=ATRS[i]; if(!e.hasAttribute(a)) continue;
+      var v=e.getAttribute(a), r=m&&m[a], base=(r && v===r[1]) ? r[0] : v, t=trMarca(base);
+      if(t!==base){ if(!m){ m={}; ORIG.set(e,m); } m[a]=[base,t]; } else if(r) delete m[a];
+      if(t!==v) e.setAttribute(a,t);
+    }
+  }
+  function trArbol(raiz){
+    if(!raiz) return;
+    if(raiz.nodeType===3){ trTexto(raiz); return; }
+    if(raiz.nodeType!==1 || SALTAR[raiz.nodeName]) return;
+    trAtributos(raiz);
+    var w=document.createTreeWalker(raiz, NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT), n;
+    while((n=w.nextNode())){ if(n.nodeType===3) trTexto(n); else if(!SALTAR[n.nodeName]) trAtributos(n); }
+  }
+  function aplicarMarca(tipo){
+    var m=MARCAS[tipo]||MARCAS.Pesca, antes=MARCA; MARCA=m;
+    document.documentElement.setAttribute("data-marca", m.clave);
+    document.title=m.nombre+" Móvil";
+    el("marcaLogo").textContent=m.emoji; el("marcaNombre").textContent=m.nombre; el("marcaSide").textContent=m.emoji+" "+m.nombre;
+    try{ localStorage.setItem("pf_marca", m===MARCAS.Carni?"Carni":m===MARCAS.Pollo?"Pollo":"Pesca"); }catch(e){}
+    if(m!==antes || !esPesca()) trArbol(document.body);
+    if(esPesca()){ if(obsMarca){ obsMarca.disconnect(); obsMarca=null; } return m!==antes; }
+    if(!obsMarca && window.MutationObserver){
+      obsMarca=new MutationObserver(function(ms){
+        for(var i=0;i<ms.length;i++){
+          var x=ms[i];
+          if(x.type==="characterData") trTexto(x.target);
+          else if(x.type==="attributes") trAtributos(x.target);
+          else for(var j=0;j<x.addedNodes.length;j++) trArbol(x.addedNodes[j]);
+        }
+      });
+      obsMarca.observe(document.body,{childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATRS});
+    }
+    return m!==antes;
+  }
+  (function(){
+    var q=String(location.search||"").toLowerCase(), t=null;
+    if(/carni/.test(q)) t="Carni"; else if(/pollo/.test(q)) t="Pollo"; else if(/pesca/.test(q)) t="Pesca";
+    if(!t) try{ t=localStorage.getItem("pf_marca"); }catch(e){}
+    aplicarMarca(t||"Pesca");
+  })();
+  // Al entrar o cambiar de negocio: la que ya se sabía de ese negocio y luego la que diga el PC.
+  function marcaDelNegocio(){
+    var id=state.negocioId, g=null;
+    try{ g=localStorage.getItem("pf_marca_"+id); }catch(e){}
+    if(g) aplicarMarca(g);
+    cargarCatalogo().catch(function(){});
+  }
 
   // ----- Utilidades -----
   function isoToday(){ var d=new Date(); return iso(d); }
@@ -738,8 +846,8 @@
       state.negocios.forEach(function(n){ var o=document.createElement("option"); o.value=n.id; o.textContent=n.nombre; sel.appendChild(o); });
       state.negocioId = state.negocios[0].id;
       el("hsub").textContent = state.negocios.length>1 ? "Toca el nombre para cambiar de empresa" : "Tu negocio en vivo";
-      sel.addEventListener("change", function(){ state.negocioId=this.value; state.cache={}; pendientesAntes=-1; refreshSync(); render(); pintarBell(); revisarAbonos(); contarPendientes(); });
-      updateDay(); refreshSync(); render(); pintarBell(); revisarAbonos(); contarPendientes();
+      sel.addEventListener("change", function(){ state.negocioId=this.value; state.cache={}; pendientesAntes=-1; marcaDelNegocio(); refreshSync(); render(); pintarBell(); revisarAbonos(); contarPendientes(); });
+      marcaDelNegocio(); updateDay(); refreshSync(); render(); pintarBell(); revisarAbonos(); contarPendientes();
     });
   }
 
@@ -915,6 +1023,10 @@
     var esperado=Number(c.venta_contado||0)+Number(c.abonos||0);
     var aEntregar=Number(c.efectivo||0)-Number(c.base_manana||0);
     var h='<div style="display:flex; gap:6px; flex-wrap:wrap; margin:0 2px 10px">'+estado+'</div>';
+    // Lo primero que se ve: si cuadra, cuánto FALTA o cuánto SOBRA, en grande.
+    h+='<div class="cuadre-grande '+estadoCuadre[1]+'"><div class="cg-lab">'+estadoCuadre[0]+'</div>'
+      +'<div class="cg-val num">'+(dif===0?money(0):money(Math.abs(dif)))+'</div>'
+      +'<div class="cg-sub">Diferencia del día (debe dar $0)'+(c.borrador?' · es un avance, todavía no se cerró':'')+'</div></div>';
 
     h+='<div class="card">'
       +'<div class="row"><div class="main"><div class="name">📥 Venta de contado + abonos</div>'
@@ -929,17 +1041,14 @@
     h+='<div class="tile"><div class="lab">🧾 Gastos'+(gastos.length?' · '+gastos.length:'')+'</div><div class="val num">'+money(c.gastos)+'</div></div>'
       +'<div class="tile"><div class="lab">🤝 Pagos'+(pagos.length?' · '+pagos.length:'')+'</div><div class="val num">'+money(c.pagos)+'</div></div>'
       +'</div>';
-
-    h+='<div class="card"><div class="row"><div class="main"><div class="name">Diferencia del día</div><div class="meta">debe dar $0</div></div>'
-      +'<span class="pill '+estadoCuadre[1]+'">'+estadoCuadre[0]+'</span></div>'
-      +'<div class="total-row"><span>Diferencia</span><span class="big num">'+money(dif)+'</span></div></div>';
+    // Los Nequi uno por uno, enseguida de las cajas.
+    h+=listaItems("📱 Nequis", nequis, c.nequi);
 
     h+='<div class="card">'
       +filaCuadre("📦 Base para mañana", c.base_manana)
       +filaCuadre("💰 A entregar (contado − base)", aEntregar)
       +'</div>';
 
-    h+=listaItems("📱 Nequis", nequis, c.nequi);
     h+=listaItems("🧾 Gastos", gastos, c.gastos);
     h+=listaItems("🤝 Pagos", pagos, c.pagos);
     if(c.nota) h+='<div class="card"><div class="row"><div class="main"><div class="meta">📝 Nota</div><div class="name" style="white-space:normal">'+esc(c.nota)+'</div></div></div></div>';
@@ -947,6 +1056,14 @@
   }
   // ===== TRANSACCIONES (igual que Inicio → Transacciones del día del programa, sin N° de factura) =====
   var CAJAS=[["Efectivo","💵","Efectivo"],["Nequi","📱","Nequi"],["Transferencia","🏦","Transferencia / Banco"],["Daviplata","📲","Daviplata"]];
+  // Pago mixto "MIXTO|Nequi=100000|Efectivo=*" → "Nequi $100.000 + Efectivo $40.000" (1.4.31).
+  function textoCaja(c, total){
+    c=String(c||""); if(c.indexOf("MIXTO")!==0) return nombreCaja(c);
+    var fijos=0, resto=null, partes=[];
+    c.split("|").slice(1).forEach(function(t){ var x=t.split("="); if(x[1]==="*") resto=x[0]; else { var v=Number(x[1])||0; fijos+=v; partes.push(nombreCaja(x[0])+" "+money(v)); } });
+    if(resto) partes.push(nombreCaja(resto)+" "+money(Math.max(0,(total||0)-fijos)));
+    return partes.join(" + ");
+  }
   function nombreCaja(k){ for(var i=0;i<CAJAS.length;i++) if(CAJAS[i][0]===k) return CAJAS[i][2]; return k||""; }
   state.transTipo="Todas"; state.transBuscar="";
   function loadTrans(){
@@ -1155,7 +1272,7 @@
         orden.forEach(function(g){
           var filas=grupos[g], txt=textoAviso(filas[0].tipo, filas);
           colaAvisos.push(txt);
-          try{ if("Notification" in window && Notification.permission==="granted") new Notification("PescaFácil · "+filas[0].tipo, { body: txt, tag: g }); }catch(e){}
+          try{ if("Notification" in window && Notification.permission==="granted") new Notification(nomMarca()+" · "+filas[0].tipo, { body: txt, tag: g }); }catch(e){}
         });
         try{ localStorage.setItem(k, nuevos[nuevos.length-1].momento); }catch(e){}
         mostrarCola();
@@ -1167,7 +1284,7 @@
   // en localStorage hasta dónde ya avisó; al prenderlo por primera vez arranca "desde ahora".
   function avisar(titulo, txt, tag){
     colaAvisos.push(txt);
-    try{ if("Notification" in window && Notification.permission==="granted") new Notification("PescaFácil · "+titulo, { body: txt, tag: tag }); }catch(e){}
+    try{ if("Notification" in window && Notification.permission==="granted") new Notification(nomMarca()+" · "+titulo, { body: txt, tag: tag }); }catch(e){}
   }
   function marca(k, v){ try{ if(v===undefined) return localStorage.getItem(claveAvisos()+k); localStorage.setItem(claveAvisos()+k, v); }catch(e){ return null; } }
   function revisarAvisosCambios(){
@@ -1484,6 +1601,20 @@
       ov.innerHTML='<div class="fac-msg">No se pudo armar la factura: '+esc(e && e.message || e)+'<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar;
     });
   }
+  function abrirFacturaArmada(fac, opc){
+    var ov=document.createElement("div"); ov.className="fac-ov"; ov.setAttribute("role","dialog");
+    ov.innerHTML='<div class="fac-msg">Armando la factura…</div>';
+    document.body.appendChild(ov);
+    function teclas(e){ if(e.key==="Escape") cerrar(); }
+    function cerrar(){ ov.remove(); document.removeEventListener("keydown", teclas); }
+    document.addEventListener("keydown", teclas);
+    ov.addEventListener("click", function(e){ if(e.target===ov) cerrar(); });
+    Promise.all([cargarEmpresa(), cargarCatalogo().catch(function(){ return {config:[]}; })]).then(function(r){
+      var emp=r[0], cfg=(((r[1]||{}).config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
+      emp.pie=cfg.pie; emp.saldo_destacado=!!cfg.saldo_destacado;
+      mostrarFactura(ov, fac, emp, cerrar, opc||{});
+    });
+  }
   function mostrarFactura(ov, fac, emp, cerrar, opc){
     opc=opc||{};
     // Arranca como esté en Configuración del programa (con saldo, salvo que el dueño diga lo contrario),
@@ -1504,6 +1635,7 @@
           +'<button class="'+(puedeCompartir?'sec2':'prim')+'" id="facDown">⬇️ Descargar</button>'
           +'<button class="sec2" id="facClose">✕ Cerrar</button></div>'
           +(opc.editable && fac.ventaId && esDueno() ? '<div class="fac-bar"><button class="sec2" id="facEdit">✏️ Corregir factura</button><button class="sec2 fac-anular" id="facAnular">🚫 Anular venta</button></div>' : '')
+          +(opc.aviso?'<div class="fac-aviso">'+esc(opc.aviso)+'</div>':'')
           +'<img class="fac-img" alt="Factura" src="'+cv.toDataURL("image/png")+'">';
         el("facClose").onclick=cerrar;
         el("facPrint").onclick=function(){ imprimirCanvas(actual, nombreArchivoFactura(fac)); };
@@ -1646,7 +1778,7 @@
       });
       y+=10;
       var by=y; g.fillStyle="#e5e7eb"; g.fillRect(M,by,W-2*M,64); g.fillStyle="#000"; y+=8;
-      centro("Proveedor del software: PescaFácil",20,true);
+      centro("Proveedor del software: "+nomMarca(),20,true);
       centro("pescafacilbykevin@gmail.com  ·  320 967 1137",20,false);
       y=by+64;
       var out=document.createElement("canvas"); out.width=W; out.height=y+18;
@@ -1776,7 +1908,7 @@
     var W=puntosPapel(papel), cv=document.createElement("canvas"); cv.width=W; cv.height=330;
     var g=cv.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,W,cv.height); g.fillStyle="#000"; g.strokeStyle="#000"; g.textBaseline="top";
     g.lineWidth=3; g.strokeRect(2,2,W-4,cv.height-4);
-    g.textAlign="center"; g.font="bold 30px Arial"; g.fillText("PRUEBA PescaFácil",W/2,22);
+    g.textAlign="center"; g.font="bold 30px Arial"; g.fillText("PRUEBA "+nomMarca(),W/2,22);
     g.font="22px Arial"; g.fillText("Papel de "+papel+" mm · "+W+" puntos",W/2,64);
     g.fillText(new Date().toLocaleString("es-CO"),W/2,96);
     var mm=W/(papel==="80"?72:48);   // puntos por milímetro del área imprimible
@@ -1931,7 +2063,7 @@
   // Queda en solicitud_movil (tipo 'cliente' / 'producto', ya aprobada) y el computador lo crea con el
   // siguiente código libre. Mientras tanto queda puesto en la casilla y la venta/préstamo lo manda como nuevo:
   // el PC lo encuentra por el nombre y no lo repite.
-  var UNIDADES=[["Arroba","@ Arroba"],["Kilo","kg Kilo"],["Caja","Caja"],["Unidad","Unidad"]];
+  function unidadesNuevo(){ var u={Arroba:"@ Arroba",Kilo:"kg Kilo",Libra:"lb Libra",Caja:"Caja",Unidad:"Unidad"}; return unidadesCompra().map(function(x){ return [x, u[x]]; }); }
   function abrirNuevo(tipo, inp){
     var o=abrirOverlay(), ov=o.ov, cerrar=o.cerrar, esCli = tipo==="cliente", nombre0=(inp && inp.value || "").trim().toUpperCase();
     ov.innerHTML='<div class="imp-card"><h3>'+(esCli?'👤 Nuevo cliente':'🐟 Nuevo producto')+'</h3>'
@@ -1940,7 +2072,7 @@
         ? '<label for="nTel">Teléfono</label><input id="nTel" inputmode="tel" maxlength="30" autocomplete="off">'
           +'<label for="nCed">Cédula / NIT (opcional)</label><input id="nCed" maxlength="30" autocomplete="off">'
           +'<label for="nDir">Dirección (opcional)</label><input id="nDir" maxlength="80" autocomplete="off">'
-        : '<label for="nUni">Se vende / compra por</label><select id="nUni">'+UNIDADES.map(function(u){ return '<option value="'+u[0]+'">'+u[1]+'</option>'; }).join("")+'</select>'
+        : '<label for="nUni">Se vende / compra por</label><select id="nUni">'+unidadesNuevo().map(function(u){ return '<option value="'+u[0]+'">'+u[1]+'</option>'; }).join("")+'</select>'
           +'<label for="nPre">Precio de venta en miles (opcional)</label><input id="nPre" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 100">')
       +'<div class="fac-bar" style="margin-top:16px"><button class="imp" id="nGuardar">➕ Crear</button><button class="sec2" id="nX">✕ Cancelar</button></div>'
       +'<p>El computador lo crea solo en unos minutos, con el siguiente código.</p></div>';
@@ -1968,7 +2100,7 @@
           if(!esCli){
             var fila=inp.closest(".ilin"), t=fila && fila.querySelector(".t");
             if(t){
-              t.value = datos.unidad==="Kilo"?"x Kilo": datos.unidad==="Caja"?"x Caja": datos.unidad==="Unidad"?"x Unidad":"x Arroba";
+              t.value = tipoDeUnidad(datos.unidad); t._tp=t.value;
               var p=fila.querySelector(".p"); if(p && !p.value && datos.precio_venta) p.value=String(datos.precio_venta);
               t.dispatchEvent(new Event("change",{bubbles:true}));
             }
@@ -2095,11 +2227,11 @@
         +'<div id="dTarjeta" class="cli-tarjeta" hidden></div>'
         +'<div id="dResto" class="hoja-off">'
         +'<label class="hoja-lab" for="dProd">Producto</label>'
-        +'<div class="ilin dev-prod"><input id="dProd" class="hoja-in" list="dlProdD" placeholder="🔎 Producto" autocomplete="off"><input class="k" hidden><input class="p" hidden><select class="t" hidden>'+TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div>'
+        +'<div class="ilin dev-prod"><input id="dProd" class="hoja-in" list="dlProdD" placeholder="🔎 Producto" autocomplete="off"><input class="k" hidden><input class="p" hidden><select class="t" hidden>'+tiposPrecio().map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div>'
         +'<datalist id="dlProdD">'+opcionesProducto(cat.producto)+'</datalist>'
         +'<div class="dev-fila"><div><label class="hoja-lab" for="dKg" id="dKgLab">Kilos</label><input id="dKg" class="hoja-in" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>'
         +'<div><label class="hoja-lab" for="dPre">Precio (miles)</label><input id="dPre" class="hoja-in" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>'
-        +'<div><label class="hoja-lab" for="dTipo">Por</label><select id="dTipo" class="hoja-in">'+TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div></div>'
+        +'<div><label class="hoja-lab" for="dTipo">Por</label><select id="dTipo" class="hoja-in">'+tiposPrecio().map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div></div>'
         +'<div id="dValor" class="queda"></div>'
         +'<button type="button" class="nota-link" id="dNotaBtn">+ Agregar nota</button>'
         +'<input id="dNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional): ej. llegó dañado" autocomplete="off" hidden>'
@@ -2133,9 +2265,10 @@
       el("dCli").addEventListener("change", function(){ var c=buscarPorNombre(clientes, this.value); if(c) elegir(c); });
       el("dProd").addEventListener("change", function(){
         var p=prod();
-        if(p){ el("dTipo").value=tipoPrecioDe(p); if(!el("dPre").value && p.extra && Number(p.extra.precio_venta)) el("dPre").value=p.extra.precio_venta; }
+        ponerProducto(el("dTipo"), el("dPre"), p);
         pintar();
       });
+      enlazarTipoPrecio(el("dTipo"), el("dPre"), prod);
       var tEsc=o.ov.querySelector(".dev-prod .t"), pEsc=o.ov.querySelector(".dev-prod .p");
       tEsc.addEventListener("change", function(){ el("dTipo").value=tEsc.value; if(pEsc.value && !el("dPre").value) el("dPre").value=pEsc.value; pintar(); });
       ["dProd","dKg","dPre"].forEach(function(id){ el(id).addEventListener("input", pintar); });
@@ -2145,7 +2278,7 @@
         var c=elegido, nom=el("dProd").value.trim(), p=prod(), k=leerNum(el("dKg").value), pr=leerNum(el("dPre").value), tp=el("dTipo").value, v=valor(), nota=el("dNota").value.trim();
         if(!c || !nom || !(k>0) || !(pr>0)) return;
         var nombreProd = p ? p.nombre : nom.toUpperCase();
-        var unidadNueva = tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad":"Arroba";
+        var unidadNueva = unidadDeTipo(tp);
         var datos = { cliente_id:Number(c.id), kilos:k, precio:pr, tipo_precio:tp, viaje_id:0, nota:nota };
         if(p) datos.producto_id=Number(p.id); else { datos.producto_id=0; datos.producto_nuevo={ nombre:nombreProd, unidad:unidadNueva }; }
         var resumen="Devolución de "+c.nombre+": "+kilos(k)+" "+(tp==="x Caja"?"cj":tp==="x Unidad"?"und":"kg")+" de "+nombreProd+(p?"":" (nuevo)")+" = "+money(v)+(nota?" · "+nota:"");
@@ -2360,8 +2493,8 @@
   // ----- 🧾 CORREGIR / ANULAR una factura (como "✏️ Editar" y "Anular" de Transacciones) -----
   // El PC crea la venta corregida con la MISMA fecha y número de factura y solo entonces anula la original.
   function precioDeTexto(t){
-    var s=String(t||"").trim(), m=/^([\d.,]+)\s*(@|kg|cj|un|und|caja)?/i.exec(s);
-    var tp = !m || !m[2] || m[2]==="@" ? "x Arroba" : /^kg$/i.test(m[2]) ? "x Kilo" : /^(cj|caja)$/i.test(m[2]) ? "x Caja" : "x Unidad";
+    var s=String(t||"").trim(), m=/^([\d.,]+)\s*(@|kg|lb|cj|un|und|caja)?/i.exec(s);
+    var tp = !m || !m[2] || m[2]==="@" ? "x Arroba" : /^kg$/i.test(m[2]) ? "x Kilo" : /^lb$/i.test(m[2]) ? "x Libra" : /^(cj|caja)$/i.test(m[2]) ? "x Caja" : "x Unidad";
     return { precio: m ? leerNum(m[1]) : 0, tipo: tp };
   }
   function anularVentaCel(fac, alTerminar){
@@ -2418,7 +2551,7 @@
         var row=document.createElement("div"); row.className="ilin v";
         row.innerHTML='<input class="n" list="dlProdE" placeholder="Producto" autocomplete="off"><input class="k" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos">'
           +'<input class="p" type="text" inputmode="decimal" autocomplete="off" placeholder="Precio"><select class="t" aria-label="Precio por">'
-          +TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select>'
+          +tiposPrecio().map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select>'
           +'<button type="button" class="x" aria-label="Quitar">✕</button><div class="sub"></div>';
         if(l){
           var pt=precioDeTexto(l.precio);
@@ -2428,9 +2561,10 @@
         }
         row.querySelector(".n").addEventListener("change", function(){
           var p=porNombre(this.value), pr=row.querySelector(".p");
-          if(p){ row.querySelector(".t").value=tipoPrecioDe(p); if(!pr.value && p.extra && Number(p.extra.precio_venta)) pr.value=p.extra.precio_venta; }
+          ponerProducto(row.querySelector(".t"), pr, p);
           total();
         });
+        enlazarTipoPrecio(row.querySelector(".t"), row.querySelector(".p"), function(){ return porNombre(row.querySelector(".n").value); });
         ["input","change"].forEach(function(ev){ row.addEventListener(ev, total); });
         row.querySelector(".x").addEventListener("click", function(){
           if(lineas.children.length>1){ row.remove(); total(); } else say("Debe quedar al menos un producto. Para quitarla toda, anula la venta.");
@@ -2453,7 +2587,7 @@
           var p=porNombre(nom), nombreProd = p ? p.nombre : nom.toUpperCase();
           if(!(k>0)){ malo="Faltan los kilos de "+nombreProd+"."; return; }
           if(!(pr>0)){ malo="Falta el precio de "+nombreProd+"."; return; }
-          var unidadNueva = tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad":"Arroba";
+          var unidadNueva = unidadDeTipo(tp);
           items.push(p ? {producto_id:Number(p.id), kilos:k, precio:pr, tipo_precio:tp}
                        : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:unidadNueva}, kilos:k, precio:pr, tipo_precio:tp});
           resL.push(nombreProd+" "+kilos(k)+" @"+pr);
@@ -2467,8 +2601,27 @@
         if(!confirm("¿Guardar la corrección?\n\n"+resumen)) return;
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
         enviarSolicitud("corregir_venta", resumen, { venta_id:Number(fac.ventaId), cliente_id: c ? Number(c.id) : 0, caja:caja, detalle:el("eTit").value.trim(), lineas:items }).then(function(){
-          hojaHecha(o, "Corrección enviada", money(tot), ["Venta #"+esc(fac.ventaId)+" · "+esc(c?c.nombre:"contado"), "Antes: "+money(fac.total)], null, null);
-          if(alTerminar) alTerminar();
+          // 1.4.31: la factura CORREGIDA se ve, imprime y envía ya, sin esperar a que el computador sincronice
+          // (misma factura y número; el PC la aplica igual cuando se prenda).
+          var ABRV={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un","x Libra":"lb"}, nueva=JSON.parse(JSON.stringify(fac));
+          nueva.fecha=fac.fecha; nueva.lineas=[];
+          Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
+            var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
+            if(!nom || !(k>0)) return;
+            var p=porNombre(nom);
+            nueva.lineas.push({ producto: p ? p.nombre : nom.toUpperCase(), kilos:k, precio: pr.toLocaleString("es-CO",{maximumFractionDigits:2})+" "+(ABRV[tp]||"@"), valor: subtotalVenta(k,pr,tp) });
+          });
+          nueva.total=tot;
+          var mismoCli = c && fac.cliente && String(c.nombre).toUpperCase()===String(fac.cliente).toUpperCase();
+          nueva.cliente = c ? c.nombre : "CONTADO";
+          nueva.pago = c ? "Crédito" : nombreCaja(caja||"Efectivo");
+          if(c){ var dc={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; }); nueva.datosCliente=dc; } else nueva.datosCliente=null;
+          // Saldo: el de esa venta corrido por la diferencia (mismo cliente); con otro cliente, el que tiene hoy + esta venta.
+          if(c && mismoCli && fac.saldo) nueva.saldo={ antes: fac.saldo.antes, despues: fac.saldo.antes + tot };
+          else if(c){ var sh=Number((c.extra||{}).saldo||0); nueva.saldo={ antes: sh, despues: sh + tot }; }
+          else delete nueva.saldo;
+          o.cerrar(); if(alTerminar) alTerminar();
+          abrirFacturaArmada(nueva, { aviso:"⏳ Corrección enviada. Esta es la factura corregida: ya la puedes imprimir o enviar. El computador la aplica cuando se prenda (Transacciones y la cartera cambian ahí)." });
         }, function(e){ btn.disabled=false; btn.textContent="📨 Guardar corrección"; say(e.message); });
       };
     });
@@ -2491,6 +2644,7 @@
         +'<div id="aBuscar"><label class="hoja-lab" for="aCli">Cliente</label>'
         +'<input id="aCli" class="hoja-in" list="dlCliA" placeholder="🔎 Código o nombre del cliente" autocomplete="off">'
         +'<datalist id="dlCliA">'+opcionesCliente(clientes)+'</datalist></div>'
+        +(clientes.length ? '' : '<p class="hoja-pie" style="color:#b45309">⚠️ El computador todavía no ha subido los clientes a la nube (se suben cuando el programa está abierto con internet). Puedes escribir el nombre exacto del cliente.</p>')
         +'<div id="aTarjeta" class="cli-tarjeta" hidden></div>'
         +'<div id="aResto" class="hoja-off">'
         +'<label class="hoja-lab" for="aMonto">Valor del abono</label>'
@@ -2512,7 +2666,7 @@
         var m=monto(), s=saldo();
         el("aResto").classList.toggle("hoja-off", !elegido);
         var q=el("aQueda");
-        if(!elegido || !m){ q.textContent=""; q.className="queda"; }
+        if(!elegido || !m || elegido.sinCatalogo){ q.textContent=""; q.className="queda"; }
         else if(s-m===0){ q.innerHTML="✅ Queda a <b>PAZ Y SALVO</b>"; q.className="queda ok"; }
         else if(s-m<0){ q.innerHTML="Queda con saldo a favor de <b>"+money(m-s)+"</b>"; q.className="queda aviso"; }
         else { q.innerHTML="Queda debiendo <b>"+money(s-m)+"</b>"; q.className="queda"; }
@@ -2527,13 +2681,20 @@
         var s=saldo(), x=c.extra||{};
         el("aBuscar").hidden=true; el("aTarjeta").hidden=false;
         el("aTarjeta").innerHTML='<div class="ct-nom">'+(x.codigo?'<span class="ct-cod">'+esc(x.codigo)+'</span>':'')+esc(c.nombre)+'</div>'
-          +'<div class="ct-saldo"><span>'+(s<0?"Saldo a favor":"Debe hoy")+'</span><b>'+money(Math.abs(s))+'</b></div>'
+          +(c.sinCatalogo ? '<div class="ct-saldo"><span>Saldo</span><b>lo calcula el PC</b></div>' : '<div class="ct-saldo"><span>'+(s<0?"Saldo a favor":"Debe hoy")+'</span><b>'+money(Math.abs(s))+'</b></div>')
           +'<button type="button" class="ct-cambiar" id="aCambiar">Cambiar</button>';
         el("aCambiar").onclick=function(){ elegido=null; el("aTarjeta").hidden=true; el("aBuscar").hidden=false; el("aCli").value=""; el("aCli").focus(); pintar(); };
         pintar();
         setTimeout(function(){ el("aMonto").focus(); }, 60);
       }
-      el("aCli").addEventListener("change", function(){ var c=buscarPorNombre(clientes, this.value); if(c) elegir(c); });
+      el("aCli").addEventListener("change", function(){
+        var t=this.value.trim(), c=buscarPorNombre(clientes, t);
+        if(c){ elegir(c); return; }
+        // 1.4.31: no está en la lista del celular (el computador no lo ha subido, p. ej. sin internet):
+        // se manda por el nombre y el PC lo busca al registrarlo.
+        if(t.length>=2 && !(this._acPoniendo) && confirm("\""+t.toUpperCase()+"\" no está en la lista del celular.\n\n¿Registrar el abono con ese nombre? El computador lo busca por el nombre exacto (o el código) cuando sincronice."))
+          elegir({ id:0, nombre:t.toUpperCase(), extra:{ saldo:0 }, sinCatalogo:true });
+      });
       // Valor: solo dígitos y con los puntos de miles mientras se escribe ($ 50.000).
       el("aMonto").addEventListener("input", function(){
         var m=leerPlata(this.value); this.value = m ? m.toLocaleString("es-CO") : ""; pintar();
@@ -2554,7 +2715,7 @@
           var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
           return sb.from("solicitud_movil").insert({
             negocio_id:state.negocioId, origen:"celular", tipo:"abono", estado:"aprobada", creado_por:email, resumen:resumen,
-            datos:{ cliente_id:Number(c.id), monto:m, caja:caja, nota:nota }
+            datos:{ cliente_id:Number(c.id)||0, cliente_nombre: c.sinCatalogo ? c.nombre : "", monto:m, caja:caja, nota:nota }
           });
         }).then(function(res){
           if(res.error){
@@ -2566,12 +2727,13 @@
           var queda=s-m;
           ov.querySelector(".hoja").innerHTML='<div class="hoja-cab"><b>✅ Abono enviado</b><button class="hoja-x" id="aX2" aria-label="Cerrar">✕</button></div>'
             +'<div class="hecho"><div class="hecho-monto">'+money(m)+'</div><div>'+esc(c.nombre)+' · '+esc(nombreCaja(caja))+'</div>'
-            +'<div class="hecho-queda">'+(Math.round(queda)===0 ? "Queda a <b>PAZ Y SALVO</b>" : queda<0 ? "Saldo a favor: <b>"+money(-queda)+"</b>" : "Queda debiendo: <b>"+money(queda)+"</b>")+'</div></div>'
+            +'<div class="hecho-queda">'+(c.sinCatalogo ? "El saldo lo calcula el computador al registrarlo." : Math.round(queda)===0 ? "Queda a <b>PAZ Y SALVO</b>" : queda<0 ? "Saldo a favor: <b>"+money(-queda)+"</b>" : "Queda debiendo: <b>"+money(queda)+"</b>")+'</div></div>'
             +'<button class="hoja-ok" id="aRecibo">🖨️ Imprimir recibo</button>'
             +'<button class="hoja-sec" id="aOtro">💰 Registrar otro abono</button>'
             +'<p class="hoja-pie">El computador lo registra en unos minutos.</p>';
           el("aX2").onclick=cerrar;
           el("aOtro").onclick=function(){ cerrar(); abrirAbono(); };
+          if(c.sinCatalogo) el("aRecibo").hidden=true;   // sin el saldo no hay recibo completo
           el("aRecibo").onclick=function(){
             var dc={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; });
             ov.classList.remove("con-hoja");
@@ -2632,7 +2794,7 @@
       String(emp.pie||"¡Gracias por su pago!").split(/\r?\n/).forEach(function(l){ l=l.trim(); if(l) centro(l,22,false); });
       y+=10;
       var by=y; g.fillStyle="#e5e7eb"; g.fillRect(M,by,W-2*M,64); g.fillStyle="#000"; y+=8;
-      centro("Proveedor del software: PescaFácil",20,true);
+      centro("Proveedor del software: "+nomMarca(),20,true);
       centro("pescafacilbykevin@gmail.com  ·  320 967 1137",20,false);
       y=by+64;
       var out=document.createElement("canvas"); out.width=W; out.height=y+18; out.getContext("2d").drawImage(cv,0,0); return out;
@@ -2766,7 +2928,7 @@
       pie.split(/\r?\n/).forEach(function(lin){ lin=lin.trim(); if(lin) centro(lin,22,false); });
       y+=10;
       var by=y; g.fillStyle="#e5e7eb"; g.fillRect(M,by,W-2*M,64); g.fillStyle="#000"; y+=8;
-      centro("Proveedor del software: PescaFácil",20,true);
+      centro("Proveedor del software: "+nomMarca(),20,true);
       centro("pescafacilbykevin@gmail.com  ·  320 967 1137",20,false);
       y=by+64;
       var out=document.createElement("canvas"); out.width=W; out.height=y+18;
@@ -2787,18 +2949,33 @@
   function cargarCatalogo(){
     var k="cat_"+state.negocioId, c0=state.cache[k];
     if(c0 && Date.now()-c0._t < 45000) return Promise.resolve(c0);
+    var claveLocal="pf_cat_"+state.negocioId;
     return base("catalogo_movil").limit(10000).then(function(r){
+      var filas=(r&&!r.error&&r.data)||[];
+      // 1.4.31: se guarda una copia en el celular; si la nube falla (sin señal), se usa la última.
+      if(filas.length){ try{ localStorage.setItem(claveLocal, JSON.stringify({t:Date.now(), f:filas.filter(function(x){ return x.tipo!=="stock" && x.tipo!=="arqueo"; })})); }catch(e){} }
+      else if(r && r.error){ try{ var g=JSON.parse(localStorage.getItem(claveLocal)||"null"); if(g && g.f) filas=g.f; }catch(e){} }
       var c={producto:[],proveedor:[],viaje:[],cliente:[],config:[], _t:Date.now()};
-      ((r&&r.data)||[]).forEach(function(x){ (c[x.tipo]||(c[x.tipo]=[])).push(x); });
+      filas.forEach(function(x){ (c[x.tipo]||(c[x.tipo]=[])).push(x); });
       Object.keys(c).forEach(function(t){ if(Array.isArray(c[t])) c[t].sort(function(a,b){ return String(a.nombre).localeCompare(String(b.nombre),"es"); }); });
       var cfgF=((c.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
       LOGO_PCT=Number(cfgF.logo_pct)||100;
-      state.cache[k]=c; return c;
+      TIPO_PRED=cfgF.tipo_precio||null;   // tipo de precio predeterminado del PC (1.4.31)
+      state.cache[k]=c;
+      // Edición del negocio (PescaFácil/CarniFácil/PolloFácil). Un PC anterior a 1.4.31 no la manda = PescaFácil.
+      if((c.config||[]).length){
+        var ed=MARCAS[cfgF.edicion] ? cfgF.edicion : "Pesca";
+        try{ localStorage.setItem("pf_marca_"+state.negocioId, ed); }catch(e){}
+        if(aplicarMarca(ed)) setTimeout(render, 0);   // otra edición: rearmar la pantalla (tipos de precio, textos)
+      }
+      return c;
     });
   }
   // Tamaño del logo en la factura/recibo/estado de cuenta: el de fábrica (≤300×190 en 576) por el
   // % de Configuración → Impresora del PC ("Tamaño del logo"), sin pasarse del ancho del papel.
-  var LOGO_PCT=100;
+  var LOGO_PCT=100, TIPO_PRED=null;
+  // El predeterminado de Configuración del PC va primero (así queda elegido de entrada).
+  function primeroPred(lista, pred, clave){ if(!pred) return lista; var i=-1; lista.forEach(function(x,j){ if((clave?x[0]:x)===pred) i=j; }); return i<=0 ? lista : [lista[i]].concat(lista.slice(0,i), lista.slice(i+1)); }
   function tamLogo(logo, W){
     var lw=Math.min(300, logo.width), lh=logo.height*lw/logo.width; if(lh>190){ lh=190; lw=logo.width*lh/logo.height; }
     var k=Math.max(0.5, Math.min(2.5, (Number(LOGO_PCT)||100)/100)); lw*=k; lh*=k;
@@ -2806,11 +2983,32 @@
     return [lw, lh];
   }
   // Valor según la UNIDAD (igual que el programa): solo la arroba divide entre 12,5.
-  function valorCompra(kg,precio,unidad){ return Number(kg||0)*Number(precio||0)*1000/(String(unidad||"Arroba")==="Arroba"?12.5:1); }
+  function valorCompra(kg,precio,unidad){ var u=String(unidad||"Arroba"); return Number(kg||0)*Number(precio||0)*1000/(u==="Arroba"?12.5: u==="Libra"?0.5:1); }
   function valorArroba(kg,precio){ return valorCompra(kg,precio,"Arroba"); }
-  var UNIDADES=[["Arroba","@"],["Kilo","kg"],["Caja","caja"],["Unidad","und"]];
-  function unidadDe(p){ return (p && p.extra && p.extra.unidad) || "Arroba"; }
-  function abrevUnidad(u){ for(var i=0;i<UNIDADES.length;i++) if(UNIDADES[i][0]===u) return UNIDADES[i][1]; return "@"; }
+  // Unidades de compra (las de Precios de compra del PC). Fuera de PescaFácil el kilo va primero.
+  function unidadesCompra(){ return primeroPred(esPesca() ? ["Arroba","Kilo","Caja","Unidad","Libra"] : ["Kilo","Libra","Caja","Unidad","Arroba"], TIPO_PRED ? TIPO_PRED.slice(2) : null); }
+  function unidadDe(p){ return (p && p.extra && p.extra.unidad) || (TIPO_PRED ? TIPO_PRED.slice(2) : esPesca()?"Arroba":"Kilo"); }
+  function abrevUnidad(u){ return {Arroba:"@",Kilo:"kg",Libra:"lb",Caja:"caja",Unidad:"und"}[u] || "@"; }
+  function unidadDeTipo(tp){ return tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad": tp==="x Libra"?"Libra":"Arroba"; }
+  function tipoDeUnidad(u){ return u==="Kilo"?"x Kilo": u==="Caja"?"x Caja": u==="Unidad"?"x Unidad": u==="Libra"?"x Libra":"x Arroba"; }
+  // Precio que se pone solo (el predeterminado del PC; por libra el suyo o la mitad, como en el PC).
+  function precioSugerido(p,tp){ var x=(p&&p.extra)||{}; return Number(tp==="x Libra" ? x.precio_libra : x.precio_venta)||0; }
+  // Elegir producto: tipo de precio de su unidad y, si la casilla está vacía, su precio.
+  function ponerProducto(selT, inP, p){
+    if(!p) return;
+    selT.value=tipoPrecioDe(p); selT._tp=selT.value;
+    var sp=precioSugerido(p, selT.value); if(!inP.value && sp) inP.value=String(sp).replace(".",",");
+  }
+  // Cambiar kilo ↔ libra: si el precio era el sugerido (o está vacío), pasa al del otro tipo.
+  function enlazarTipoPrecio(selT, inP, getP){
+    selT._tp=selT.value;
+    selT.addEventListener("change", function(){
+      var p=getP(), antes=selT._tp; selT._tp=selT.value;
+      if(!p) return;
+      var v=leerNum(inP.value), sa=precioSugerido(p,antes), sn=precioSugerido(p,selT.value);
+      if(sn && (!v || v===sa)) inP.value=String(sn).replace(".",",");
+    });
+  }
   function buscarPorNombre(lista, t){
     t=String(t||"").trim().toLowerCase(); if(!t) return null;
     return lista.filter(function(p){ return String(p.nombre).toLowerCase()===t || (p.extra && String(p.extra.codigo||"").toLowerCase()===t && t); })[0] || null;
@@ -2849,7 +3047,7 @@
       +'<label>Tipo de viaje</label><div class="formas">'
       +'<label><input type="radio" name="iTipoViaje" value="COMPRA" checked> Normal (compra: la mercancía es mía)</label>'
       +'<label><input type="radio" name="iTipoViaje" value="COMISION"> Comisión (vendo por cuenta del proveedor)</label></div></div>'
-      +'<label>Productos (kilos · precio de compra en miles, por la unidad del producto)</label><div id="iLineas"></div>'
+      +'<label>Productos (kilos · precio de compra en miles · POR arroba, kilo, libra…)</label><div id="iLineas"></div>'
       +'<datalist id="dlProd">'+opcionesProducto(cat.producto)+'</datalist>'
       +'<button type="button" class="addl" id="iAdd">➕ Otro producto</button>'
       +'<div id="iFormaBox"><label>¿Cómo se paga?</label><div class="formas">'
@@ -2859,7 +3057,11 @@
       +'</div></div>'
       +'<label for="iFecha">Fecha de la factura (si no es de hoy)</label><input id="iFecha" type="date" value="'+isoToday()+'" max="'+isoToday()+'">'
       +'<label for="iNota">Nota (opcional)</label><input id="iNota" maxlength="120" placeholder="Ej: factura 1234, llegó a las 5 a. m.">'
-      +'<div class="total-row" style="margin:14px -14px -14px"><span>Total de la factura</span><span class="big num" id="iTotal">$0</span></div>'
+      +'<div id="iRetBox"><label>Retención en la fuente (opcional: se le descuenta al proveedor)</label>'
+      +'<div style="display:flex;gap:8px;align-items:center"><input id="iRetPct" type="text" inputmode="decimal" autocomplete="off" placeholder="%" style="width:80px"><span>%</span>'
+      +'<input id="iRetVal" type="text" inputmode="numeric" autocomplete="off" placeholder="o el valor en pesos" style="flex:1"></div></div>'
+      +'<div class="total-row" style="margin:14px -14px 0"><span>Total de la factura</span><span class="big num" id="iTotal">$0</span></div>'
+      +'<div class="total-row" id="iNetoFila" style="margin:0 -14px -14px" hidden><span>A pagar (sin la retención)</span><span class="big num" id="iNeto">$0</span></div>'
       +'</div></div>'
       +'<button class="btn" id="iEnviar" style="margin-top:12px">📨 Enviar al sistema</button>'
       +'<p class="updated">El computador lo registra solo en unos minutos (tiene que estar prendido y con internet). Sube el inventario y la cuenta del proveedor, o sale de la caja y va al cierre.</p>';
@@ -2872,26 +3074,31 @@
 
     var lineas=el("iLineas");
     function porNombre(t){ return buscarPorNombre(cat.producto, t); }
-    // Unidad de la línea: la del producto; si es un producto NUEVO, la que se elija en su lista.
-    function unidadLinea(row){ var p=porNombre(row.querySelector(".n").value); return p ? unidadDe(p) : row.querySelector(".u").value; }
+    // Unidad de la línea: la del selector POR (arranca con la del producto; si se cambia, queda como la del producto).
+    function unidadLinea(row){ return row.querySelector(".u").value; }
+    var retPorPct=false, totalIng=0;
+    function retencion(){ var v=leerNum(el("iRetVal").value); return el("iRetBox").hidden ? 0 : Math.round(v); }
     function total(){
       var tot=0;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
         var nom=row.querySelector(".n").value.trim(), p=porNombre(nom), u=unidadLinea(row);
         var v=valorCompra(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), u); tot+=v;
-        row.querySelector(".un").hidden = !(nom && !p);
-        row.querySelector(".st").innerHTML = (nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '')
-          + (p ? 'por '+abrevUnidad(u)+' · ' : '') + (v?money(v):"");
+        row.querySelector(".st").innerHTML = (nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '') + (v?money(v):"");
       });
+      totalIng=tot;
+      if(retPorPct){ var pc=leerNum(el("iRetPct").value); el("iRetVal").value = pc ? String(Math.round(tot*pc/100)) : ""; }
+      var r=retencion();
       el("iTotal").textContent=money(tot);
+      el("iNetoFila").hidden = !(r>0);
+      el("iNeto").textContent=money(tot-r);
     }
     function agregar(){
       var row=document.createElement("div"); row.className="ilin";
       row.innerHTML='<input class="n" list="dlProd" placeholder="Producto" autocomplete="off"><input class="k" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos"><input class="p" type="text" inputmode="decimal" autocomplete="off" placeholder="Precio"><button type="button" class="x" aria-label="Quitar">✕</button>'
-        +'<div class="sub"><span class="un" hidden>Se compra por <select class="u">'+UNIDADES.map(function(u){ return '<option value="'+u[0]+'">'+u[0]+'</option>'; }).join("")+'</select> · </span><span class="st"></span></div>';
+        +'<div class="sub"><span class="un">POR <select class="u" aria-label="Precio por">'+unidadesCompra().map(function(u){ return '<option value="'+u+'">'+u+'</option>'; }).join("")+'</select> · </span><span class="st"></span></div>';
       row.querySelector(".n").addEventListener("change", function(){
         var p=porNombre(this.value), pr=row.querySelector(".p");
-        if(p && !pr.value && p.extra && Number(p.extra.precio_compra)) pr.value=p.extra.precio_compra;
+        if(p){ row.querySelector(".u").value=unidadDe(p); if(!pr.value && p.extra && Number(p.extra.precio_compra)) pr.value=p.extra.precio_compra; }
         total();
       });
       row.querySelector(".n").addEventListener("input", total);
@@ -2915,8 +3122,20 @@
       el("iProvNuevoBox").hidden = prov.value!=="__nuevo";
       el("iViajeNuevoBox").hidden = viajeSel.value!=="__nuevo";
       el("iFormaBox").hidden = !prov.value || esComision();
+      el("iRetBox").hidden = !prov.value || esComision();
+      total();
     }
-    prov.onchange=verForma; viajeSel.onchange=verForma;
+    el("iRetPct").addEventListener("input", function(){ retPorPct = !!leerNum(this.value); total(); });
+    el("iRetVal").addEventListener("input", function(){ retPorPct=false; var v=leerNum(this.value); el("iRetPct").value = v && totalIng ? String(Math.round(v*10000/totalIng)/100).replace(".",",") : ""; total(); });
+    // Viaje de COMPRA con proveedor y no hay proveedor elegido: se pone el del viaje (así la compra se le carga a él).
+    var provDelViaje=false;
+    function proveedorDelViaje(){
+      if(prov.value && !provDelViaje) return;
+      var v=cat.viaje.filter(function(x){ return String(x.id)===viajeSel.value; })[0], x=(v&&v.extra)||{};
+      var pv = v && !/^COMISI/i.test(String(x.tipo_viaje||"")) && x.proveedor ? buscarPorNombre(cat.proveedor||[], x.proveedor) : null;
+      if(pv){ prov.value=String(pv.id); provDelViaje=true; } else if(provDelViaje){ prov.value=""; provDelViaje=false; }
+    }
+    prov.onchange=function(){ provDelViaje=false; verForma(); }; viajeSel.onchange=function(){ proveedorDelViaje(); verForma(); };
     Array.prototype.forEach.call(document.querySelectorAll('input[name="iTipoViaje"]'), function(r){ r.onchange=verForma; });
     // Viene de Proveedores → 📥 Ingreso: ese proveedor y su viaje de compra más reciente (nunca uno de comisión,
     // ahí la mercancía no se le carga al proveedor).
@@ -2933,6 +3152,7 @@
         say("📥 Ingreso de "+pv.nombre+(vj?" · viaje "+vj.nombre:""));
       }
     }
+    if(!prov.value) proveedorDelViaje();
     verForma();
 
     el("iEnviar").onclick=function(){
@@ -2944,7 +3164,7 @@
         var p=porNombre(nom), u=unidadLinea(row), nombreProd = p ? p.nombre : nom.toUpperCase();
         if(!(k>0)){ malo="Faltan los kilos de "+nombreProd+"."; return; }
         // Producto que no está en la lista = producto NUEVO: el computador lo crea con la unidad elegida.
-        items.push(p ? {producto_id:p.id, nombre:p.nombre, kilos:k, precio:pr}
+        items.push(p ? {producto_id:p.id, nombre:p.nombre, kilos:k, precio:pr, unidad:u}
                      : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:u}, nombre:nombreProd, kilos:k, precio:pr});
         tot+=valorCompra(k,pr,u);
         resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+abrevUnidad(u));
@@ -2965,7 +3185,9 @@
       var viajeNom = viajeNuevo ? viajeRefNuevo+(comi?" (nuevo, comisión)":" (nuevo)") : el("iViaje").options[el("iViaje").selectedIndex].text;
       var formaTxt = comi ? "viaje de comisión (sin cargo a la cuenta)" : !prov.value ? "solo inventario" : forma==="credito" ? "a crédito" : forma==="contado" ? "de contado ("+nombreCaja(caja)+")" : "pagado por fuera de caja";
       var fechaIng = el("iFecha").value || isoToday();
-      var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+formaTxt+" · viaje "+viajeNom
+      var ret = prov.value && !comi ? retencion() : 0;
+      if(ret>tot){ say("La retención no puede ser mayor que el total."); return; }
+      var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+(ret?" − retención "+money(ret)+" = "+money(tot-ret):"")+" · "+formaTxt+" · viaje "+viajeNom
         +(fechaIng!==isoToday()?" · fecha "+fechaCorta(fechaIng):"")+(el("iNota").value?" · "+el("iNota").value:"");
       if(!confirm("¿Enviar este ingreso al sistema?\n\n"+resumen)) return;
       btn.disabled=true; btn.textContent="Enviando…";
@@ -2978,7 +3200,8 @@
             viaje_nuevo: viajeNuevo ? { referencia:viajeRefNuevo, tipo: comi ? "COMISION" : "COMPRA" } : null,
             proveedor_id: prov.value && !provNuevo ? Number(prov.value) : null,
             proveedor_nuevo: provNuevo ? { nombre:provNombreNuevo, telefono:el("iProvTel").value.trim() } : null,
-            forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"", fecha:fechaIng }
+            forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"", fecha:fechaIng,
+            retencion: ret, retencion_pct: ret ? leerNum(el("iRetPct").value) : 0 }
         });
       }).then(function(res){
         btn.disabled=false; btn.textContent="📨 Enviar al sistema";
@@ -2995,9 +3218,11 @@
   // Queda en solicitud_movil (tipo 'venta', ya aprobada) y el computador la registra como una venta
   // real en su siguiente sincronización: baja el inventario y entra a la caja (contado) o a la cartera
   // del cliente (crédito). En Transacciones sale en celeste con "📱".
-  var TIPOS_PRECIO=[["x Arroba","@"],["x Kilo","kg"],["x Unidad","und"],["x Caja","caja"]];
-  function subtotalVenta(kg,precio,tipo){ return Number(kg||0)*Number(precio||0)*1000/(tipo==="x Arroba"?12.5:1); }
-  function tipoPrecioDe(p){ var u=unidadDe(p); return u==="Kilo"?"x Kilo": u==="Caja"?"x Caja": u==="Unidad"?"x Unidad":"x Arroba"; }
+  // Tipos de precio de la venta (los mismos del PC). Libra = 500 g: kilos × 2 × precio.
+  function tiposPrecio(){ return primeroPred(esPesca() ? [["x Arroba","@"],["x Kilo","kg"],["x Unidad","und"],["x Caja","caja"],["x Libra","lb"]]
+                                           : [["x Kilo","kg"],["x Libra","lb"],["x Unidad","und"],["x Caja","caja"],["x Arroba","@"]], TIPO_PRED, true); }
+  function subtotalVenta(kg,precio,tipo){ return Number(kg||0)*Number(precio||0)*1000/(tipo==="x Arroba"?12.5: tipo==="x Libra"?0.5:1); }
+  function tipoPrecioDe(p){ return tipoDeUnidad(unidadDe(p)); }
   function loadVentaExterna(){
     var host=sec("vext"); host.innerHTML='<div class="loading">Cargando…</div>';
     Promise.all([
@@ -3025,7 +3250,12 @@
       +'<datalist id="dlProdV">'+opcionesProducto(cat.producto)+'</datalist>'
       +'<button type="button" class="addl" id="vAdd">➕ Otro producto</button>'
       // Igual que en el programa: sin cliente es de contado, con cliente es a crédito. No se pregunta.
-      +'<div id="vContadoBox"><label for="vCaja">💵 Venta de contado: la plata entró a</label><select id="vCaja">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></div>'
+      +'<div id="vContadoBox"><label for="vCaja">💵 Venta de contado: la plata entró a</label><select id="vCaja">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'<option value="MIXTO">🔀 Pago mixto (varias formas)</option></select>'
+      // PAGO MIXTO (1.4.31): lo digital se escribe y el EFECTIVO se completa solo con lo que falte.
+      +'<div id="vMixtoBox" hidden style="margin-top:8px">'+CAJAS.filter(function(c){ return c[0]!=="Efectivo"; }).map(function(c){
+          return '<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:1">'+c[1]+' '+c[2]+'</span><input class="vMix" data-c="'+c[0]+'" type="text" inputmode="numeric" autocomplete="off" placeholder="$0" style="width:140px;text-align:right"></div>'; }).join("")
+        +'<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:1">💵 Efectivo (lo que falta)</span><b class="num" id="vMixEf" style="width:140px;text-align:right">$0</b></div>'
+        +'<div class="m" id="vMixInfo" style="font-size:.76rem"></div></div></div>'
       +'<label for="vViaje">Viaje de donde sale la mercancía</label><select id="vViaje"><option value="">Automático (el que tenga el producto)</option>'
       +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
       +'<label for="vDet">Título de la factura (opcional)</label><input id="vDet" maxlength="40" placeholder="Ej: Pedido de la calle 5">'
@@ -3042,7 +3272,22 @@
       }).join("")+'</div>' : '<div class="empty">Aún no has registrado ventas desde aquí.</div>';
     host.innerHTML=h;
 
-    var lineas=el("vLineas"), cli=el("vCli");
+    var lineas=el("vLineas"), cli=el("vCli"), totalVext=0;
+    function mixtoDigital(){ var s=0; Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ s+=Math.round(leerNum(i.value)); }); return s; }
+    function pintarMixto(){
+      var box=el("vMixtoBox"); if(!box) return;
+      box.hidden = el("vCaja").value!=="MIXTO";
+      var dig=mixtoDigital(), ef=totalVext-dig;
+      el("vMixEf").textContent=money(Math.max(0,ef));
+      el("vMixInfo").textContent = !totalVext ? "Agrega los productos primero." : ef<0 ? "⚠️ Se pasa por "+money(-ef)+" del total." : dig===0 ? "Escribe lo que entró por Nequi, transferencia o Daviplata." : "✓ Cuadra con el total.";
+      el("vMixInfo").style.color = ef<0 ? "var(--bad)" : "var(--muted)";
+    }
+    // El texto que entiende el PC: "MIXTO|Nequi=100000|Efectivo=*" (* = lo que falte).
+    function cajaMixta(){
+      var p=["MIXTO"]; Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ var v=Math.round(leerNum(i.value)); if(v>0) p.push(i.getAttribute("data-c")+"="+v); });
+      if(totalVext-mixtoDigital()>0) p.push("Efectivo=*");
+      return p.join("|");
+    }
     function porNombre(t){ return buscarPorNombre(cat.producto, t); }
     function clienteSel(){ return buscarPorNombre(clientes, cli.value); }
     function verCliente(){
@@ -3059,19 +3304,20 @@
         var v=subtotalVenta(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), row.querySelector(".t").value); tot+=v;
         row.querySelector(".sub").innerHTML=(nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '')+(v?money(v):"");
       });
-      el("vTotal").textContent=money(tot);
+      el("vTotal").textContent=money(tot); totalVext=tot; pintarMixto();
     }
     function agregar(){
       var row=document.createElement("div"); row.className="ilin v";
       row.innerHTML='<input class="n" list="dlProdV" placeholder="Producto" autocomplete="off"><input class="k" type="text" inputmode="decimal" autocomplete="off" placeholder="Kilos">'
         +'<input class="p" type="text" inputmode="decimal" autocomplete="off" placeholder="Precio"><select class="t" aria-label="Precio por">'
-        +TIPOS_PRECIO.map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select>'
+        +tiposPrecio().map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select>'
         +'<button type="button" class="x" aria-label="Quitar">✕</button><div class="sub"></div>';
       row.querySelector(".n").addEventListener("change", function(){
         var p=porNombre(this.value), pr=row.querySelector(".p");
-        if(p){ row.querySelector(".t").value=tipoPrecioDe(p); if(!pr.value && p.extra && Number(p.extra.precio_venta)) pr.value=p.extra.precio_venta; }
+        ponerProducto(row.querySelector(".t"), pr, p);
         total();
       });
+      enlazarTipoPrecio(row.querySelector(".t"), row.querySelector(".p"), function(){ return porNombre(row.querySelector(".n").value); });
       ["input","change"].forEach(function(ev){ row.addEventListener(ev, total); });
       row.querySelector(".x").addEventListener("click", function(){ if(lineas.children.length>1){ row.remove(); total(); } });
       lineas.appendChild(row);
@@ -3085,10 +3331,12 @@
     el("vImp").onchange=function(){ try{ localStorage.setItem("pf_vext_imp", this.checked?"1":"0"); }catch(e){} };
     el("vSal").onchange=function(){ try{ localStorage.setItem("pf_vext_sal", this.checked?"1":"0"); }catch(e){} };
     cli.addEventListener("input", verCliente); cli.addEventListener("change", verCliente); verCliente();
+    el("vCaja").addEventListener("change", pintarMixto);
+    Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ i.addEventListener("input", pintarMixto); });
 
     el("vEnviar").onclick=function(){
       var btn=this, items=[], resumenL=[], tot=0, malo=null, paraTiquete=[];
-      var ABREV={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un"};
+      var ABREV={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un","x Libra":"lb"};
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
         var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
         if(!nom && !k) return;
@@ -3096,20 +3344,26 @@
         var p=porNombre(nom), nombreProd = p ? p.nombre : nom.toUpperCase();
         if(!(k>0)){ malo="Faltan los kilos de "+nombreProd+"."; return; }
         if(!(pr>0)){ malo="Falta el precio de "+nombreProd+"."; return; }
-        var unidadNueva = tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad":"Arroba";
+        var unidadNueva = unidadDeTipo(tp);
         items.push(p ? {producto_id:p.id, kilos:k, precio:pr, tipo_precio:tp}
                      : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:unidadNueva}, kilos:k, precio:pr, tipo_precio:tp});
         tot+=subtotalVenta(k,pr,tp);
         paraTiquete.push({ producto:nombreProd, kilos:k, precio:pr.toLocaleString("es-CO",{maximumFractionDigits:2})+" "+(ABREV[tp]||"@"), valor:subtotalVenta(k,pr,tp) });
-        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+(TIPOS_PRECIO.filter(function(t){ return t[0]===tp; })[0]||["","@"])[1]);
+        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+(tiposPrecio().filter(function(t){ return t[0]===tp; })[0]||["","@"])[1]);
       });
       if(malo){ say(malo); return; }
       if(!items.length){ say("Agrega al menos un producto con kilos y precio."); return; }
       var t=cli.value.trim(), c=clienteSel();
       var pago = t ? "credito" : "contado";
       var caja = pago==="contado" ? el("vCaja").value : "";
+      if(caja==="MIXTO"){
+        var dig=mixtoDigital();
+        if(dig>tot){ say("El pago mixto se pasa del total de la venta."); return; }
+        if(dig<=0 || dig===tot && document.querySelectorAll(".vMix").length && Array.prototype.filter.call(document.querySelectorAll(".vMix"), function(i){ return leerNum(i.value)>0; }).length<2){ say("Para un pago mixto escribe lo que entró por Nequi/transferencia/Daviplata (el resto es efectivo)."); return; }
+        caja=cajaMixta();
+      }
       var cliTxt = !t ? "contado" : c ? c.nombre : t.toUpperCase()+" (nuevo)";
-      var resumen = "Venta externa a "+cliTxt+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+(pago==="credito"?"a crédito":"de contado ("+nombreCaja(caja)+")")
+      var resumen = "Venta externa a "+cliTxt+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+(pago==="credito"?"a crédito":"de contado ("+textoCaja(caja,tot)+")")
         +(el("vDet").value.trim()?" · "+el("vDet").value.trim():"");
       if(!confirm("¿Registrar esta venta?\n\n"+resumen)) return;
       var detTxt=el("vDet").value.trim();
@@ -3428,7 +3682,7 @@
     }
     if(pendientesAntes>=0 && n>pendientesAntes){
       if(tiposActivos().indexOf("__sol")<0) say("🛡️ Hay una solicitud de cambio esperando tu aprobación");
-      try{ if(window.Notification && Notification.permission==="granted") new Notification("PescaFácil", { body:"Hay una solicitud de cambio esperando tu aprobación" }); }catch(e){}
+      try{ if(window.Notification && Notification.permission==="granted") new Notification(nomMarca(), { body:"Hay una solicitud de cambio esperando tu aprobación" }); }catch(e){}
     }
     pendientesAntes=n;
   }
@@ -3441,21 +3695,49 @@
   setInterval(contarPendientes, 30000);
 
   // INVENTARIO
+  // Inventario: la posición de todo el patio o, con el filtro VIAJE, solo lo que queda en ese viaje
+  // (catalogo_movil tipo "stock", que el PC sube desde 1.4.31; un PC anterior no lo manda y el filtro no sale).
   function loadInventario(){
     var host=sec("inv"); host.innerHTML='<div class="loading">Cargando…</div>';
-    base("inventario").then(function(res){
+    Promise.all([base("inventario"), cargarCatalogo().catch(function(){ return {}; })]).then(function(rs){
       if(state.section!=="inv") return;
-      var rows=(res.data||[]).slice(); rows.sort(function(a,b){ return Number(b.valor_costo)-Number(a.valor_costo); });
+      var res=rs[0], cat=rs[1]||{}, stock=cat.stock||[], viajes=cat.viaje||[];
+      var conStock={}; stock.forEach(function(x){ conStock[(x.extra||{}).viaje_id]=1; });
+      var lista=viajes.filter(function(v){ return conStock[v.id]; })
+        .sort(function(a,b){ return String((b.extra||{}).fecha||"").localeCompare(String((a.extra||{}).fecha||"")) || b.id-a.id; });
+      var vid=Number(state.invViaje||0);
+      if(vid && !lista.some(function(v){ return v.id===vid; })) vid=0;
+      var rows;
+      if(vid){
+        rows=stock.filter(function(x){ return (x.extra||{}).viaje_id===vid; }).map(function(x){
+          var e=x.extra||{}; return { nombre:x.nombre, kilos:Number(e.kilos||0), fisico:Number(e.fisico||0), nos_deben:Number(e.nos_deben||0), debemos:Number(e.debemos||0), valor_costo:Number(e.valor_costo||0) };
+        });
+      } else rows=(res.data||[]).slice();
+      rows.sort(function(a,b){ return Number(b.valor_costo)-Number(a.valor_costo) || Number(b.kilos)-Number(a.kilos); });
       var totalV=rows.reduce(function(s,r){return s+Number(r.valor_costo||0);},0);
       var totalK=rows.reduce(function(s,r){return s+Number(r.kilos||0);},0);
+      var v=vid ? lista.filter(function(x){ return x.id===vid; })[0] : null, ve=(v&&v.extra)||{};
       var h='<div class="sechead"><h2 class="sec">Inventario (posición real)</h2><button class="xls" data-xls="inventario">⬇️ Excel</button></div>';
+      if(lista.length){
+        h+='<label class="hoja-lab" for="invViaje" style="display:block;margin:4px 0 6px">🚢 Viaje</label><select id="invViaje" class="hoja-in" style="margin-bottom:10px">'
+          +'<option value="0">Todos los viajes</option>'
+          +lista.map(function(x){ var e=x.extra||{}, f=String(e.fecha||"").slice(8,10)+"/"+String(e.fecha||"").slice(5,7);
+              return '<option value="'+x.id+'"'+(x.id===vid?' selected':'')+'>'+esc(x.nombre)+(e.fecha?' · '+f:'')+(e.proveedor?' · '+esc(e.proveedor):'')+(e.tipo_viaje==="COMISION"?' · comisión':'')+'</option>'; }).join("")
+          +'</select>';
+        if(v) h+='<div class="meta" style="margin:-4px 0 10px;color:var(--muted)">Solo lo que queda en este viaje'+(ve.tipo_viaje==="COMISION"?' (de comisión: no se valora al costo, la mercancía es del comisionista)':'')+'.</div>';
+      }
       h+='<div class="tiles"><div class="tile"><div class="lab">📦 Valor al costo</div><div class="val num">'+money(totalV)+'</div></div>'
-        +'<div class="tile"><div class="lab">⚖️ Kilos en patio</div><div class="val num">'+kilos(totalK)+' <small>kg</small></div></div></div>';
-      if(!rows.length){ h+='<div class="empty">No hay inventario sincronizado.</div>'; host.innerHTML=h; return; }
+        +'<div class="tile"><div class="lab">⚖️ Kilos '+(v?'en el viaje':'en patio')+'</div><div class="val num">'+kilos(totalK)+' <small>kg</small></div></div></div>';
+      if(!rows.length){ h+='<div class="empty">'+(v?'Este viaje no tiene mercancía.':'No hay inventario sincronizado.')+'</div>'; host.innerHTML=h; enlazar(); state.cache.inv=rows; return; }
       h+='<div class="card">';
-      rows.forEach(function(r){ h+='<div class="row"><div class="main"><div class="name">'+esc(r.nombre)+'</div><div class="meta">'+kilos(r.kilos)+' kg disponibles</div></div><div class="amt num">'+money(r.valor_costo)+'</div></div>'; });
-      h+='</div><div class="card"><div class="total-row"><span>Total al costo</span><span class="big num">'+money(totalV)+'</span></div></div>';
-      host.innerHTML=h; state.cache.inv=rows;
+      rows.forEach(function(r){
+        var extra = v && (r.nos_deben || r.debemos) ? ' · '+kilos(r.fisico)+' físicos'+(r.nos_deben?' + '+kilos(r.nos_deben)+' prestados':'')+(r.debemos?' − '+kilos(r.debemos)+' que me prestaron':'') : '';
+        h+='<div class="row"><div class="main"><div class="name">'+esc(r.nombre)+'</div><div class="meta">'+kilos(r.kilos)+' kg disponibles'+extra+'</div></div><div class="amt num">'+money(r.valor_costo)+'</div></div>';
+      });
+      h+='</div><div class="card"><div class="total-row"><span>Total al costo'+(v?' del viaje':'')+'</span><span class="big num">'+money(totalV)+'</span></div></div>';
+      host.innerHTML=h; state.cache.inv=rows; state.cache.invNombre = v ? "inventario-"+String(v.nombre).replace(/[^\w-]+/g,"_") : "inventario";
+      enlazar();
+      function enlazar(){ var s=el("invViaje"); if(s) s.onchange=function(){ state.invViaje=Number(this.value)||0; loadInventario(); }; }
     });
   }
 
@@ -3654,7 +3936,7 @@
     else if(k==="cliente"){ var cc=state.cache.cliente; if(cc){ nombre="estado_"+cc.c.nombre; rows=[["Fecha","Detalle","Cargo","Abono","Saldo"]];
       if(cc.saldoAnterior!=null) rows.push(["","Saldo anterior","","",cc.saldoAnterior]);
       rows=rows.concat(cc.movs.map(function(m){ return [String(m.fecha).slice(0,10), m.detalle||m.tipo, m.cargo, m.abono, m._saldo]; })); } }
-    else if(k==="inventario"){ nombre="inventario"; rows=[["Producto","Kilos","Valor costo"]].concat((state.cache.inv||[]).map(function(r){return [r.nombre,r.kilos,r.valor_costo];})); }
+    else if(k==="inventario"){ nombre=state.cache.invNombre||"inventario"; rows=[["Producto","Kilos","Valor costo"]].concat((state.cache.inv||[]).map(function(r){return [r.nombre,r.kilos,r.valor_costo];})); }
     else if(k==="proveedores"){ nombre="proveedores"; rows=[["Proveedor","Saldo"]].concat((state.cache.prov||[]).map(function(r){return [r.nombre,r.saldo];})); }
     else if(k==="venta"){ nombre="venta_"+state.fecha; rows=[["Producto","Kilos","Venta","Utilidad"]].concat((state.cache.venta||[]).map(function(r){return [r.producto,r.kilos,r.venta,r.utilidad];})); }
     else if(k==="prestamos"){ nombre="prestamos"; rows=[["Dirección","Contacto","Producto","Kilos","Fecha"]].concat((state.cache.prestamos||[]).map(function(r){return [r.direccion,r.contacto,r.producto,r.kilos,r.fecha];})); }

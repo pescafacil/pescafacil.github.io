@@ -37,7 +37,7 @@
   .card{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:16px; margin-top:16px}
   h2{font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:22px 0 0}
   label{display:block; font-size:.72rem; font-weight:700; color:var(--muted); margin:12px 0 5px}
-  input{width:100%; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:10px; padding:11px 12px; font:500 .95rem var(--f-ui)}
+  input,select{width:100%; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:10px; padding:11px 12px; font:500 .95rem var(--f-ui)}
   input:focus{outline:2px solid var(--ocean); outline-offset:1px}
   .fila{display:flex; gap:8px; align-items:center}
   .fila input{flex:1; min-width:0}
@@ -95,6 +95,8 @@
         <input id="nEmail" type="email" autocomplete="off" placeholder="correo@cliente.com" required>
         <label for="nClave">Clave inicial (el cliente la cambia después con 🔑)</label>
         <div class="fila"><input id="nClave" autocomplete="off" minlength="6" placeholder="mínimo 6 caracteres"><button type="button" class="b2" id="nGenerar">Generar</button></div>
+        <label for="nMarca">Tipo de negocio (así se ve el tablero mientras su PC no sincroniza)</label>
+        <select id="nMarca"><option value="">🐟 PescaFácil (pescadería)</option><option value="?carni">🥩 CarniFácil (carnicería / fama)</option><option value="?pollo">🍗 PolloFácil (pollería)</option></select>
         <p class="muted" style="margin:6px 0 0">Si ese correo ya tiene cuenta (otro negocio suyo), se usa la misma y la clave no cambia.</p>
         <p class="err" id="nErr"></p>
         <button class="btn" id="nBtn" type="submit">Crear cliente</button>
@@ -243,14 +245,14 @@
   el("nGenerar").onclick=function(){ el("nClave").value=claveAlAzar(); };
   el("fNuevo").addEventListener("submit", function(e){
     e.preventDefault();
-    var nombre=el("nNombre").value.trim(), email=el("nEmail").value.trim(), clave=el("nClave").value;
+    var nombre=el("nNombre").value.trim(), email=el("nEmail").value.trim(), clave=el("nClave").value, marca=el("nMarca").value;
     if(clave && clave.length<6){ el("nErr").textContent="La clave debe tener al menos 6 caracteres."; return; }
     var b=el("nBtn"); b.disabled=true; b.textContent="Creando…"; el("nErr").textContent=""; el("nOk").hidden=true;
     api({ accion:"crear", nombre:nombre, email:email, clave:clave }).then(function(d){
       b.disabled=false; b.textContent="Crear cliente";
       el("okToken").textContent=d.negocio.token;
       var msg="Hola 👋 Ya puedes ver tu negocio "+d.negocio.nombre+" desde el celular:\n\n"
-        +"1. Entra a "+LINK_CLIENTE+"\n"
+        +"1. Entra a "+LINK_CLIENTE+marca+"\n"
         +"2. Correo: "+d.email+"\n"
         +(d.cuenta_nueva ? "3. Clave: "+clave+"\n\nCuando entres, toca la 🔑 de arriba para cambiarla por una tuya." : "3. Tu clave es la misma que ya usas.")
         +"\n\nTip: en el menú del navegador elige \"Agregar a pantalla de inicio\" para tenerlo como una app.";
