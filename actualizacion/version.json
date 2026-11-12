@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.29",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.29/PescaFacil-Actualizacion-1.4.29.exe",
-    "sha256":  "1e74ad4334ead49214b14ecf3deb48a21f726ea0076c451f292e0f4c7476cbab",
-    "notas":  "Auditoría clara: cada corrección muestra solo lo que cambió, cómo estaba y cómo quedó (kilos, precio, productos, cliente, total), en el computador y en el celular. Incluye todo lo de la 1.4.28: arqueo por persona, pagos a proveedor en Transacciones, fecha en los ingresos, tamaño del logo, estado de cuenta por factura en el celular y sincronización inmediata.",
-    "fecha":  "2026-11-11"
+    "version":  "1.4.30",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.30/PescaFacil-Actualizacion-1.4.30.exe",
+    "sha256":  "342463772f14db14a2ca2137aadcd5f5160fb079ddb2052bbe5b1fe713e615cf",
+    "notas":  "Báscula en vivo en la venta: el peso se ve todo el tiempo y con un clic pasa a KILOS. Opción de precio automático para todos los productos. Avisos y mensajes de soporte. Colores y textos propios de CarniFácil y PolloFácil.",
+    "fecha":  "2026-11-12"
 }
