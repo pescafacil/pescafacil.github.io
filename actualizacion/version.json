@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.30",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.30/PescaFacil-Actualizacion-1.4.30.exe",
-    "sha256":  "342463772f14db14a2ca2137aadcd5f5160fb079ddb2052bbe5b1fe713e615cf",
-    "notas":  "Báscula en vivo en la venta: el peso se ve todo el tiempo y con un clic pasa a KILOS. Opción de precio automático para todos los productos. Avisos y mensajes de soporte. Colores y textos propios de CarniFácil y PolloFácil.",
+    "version":  "1.4.31",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.31/PescaFacil-Actualizacion-1.4.31.exe",
+    "sha256":  "f57e391ddf4bae1f1bff61c48858a67a891caaaa1ad27425a41279b034439a29",
+    "notas":  "Ingreso con unidad (arroba/kilo/libra/caja) y retención; Inventario por viajes; pago mixto (Nequi + efectivo); tipo de precio en todas las pantallas; precios en pesos completos (opción); Configuración por pestañas; tablero del celular sin pegar el token; CarniFácil/PolloFácil en el celular; factura corregida desde el celular al instante",
     "fecha":  "2026-11-12"
 }
