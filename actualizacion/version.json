@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.33",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.33/PescaFacil-Actualizacion-1.4.33.exe",
-    "sha256":  "abfd80da7f63159b5d0ca799299b92af2f612441548b58880f8167d023e41705",
-    "notas":  "IVA en el ingreso (se suma; la retención se resta); Inventario con buscador y movimientos de cada producto (ingresos, ventas, devoluciones); devuelto en el mes en el Cierre de mes; precio automático con el sugerido del inventario; devolución por código o nombre, más rápida",
+    "version":  "1.4.34",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.34/PescaFacil-Actualizacion-1.4.34.exe",
+    "sha256":  "d597ab643fc95e6224b3988555c4843ff395a03da006a5b6ce952a619bb08aae",
+    "notas":  "Precio automático al elegir el producto (predeterminado, sugerido del inventario convertido a kilo/libra, o el último precio vendido); pago mixto eligiendo cuál se completa sola (p. ej. Nequi + Daviplata); cuadro de venta ordenado; tamaño del logo en Configuración",
     "fecha":  "2026-11-12"
 }
