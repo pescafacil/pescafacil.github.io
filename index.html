@@ -3261,9 +3261,10 @@
       // Igual que en el programa: sin cliente es de contado, con cliente es a crédito. No se pregunta.
       +'<div id="vContadoBox"><label for="vCaja">💵 Venta de contado: la plata entró a</label><select id="vCaja">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'<option value="MIXTO">🔀 Pago mixto (varias formas)</option></select>'
       // PAGO MIXTO (1.4.31): lo digital se escribe y el EFECTIVO se completa solo con lo que falte.
-      +'<div id="vMixtoBox" hidden style="margin-top:8px">'+CAJAS.filter(function(c){ return c[0]!=="Efectivo"; }).map(function(c){
+      +'<div id="vMixtoBox" hidden style="margin-top:8px">'
+        +'<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:1;font-size:.8rem">Se completa sola con lo que falte:</span><select id="vMixResto" style="width:auto;padding:5px 8px">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></div>'
+        +CAJAS.map(function(c){
           return '<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:1">'+c[1]+' '+c[2]+'</span><input class="vMix" data-c="'+c[0]+'" type="text" inputmode="numeric" autocomplete="off" placeholder="$0" style="width:140px;text-align:right"></div>'; }).join("")
-        +'<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:1">💵 Efectivo (lo que falta)</span><b class="num" id="vMixEf" style="width:140px;text-align:right">$0</b></div>'
         +'<div class="m" id="vMixInfo" style="font-size:.76rem"></div></div></div>'
       +'<label for="vViaje">Viaje de donde sale la mercancía</label><select id="vViaje"><option value="">Automático (el que tenga el producto)</option>'
       +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
@@ -3282,19 +3283,21 @@
     host.innerHTML=h;
 
     var lineas=el("vLineas"), cli=el("vCli"), totalVext=0;
-    function mixtoDigital(){ var s=0; Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ s+=Math.round(leerNum(i.value)); }); return s; }
+    // 1.4.34: la que "se completa sola" se elige (no siempre es efectivo: puede ser Nequi + Daviplata).
+    function cajaResto(){ return (el("vMixResto")||{}).value || "Efectivo"; }
+    function mixtoDigital(){ var s=0, r=cajaResto(); Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ if(i.getAttribute("data-c")!==r) s+=Math.round(leerNum(i.value)); }); return s; }
     function pintarMixto(){
       var box=el("vMixtoBox"); if(!box) return;
       box.hidden = el("vCaja").value!=="MIXTO";
       var dig=mixtoDigital(), ef=totalVext-dig;
-      el("vMixEf").textContent=money(Math.max(0,ef));
-      el("vMixInfo").textContent = !totalVext ? "Agrega los productos primero." : ef<0 ? "⚠️ Se pasa por "+money(-ef)+" del total." : dig===0 ? "Escribe lo que entró por Nequi, transferencia o Daviplata." : "✓ Cuadra con el total.";
+      Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ var esR=i.getAttribute("data-c")===cajaResto(); i.readOnly=esR; i.style.background=esR?"#d1fae5":""; if(esR) i.value = ef>0 ? String(ef) : ""; });
+      el("vMixInfo").textContent = !totalVext ? "Agrega los productos primero." : ef<0 ? "⚠️ Se pasa por "+money(-ef)+" del total." : dig===0 ? "Escribe lo que entró por las otras formas; la marcada se completa sola." : "✓ Cuadra con el total.";
       el("vMixInfo").style.color = ef<0 ? "var(--bad)" : "var(--muted)";
     }
     // El texto que entiende el PC: "MIXTO|Nequi=100000|Efectivo=*" (* = lo que falte).
     function cajaMixta(){
-      var p=["MIXTO"]; Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ var v=Math.round(leerNum(i.value)); if(v>0) p.push(i.getAttribute("data-c")+"="+v); });
-      if(totalVext-mixtoDigital()>0) p.push("Efectivo=*");
+      var p=["MIXTO"], r=cajaResto(); Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ if(i.getAttribute("data-c")===r) return; var v=Math.round(leerNum(i.value)); if(v>0) p.push(i.getAttribute("data-c")+"="+v); });
+      if(totalVext-mixtoDigital()>0) p.push(r+"=*");
       return p.join("|");
     }
     function porNombre(t){ return buscarPorNombre(cat.producto, t); }
@@ -3341,6 +3344,7 @@
     el("vSal").onchange=function(){ try{ localStorage.setItem("pf_vext_sal", this.checked?"1":"0"); }catch(e){} };
     cli.addEventListener("input", verCliente); cli.addEventListener("change", verCliente); verCliente();
     el("vCaja").addEventListener("change", pintarMixto);
+    el("vMixResto").addEventListener("change", pintarMixto);
     Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ i.addEventListener("input", pintarMixto); });
 
     el("vEnviar").onclick=function(){
@@ -3368,7 +3372,8 @@
       if(caja==="MIXTO"){
         var dig=mixtoDigital();
         if(dig>tot){ say("El pago mixto se pasa del total de la venta."); return; }
-        if(dig<=0 || dig===tot && document.querySelectorAll(".vMix").length && Array.prototype.filter.call(document.querySelectorAll(".vMix"), function(i){ return leerNum(i.value)>0; }).length<2){ say("Para un pago mixto escribe lo que entró por Nequi/transferencia/Daviplata (el resto es efectivo)."); return; }
+        var formas=Array.prototype.filter.call(document.querySelectorAll(".vMix"), function(i){ return i.getAttribute("data-c")!==cajaResto() && leerNum(i.value)>0; }).length + (tot-dig>0?1:0);
+        if(dig<=0 || formas<2){ say("Para un pago mixto pon al menos dos formas de pago (la marcada se completa con el resto)."); return; }
         caja=cajaMixta();
       }
       var cliTxt = !t ? "contado" : c ? c.nombre : t.toUpperCase()+" (nuevo)";
