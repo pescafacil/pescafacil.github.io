@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.37",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.37/PescaFacil-Actualizacion-1.4.37.exe",
-    "sha256":  "6b324d185713568e8a0dd98631a8ef79175dd7fd2a1cd79f9b7dfc0a146d0e81",
-    "notas":  "Precio de venta enlazado: el mismo en Productos, Editar producto e Inventario (columna P. VENTA); cada precio con su unidad (/kg, /@, /caja); el sugerido en la unidad en que se vende; precios estimados en millones se corrigen solos; Inventario sin columnas cortadas",
+    "version":  "1.4.38",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.38/PescaFacil-Actualizacion-1.4.38.exe",
+    "sha256":  "420ae735fdba7c4e9211657042466f4a3855a32695441c70fd6c303f69a9d61d",
+    "notas":  "PAGO (F7) en Acciones rapidas aparte de GASTO, con Cruce de cuentas: cliente que tambien es proveedor, se descuenta una deuda contra la otra sin mover caja y el resto se puede cancelar con plata (ese si va a caja y al cierre)",
     "fecha":  "2026-11-13"
 }
