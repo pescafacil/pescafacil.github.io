@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.36",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.36/PescaFacil-Actualizacion-1.4.36.exe",
-    "sha256":  "31e6035df6c80a106a39f78e9f3d4bc987b26ad9bceed72e9469258f22c241b9",
-    "notas":  "Precio de compra de MOJARRA (y cualquiera guardado en millones) se corrige solo; subtotal y total de la venta en formato colombiano y sin cortarse; celular: lo que se hace desde el celular se ve de una vez aunque el PC no haya sincronizado; arreglo del pago mixto del celular",
-    "fecha":  "2026-11-12"
+    "version":  "1.4.37",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.37/PescaFacil-Actualizacion-1.4.37.exe",
+    "sha256":  "6b324d185713568e8a0dd98631a8ef79175dd7fd2a1cd79f9b7dfc0a146d0e81",
+    "notas":  "Precio de venta enlazado: el mismo en Productos, Editar producto e Inventario (columna P. VENTA); cada precio con su unidad (/kg, /@, /caja); el sugerido en la unidad en que se vende; precios estimados en millones se corrigen solos; Inventario sin columnas cortadas",
+    "fecha":  "2026-11-13"
 }
