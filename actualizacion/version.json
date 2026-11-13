@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.38",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.38/PescaFacil-Actualizacion-1.4.38.exe",
-    "sha256":  "420ae735fdba7c4e9211657042466f4a3855a32695441c70fd6c303f69a9d61d",
-    "notas":  "PAGO (F7) en Acciones rapidas aparte de GASTO, con Cruce de cuentas: cliente que tambien es proveedor, se descuenta una deuda contra la otra sin mover caja y el resto se puede cancelar con plata (ese si va a caja y al cierre)",
+    "version":  "1.4.39",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.39/PescaFacil-Actualizacion-1.4.39.exe",
+    "sha256":  "a3966d8559a2ec085e73132770285cef1ae678a29647e22303fad642aaeb1fe8",
+    "notas":  "Cruce de cuentas: solo clientes y proveedores con saldo en cartera, resultado claro (quien queda debiendo y cuanto dar para quedar en 0) y comprobante con saldos, lo cruzado, el resto pagado y el resultado",
     "fecha":  "2026-11-13"
 }
