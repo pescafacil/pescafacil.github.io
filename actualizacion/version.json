@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.34",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.34/PescaFacil-Actualizacion-1.4.34.exe",
-    "sha256":  "d597ab643fc95e6224b3988555c4843ff395a03da006a5b6ce952a619bb08aae",
-    "notas":  "Precio automático al elegir el producto (predeterminado, sugerido del inventario convertido a kilo/libra, o el último precio vendido); pago mixto eligiendo cuál se completa sola (p. ej. Nequi + Daviplata); cuadro de venta ordenado; tamaño del logo en Configuración",
+    "version":  "1.4.35",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.35/PescaFacil-Actualizacion-1.4.35.exe",
+    "sha256":  "b30b340c4e7bd35787c54c80bf706d4463a07cb60170508fca4094b6a58ac0e8",
+    "notas":  "Precios de compra de Inventario y Venta diaria en pesos completos (y aviso si un precio parece escrito en pesos); casillas de KILOS y PRECIO de la venta mas anchas",
     "fecha":  "2026-11-12"
 }
