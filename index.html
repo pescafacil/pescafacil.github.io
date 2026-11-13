@@ -342,6 +342,13 @@
   .aud-c{font-size:.8rem; padding:2px 0; word-break:break-word}
   .aud-a{color:#b91c1c; text-decoration:line-through} .aud-d{color:#047857; font-weight:700}
 
+  /* ⏳ Hecho desde el celular y el PC todavía no lo registra (1.4.36) */
+  table.ttx tbody tr.pend td{border-top:2px dashed #f59e0b; border-bottom:2px dashed #f59e0b}
+  .pend-tag{display:inline-block; background:#fef3c7; color:#92400e; border-radius:6px; padding:0 6px; font-size:.72rem; font-weight:700; white-space:nowrap}
+  .pend-aviso{margin:10px 0; padding:8px 12px; border-radius:10px; background:#fffbeb; border:1px solid #fcd34d; color:#92400e; font-size:.8rem}
+  .eci.pendc{background:#fffbeb}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .eci.pendc{background:#3a2e10} :root:not([data-theme="light"]) .pend-aviso{background:#3a2e10; color:#fcd34d; border-color:#92400e} }
+  :root[data-theme="dark"] .eci.pendc{background:#3a2e10} :root[data-theme="dark"] .pend-aviso{background:#3a2e10; color:#fcd34d; border-color:#92400e}
   /* Venta externa registrada desde el celular: celeste (igual que en Transacciones del programa) */
   table.ttx tbody tr.cel{background:#a5f3fc} table.ttx tbody tr.cel td.tv,table.ttx tbody tr.cel td.tt{color:#0e7490}
   /* Ingreso de mercancía (entra al viaje; no es plata del día): gris pizarra, como en el programa */
@@ -1066,12 +1073,154 @@
   }
   function nombreCaja(k){ for(var i=0;i<CAJAS.length;i++) if(CAJAS[i][0]===k) return CAJAS[i][2]; return k||""; }
   state.transTipo="Todas"; state.transBuscar="";
+  // ===== ⏳ LO QUE SALIÓ DEL CELULAR Y EL COMPUTADOR TODAVÍA NO REGISTRA (1.4.36) =====
+  // Pedido del dueño: corrigió una factura o hizo un abono desde la casa con el PC de la empresa apagado y no veía
+  // nada hasta el otro día. Todo lo mandado desde un celular queda en solicitud_movil (pc_listo = false) hasta que
+  // el PC lo aplica, y el PC sube los datos nuevos en ese MISMO envío; mientras tanto se muestra ya, marcado
+  // "⏳ sin sincronizar", en Transacciones, la cartera, el estado de cuenta, la factura y el saldo del abono.
+  function cargarPendientes(){
+    var k="pend_"+state.negocioId, c=state.cache[k];
+    if(c && Date.now()-c.t<15000) return Promise.resolve(c.d);
+    return base("solicitud_movil").eq("origen","celular").eq("pc_listo", false).eq("estado","aprobada").in("tipo", TIPOS_PEND).order("creado",{ascending:true}).limit(300)
+      .then(function(r){ var d=(r && !r.error && r.data)||[]; state.cache[k]={t:Date.now(), d:d}; return d; }, function(){ return []; });
+  }
+  // Solo lo que se muestra (nunca las de usuarios: pueden traer la huella de una clave).
+  var TIPOS_PEND=["venta","abono","gasto","devolucion","pago_proveedor","pago_comision","prestamo","ingreso","corregir_venta","anular_venta","editar_pago_proveedor","anular_pago_proveedor"];
+  function olvidarPendientes(){ delete state.cache["pend_"+state.negocioId]; }
+  function datosPend(sol){ var d=sol && sol.datos; if(typeof d==="string"){ try{ d=JSON.parse(d); }catch(e){ d=null; } } return d||{}; }
+  var ABREV_TP={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un","x Libra":"lb"};
+  function precioTxt(pr,tp){ return Number(pr||0).toLocaleString("es-CO",{maximumFractionDigits:2})+" "+(ABREV_TP[tp]||"@"); }
+  function totalLineas(ls){ return (ls||[]).reduce(function(t,l){ return t+subtotalVenta(l.kilos,l.precio,l.tipo_precio); },0); }
+  function porId(lista, id){ return (lista||[]).filter(function(x){ return Number(x.id)===Number(id); })[0]||null; }
+  function nomProdPend(cat, l){ if(l.producto_nuevo) return String(l.producto_nuevo.nombre||"").toUpperCase(); var p=porId(cat.producto, l.producto_id); return p ? p.nombre : (l.nombre || "Producto #"+l.producto_id); }
+  function idCliPend(cat, d){
+    if(Number(d.cliente_id)) return Number(d.cliente_id);
+    var n=String(d.cliente_nombre||"").trim().toUpperCase(); if(!n) return 0;
+    var c=(cat.cliente||[]).filter(function(x){ return String(x.nombre).toUpperCase()===n || String((x.extra||{}).codigo||"")===n; })[0];
+    return c ? Number(c.id) : 0;
+  }
+  function nomCliPend(cat, d){
+    var c=porId(cat.cliente, idCliPend(cat, d));
+    return c ? c.nombre : d.cliente_nuevo ? String(d.cliente_nuevo.nombre||"").toUpperCase() : String(d.cliente_nombre||"").toUpperCase();
+  }
+  // El cliente (id) de una factura a crédito, para que la corrección/anulación sepa a quién le baja lo que debía.
+  function idClienteDeFac(fac, clientes){
+    if(!fac || fac.pago!=="Crédito" || !fac.cliente || fac.cliente==="CONTADO") return 0;
+    var c=(clientes||[]).filter(function(x){ return String(x.nombre).toUpperCase()===String(fac.cliente).toUpperCase(); })[0];
+    return c ? Number(c.id) : 0;
+  }
+  // Corrección / anulación en camino de una venta (la última que se mandó).
+  function pendienteDeVenta(pend, ventaId){
+    var r=null; (pend||[]).forEach(function(x){ if((x.tipo==="corregir_venta" || x.tipo==="anular_venta") && Number(datosPend(x).venta_id)===Number(ventaId)) r=x; }); return r;
+  }
+  // Cuánto cambia lo que debe cada cliente con lo pendiente: { id: { delta, n, movs:[{tipo, fecha, valor, d, sol}] } }
+  function efectoClientes(pend, cat){
+    var m={};
+    function add(id, v, mov){ id=Number(id); if(!id) return; var x=m[id]||(m[id]={delta:0, n:0, movs:[]}); x.delta+=v; x.n++; if(mov) x.movs.push(mov); }
+    (pend||[]).forEach(function(sol){
+      var d=datosPend(sol);
+      if(sol.tipo==="venta" && d.pago==="credito" && Number(d.cliente_id)) add(d.cliente_id, totalLineas(d.lineas), { tipo:"venta", fecha:sol.creado, valor:totalLineas(d.lineas), d:d, sol:sol });
+      else if(sol.tipo==="abono") add(idCliPend(cat, d), -Number(d.monto||0), { tipo:"abono", fecha:sol.creado, valor:Number(d.monto||0), d:d, sol:sol });
+      else if(sol.tipo==="devolucion" && Number(d.cliente_id)){ var v=subtotalVenta(d.kilos, d.precio, d.tipo_precio); add(d.cliente_id, -v, { tipo:"devolucion", fecha:sol.creado, valor:v, d:d, sol:sol }); }
+      else if((sol.tipo==="corregir_venta" || sol.tipo==="anular_venta") && d.total_antes!=null){
+        var nuevoTot = sol.tipo==="corregir_venta" ? totalLineas(d.lineas) : 0, cliNuevo = sol.tipo==="corregir_venta" ? Number(d.cliente_id) : 0;
+        if(Number(d.cliente_antes_id) && Number(d.cliente_antes_id)===cliNuevo) add(cliNuevo, nuevoTot-Number(d.total_antes), null);   // mismo cliente: la diferencia
+        else { add(d.cliente_antes_id, -Number(d.total_antes), null); add(cliNuevo, nuevoTot, null); }
+      }
+    });
+    return m;
+  }
+  // La factura como queda con la corrección que va en camino (misma fecha y número).
+  function facConCorreccion(fac, d, cat){
+    var nueva=JSON.parse(JSON.stringify(fac)); nueva.fecha=fac.fecha;
+    nueva.lineas=(d.lineas||[]).map(function(l){ return { producto:nomProdPend(cat,l), kilos:Number(l.kilos), precio:precioTxt(l.precio,l.tipo_precio), valor:subtotalVenta(l.kilos,l.precio,l.tipo_precio) }; });
+    nueva.total=totalLineas(d.lineas);
+    if(d.detalle!=null) nueva.titulo=d.detalle;
+    var c=Number(d.cliente_id) ? porId(cat.cliente, d.cliente_id) : null;
+    var mismo = c && fac.cliente && String(c.nombre).toUpperCase()===String(fac.cliente).toUpperCase();
+    nueva.cliente = c ? c.nombre : "CONTADO";
+    nueva.pago = c ? "Crédito" : d.caja ? nombreCaja(d.caja) : (fac.pago && fac.pago!=="Crédito" ? fac.pago : "Contado");
+    if(c){ var dc={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; }); nueva.datosCliente=dc; } else nueva.datosCliente=null;
+    if(c && mismo && fac.saldo) nueva.saldo={ antes: fac.saldo.antes, despues: fac.saldo.antes + nueva.total };
+    else if(c){ var sh=Number((c.extra||{}).saldo||0); nueva.saldo={ antes: sh, despues: sh + nueva.total }; }
+    else delete nueva.saldo;
+    return nueva;
+  }
+  // Comprobante de una venta externa que el PC todavía no registra (sin número: se lo pone el PC).
+  function facDeVentaPend(sol, cat, delta){
+    var d=datosPend(sol), c=Number(d.cliente_id) ? porId(cat.cliente, d.cliente_id) : null;
+    var nom=c ? c.nombre : d.cliente_nuevo ? String(d.cliente_nuevo.nombre||"").toUpperCase() : "";
+    var dc=null; if(nom){ dc={ nombre:nom }; if(c) Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; }); }
+    var tot=totalLineas(d.lineas), despues=c ? Number((c.extra||{}).saldo||0)+Number(delta||0) : 0;
+    return { ventaId:"celular", numLab:"Venta", numVal:"del celular", num:"COMPROBANTE DE VENTA", titulo:d.detalle||"", fecha:new Date(sol.creado),
+      pago: d.pago==="credito" ? "Crédito" : "Contado", cliente: nom||"CONTADO", datosCliente:dc, total:tot,
+      lineas:(d.lineas||[]).map(function(l){ return { producto:nomProdPend(cat,l), kilos:Number(l.kilos), precio:precioTxt(l.precio,l.tipo_precio), valor:subtotalVenta(l.kilos,l.precio,l.tipo_precio) }; }),
+      saldo:(d.pago==="credito" && c) ? { antes: despues-tot, despues: despues } : null };
+  }
+  var AVISO_PEND="⏳ Hecho desde el celular: el computador todavía no lo registra (lo hace cuando se prenda y sincronice). Ya lo puedes imprimir o enviar así.";
+  // Transacciones del día + lo pendiente: filas nuevas arriba, ventas corregidas reemplazadas, anuladas tachadas.
+  function conPendientes(rows, pend, cat, fecha){
+    var out=rows.slice(), nuevas=[];
+    (pend||[]).forEach(function(sol){
+      var d=datosPend(sol), cre=new Date(sol.creado), dia=iso(cre);
+      var b0={ pend:true, sol:sol, fecha:dia, momento:sol.creado, hora:cre.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"}), estado:"Activa", marcada:false,
+        viaje:"", kilos:0, precio:"", producto:"", cliente:"", valor:0, pago:"", detalle:"📱 celular" };
+      function fila(o){ var r={}; Object.keys(b0).forEach(function(k){ r[k]=b0[k]; }); Object.keys(o).forEach(function(k){ r[k]=o[k]; }); nuevas.push(r); }
+      if(sol.tipo==="corregir_venta" || sol.tipo==="anular_venta"){
+        var vid=Number(d.venta_id), viejas=out.filter(function(r){ return r.tipo==="Venta" && ventaDeRef(r.ref)===vid; });
+        if(!viejas.length) return;
+        if(sol.tipo==="anular_venta"){ viejas.forEach(function(r){ r.estado="Anulada"; r.pend=true; r.pendAnular=true; }); return; }
+        var v0=viejas[0], cli=Number(d.cliente_id) ? ((porId(cat.cliente, d.cliente_id)||{}).nombre || v0.cliente) : "CONTADO";
+        var pos=out.indexOf(v0);
+        out=out.filter(function(r){ return viejas.indexOf(r)<0; });
+        var corr=(d.lineas||[]).map(function(l, i){ return { pend:true, pendCorr:true, sol:sol, ref:"Venta-"+vid+"-"+(i+1), fecha:v0.fecha, momento:v0.momento, hora:v0.hora, tipo:"Venta",
+          cliente:cli, producto:nomProdPend(cat,l), kilos:Number(l.kilos), precio:precioTxt(l.precio,l.tipo_precio), valor:subtotalVenta(l.kilos,l.precio,l.tipo_precio),
+          pago:Number(d.cliente_id) ? "Crédito" : "Contado", estado:"Activa", marcada:false, viaje:v0.viaje, detalle:"✏️ corregida · 📱 celular" }; });
+        Array.prototype.splice.apply(out, [Math.min(pos, out.length), 0].concat(corr));
+        return;
+      }
+      if(sol.tipo==="editar_pago_proveedor" || sol.tipo==="anular_pago_proveedor"){
+        out.forEach(function(r){
+          if(r.tipo!=="Pago Proveedor" || pagoDeRef(r.ref)!==Number(d.pago_id)) return;
+          r.pend=true;
+          if(sol.tipo==="anular_pago_proveedor"){ r.estado="Anulada"; r.pendAnular=true; }
+          else { r.valor=Number(d.monto||r.valor); r.pago=d.caja ? nombreCaja(d.caja) : "Por fuera"; r.detalle="✏️ corregido · 📱 celular"; }
+        });
+        return;
+      }
+      if(sol.tipo==="ingreso" && d.fecha) dia=String(d.fecha).slice(0,10);
+      if(dia!==fecha) return;
+      if(sol.tipo==="venta"){
+        var cliV = Number(d.cliente_id) ? nomCliPend(cat, d) : d.cliente_nuevo ? String(d.cliente_nuevo.nombre||"").toUpperCase() : "CONTADO";
+        (d.lineas||[]).forEach(function(l){ fila({ tipo:"Venta", cliente:cliV, producto:nomProdPend(cat,l), kilos:Number(l.kilos), precio:precioTxt(l.precio,l.tipo_precio),
+          valor:subtotalVenta(l.kilos,l.precio,l.tipo_precio), pago: d.pago==="credito" ? "Crédito" : "Contado", viaje: d.viaje_id ? ((porId(cat.viaje,d.viaje_id)||{}).nombre||"") : "" }); });
+      }
+      else if(sol.tipo==="abono") fila({ tipo:"Abono", cliente:nomCliPend(cat,d), valor:Number(d.monto||0), pago:nombreCaja(d.caja||"Efectivo"), detalle:"Abono"+(d.nota?" · "+d.nota:"")+" · 📱 celular" });
+      else if(sol.tipo==="gasto") fila({ tipo:"Gasto", producto:d.concepto||"Gasto", valor:Number(d.monto||0), pago:d.caja ? nombreCaja(d.caja) : "Por fuera" });
+      else if(sol.tipo==="devolucion") fila({ tipo:"Devolución", cliente:nomCliPend(cat,d), producto:nomProdPend(cat,d), kilos:Number(d.kilos||0), precio:precioTxt(d.precio,d.tipo_precio), valor:subtotalVenta(d.kilos,d.precio,d.tipo_precio) });
+      else if(sol.tipo==="pago_proveedor") fila({ tipo:"Pago Proveedor", cliente:(porId(cat.proveedor,d.proveedor_id)||{}).nombre||"", valor:Number(d.monto||0), pago:d.caja ? nombreCaja(d.caja) : "Por fuera" });
+      else if(sol.tipo==="pago_comision"){ var cm=porId(cat.comisionista,d.viaje_id)||{}; fila({ tipo:"Pago Comisión", cliente:(cm.extra||{}).comisionista||cm.nombre||"", viaje:cm.nombre||"", valor:Number(d.monto||0), pago:d.caja ? nombreCaja(d.caja) : "Por fuera" }); }
+      else if(sol.tipo==="prestamo") fila({ tipo:"Préstamo", cliente:nomCliPend(cat,d), producto:nomProdPend(cat,d), kilos:Number(d.kilos||0), detalle:(d.direccion==="DEBEMOS" ? "Me prestaron" : "Presté")+" · 📱 celular" });
+      else if(sol.tipo==="ingreso"){
+        var pv=porId(cat.proveedor,d.proveedor_id), nomPv=pv ? pv.nombre : d.proveedor_nuevo ? String(d.proveedor_nuevo.nombre||"").toUpperCase() : "";
+        var vj=d.viaje_id ? ((porId(cat.viaje,d.viaje_id)||{}).nombre||"") : (d.viaje_nuevo ? String(d.viaje_nuevo.referencia||"") : "");
+        (d.lineas||[]).forEach(function(l){ fila({ tipo:"Ingreso", cliente:nomPv, producto:nomProdPend(cat,l), kilos:Number(l.kilos||0),
+          precio:Number(l.precio||0).toLocaleString("es-CO",{maximumFractionDigits:2})+" "+abrevUnidad(l.unidad||"Arroba"), valor:valorCompra(l.kilos,l.precio,l.unidad), viaje:vj }); });
+      }
+    });
+    return nuevas.concat(out);
+  }
+
   function loadTrans(){
     var host=sec("trans"); host.innerHTML='<div class="loading">Cargando…</div>';
     var fecha=state.fecha;
-    base("transacciones").eq("fecha", fecha).order("momento",{ascending:false}).then(function(res){
+    Promise.all([
+      base("transacciones").eq("fecha", fecha).order("momento",{ascending:false}),
+      cargarPendientes(), cargarCatalogo().catch(function(){ return {}; })
+    ]).then(function(r){
       if(state.section!=="trans" || state.fecha!==fecha) return;
-      state.cache.trans=res.data||[];
+      state.cache.transCat=r[2]||{};
+      state.cache.trans=conPendientes((r[0] && r[0].data)||[], r[1], r[2]||{}, fecha);
       pintarTrans();
     });
   }
@@ -1100,6 +1249,8 @@
       +'<div class="tile"><div class="lab">📤 Gastos</div><div class="val num" style="color:#b91c1c">'+money(k.gastos)+'</div></div>'
       +(k.pagosCom?'<div class="tile"><div class="lab">💵 Pagos</div><div class="val num" style="color:#0f766e">'+money(k.pagosCom)+'</div></div>':'')
       +'</div>';
+    var nPend=todas.filter(function(r){ return r.pend; }).length;
+    if(nPend) h+='<div class="pend-aviso">⏳ <b>'+nPend+'</b> movimiento'+(nPend===1?'':'s')+' hecho'+(nPend===1?'':'s')+' desde el celular que el computador todavía no registra (con borde naranja). Ya cuentan en los totales; el PC los aplica cuando se prenda.</div>';
     // Filtros: tipo + buscar cliente
     var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Pago Proveedor","Devolución","Ingreso"];
     var plural={ "Todas":"Todas", "Devolución":"Devoluciones", "Pago Proveedor":"Pagos prov." };
@@ -1117,15 +1268,16 @@
       h+='<div class="card"><div class="tblwrap"><table class="ttx"><thead><tr><th>Hora</th><th>Producto</th><th>Kilos</th><th>Precio</th><th>Valor</th><th>Cliente</th><th>Pago</th><th>Desde</th><th>Tipo</th><th>Viaje</th></tr></thead><tbody>';
       filas.forEach(function(r){
         var delCel = r.tipo==="Venta" && String(r.detalle||"").indexOf("📱 celular")>=0;   // venta externa del celular
-        var cls = r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : delCel ? "cel" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
-                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.tipo==="Pago Proveedor" ? "ppv" : r.tipo==="Ingreso" ? "ing" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "";
+        var cls = (r.pend ? "pend " : "")+(r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : delCel ? "cel" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
+                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.tipo==="Pago Proveedor" ? "ppv" : r.tipo==="Ingreso" ? "ing" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "");
         var prod = r.producto || r.detalle || "";
         var vid = (r.tipo==="Venta" && r.estado!=="Anulada") ? ventaDeRef(r.ref) : null;
-        var pid = (r.tipo==="Pago Proveedor" && r.estado!=="Anulada" && esDueno()) ? pagoDeRef(r.ref) : null;   // el dueño lo corrige o anula
-        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+(pid?' vpp" data-p="'+pid:'')+'"><td>'+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(vid?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+(pid?' <span class="fbtn" aria-label="Corregir pago">✏️</span>':'')+'</td>'
+        var pid = (r.tipo==="Pago Proveedor" && r.estado!=="Anulada" && !r.pend && esDueno()) ? pagoDeRef(r.ref) : null;   // el dueño lo corrige o anula
+        var psol = (r.pend && r.sol && !r.pendCorr && !r.pendAnular && r.tipo==="Venta") ? r.sol.id : null;   // venta del celular aún sin registrar: su comprobante
+        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+(pid?' vpp" data-p="'+pid:'')+(psol?' vps" data-s="'+psol:'')+'"><td>'+(r.pend?'⏳ ':'')+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(r.pendAnular?' <span class="pend-tag">se anula</span>':r.pendCorr?' <span class="pend-tag">corregida</span>':'')+((vid||psol)?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+(pid?' <span class="fbtn" aria-label="Corregir pago">✏️</span>':'')+'</td>'
           +'<td>'+(Number(r.kilos)?kilos(r.kilos):'')+'</td><td>'+esc(r.precio||'')+'</td>'
           +'<td class="tv">'+(Number(r.valor)?money(r.valor):'')+'</td><td class="tc">'+esc(r.cliente)+'</td>'
-          +'<td>'+esc(r.pago)+'</td><td>'+(String(r.detalle||"").indexOf("📱 celular")>=0 ? "📱 Celular" : "💻 PC")+'</td><td class="tt">'+(delCel?'📱 ':'')+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
+          +'<td>'+esc(r.pago)+'</td><td>'+(r.pend ? "⏳ Sin sincronizar" : String(r.detalle||"").indexOf("📱 celular")>=0 ? "📱 Celular" : "💻 PC")+'</td><td class="tt">'+(delCel?'📱 ':'')+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
       });
       h+='</tbody></table></div></div>';
       h+='<p class="updated">'+filas.length+' de '+todas.length+' movimientos · desliza la tabla hacia los lados para ver todo · toca una venta (🧾) para su factura'+(esDueno()?' · toca un pago a proveedor (✏️) para corregirlo':'')+'</p>';
@@ -1133,6 +1285,9 @@
     host.innerHTML=h;
     Array.prototype.forEach.call(host.querySelectorAll("tr.vta"), function(tr){
       tr.onclick=function(){ var v=Number(tr.dataset.v); abrirFactura(v, todas.filter(function(x){ return x.tipo==="Venta" && ventaDeRef(x.ref)===v; })); };
+    });
+    Array.prototype.forEach.call(host.querySelectorAll("tr.vps"), function(tr){
+      tr.onclick=function(){ var id=Number(tr.dataset.s), r=todas.filter(function(x){ return x.pend && x.sol && Number(x.sol.id)===id; })[0]; if(r) abrirFacturaArmada(facDeVentaPend(r.sol, state.cache.transCat||{}, 0), { aviso:AVISO_PEND }); };
     });
     Array.prototype.forEach.call(host.querySelectorAll("tr.vpp"), function(tr){
       tr.onclick=function(){ var p=Number(tr.dataset.p); var r=todas.filter(function(x){ return x.tipo==="Pago Proveedor" && pagoDeRef(x.ref)===p; })[0]; if(r) abrirEditarPago(p, r); };
@@ -1352,9 +1507,20 @@
   // CARTERA
   function loadCartera(){
     var host=sec("cartera"); host.innerHTML='<div class="loading">Cargando…</div>';
-    base("cartera").then(function(res){
+    Promise.all([base("cartera"), cargarPendientes(), cargarCatalogo().catch(function(){ return {}; })]).then(function(rr){
       if(state.section!=="cartera") return;
-      var rows=(res.data||[]).slice();
+      var res=rr[0]||{}, catC=rr[2]||{}, ef=efectoClientes(rr[1], catC);
+      // Lo pendiente del celular ya cuenta en el saldo de cada cliente (_saldoNube = el que subió el PC).
+      var rows=(res.data||[]).map(function(r){
+        var x={}; Object.keys(r).forEach(function(k){ x[k]=r[k]; }); x._saldoNube=Number(r.saldo||0);
+        var e=ef[r.cliente_id]; if(e){ x.saldo=Number(r.saldo||0)+e.delta; x._pend=e.n; } return x;
+      });
+      Object.keys(ef).forEach(function(id){
+        if(rows.some(function(r){ return Number(r.cliente_id)===Number(id); })) return;
+        var c=porId(catC.cliente, id); if(!c) return;
+        var s0=Number((c.extra||{}).saldo||0);
+        rows.push({ cliente_id:Number(id), nombre:c.nombre, saldo:s0+ef[id].delta, _saldoNube:s0, _pend:ef[id].n, dias_sin_abono:null });
+      });
       rows.sort(function(a,b){ return Number(b.saldo)-Number(a.saldo); });
       var porCobrar=rows.filter(function(r){return Number(r.saldo)>0;}).reduce(function(s,r){return s+Number(r.saldo);},0);
       var mora=rows.filter(function(r){ return r.dias_sin_abono!=null && r.dias_sin_abono>21 && Number(r.saldo)>0; }).length;
@@ -1382,6 +1548,7 @@
           var pill= fav ? '<span class="pill good">a favor</span>'
             : (c.dias_sin_abono!=null ? '<span class="pill '+claseDias(c.dias_sin_abono)+'">'+c.dias_sin_abono+' d</span>' : '');
           var meta= fav ? "Saldo a favor" : (c.dias_sin_abono!=null ? ("Último abono: hace "+c.dias_sin_abono+" días") : "");
+          if(c._pend) meta='<span class="pend-tag">⏳ '+c._pend+' sin sincronizar</span> '+meta;
           b.innerHTML='<div class="main"><div class="name">'+esc(c.nombre)+'</div><div class="meta">'+meta+'</div></div>'
             +'<div class="stk">'+amt+pill+'</div><span class="chev">›</span>';
           b.addEventListener("click", function(){ verCliente(c); });
@@ -1417,10 +1584,13 @@
       return todo ? qy : qy.limit(MOVS_RAPIDO+1);
     }
     // Si la nube aún no tiene la columna venta_id (SQL nuevo sin correr), se carga igual sin el botón 🧾.
+    var pendCli=[], catCli={};
     consulta("ref,fecha,tipo,detalle,cargo,abono,venta_id,producto,kilos,factura,titulo").then(function(res){
       return res.error ? consulta("ref,fecha,tipo,detalle,cargo,abono,venta_id") : res;
     }).then(function(res){
       return res.error ? consulta("ref,fecha,tipo,detalle,cargo,abono") : res;
+    }).then(function(res){
+      return Promise.all([cargarPendientes(), cargarCatalogo().catch(function(){ return {}; })]).then(function(pc){ pendCli=pc[0]||[]; catCli=pc[1]||{}; return res; });
     }).then(function(res){
       if(state.section!=="cliente") return;
       if(res.error){ host.innerHTML=cab+'<div class="empty">No se pudo cargar: '+esc(res.error.message)+'</div>'; el("volver2").onclick=volver; return; }
@@ -1434,11 +1604,27 @@
         if(k>0) desc=desc.slice(0,k);
       }
       // Saldo después de cada movimiento, del más nuevo al más viejo, partiendo del saldo actual.
-      var s=Number(c.saldo||0);
+      // La historia se cuenta hacia atrás desde el saldo que subió el PC (sin lo pendiente del celular).
+      var s=Number(c._saldoNube!=null ? c._saldoNube : c.saldo||0);
       desc.forEach(function(m){ m._saldo=s; s-=Number(m.cargo)-Number(m.abono); });
+      // ⏳ Lo hecho desde el celular que el PC aún no registra: tarjetas arriba, y la venta corregida/anulada marcada.
+      var efC=efectoClientes(pendCli, catCli)[c.cliente_id]||{movs:[]}, enCamino={};
+      pendCli.forEach(function(x){ if(x.tipo==="corregir_venta" || x.tipo==="anular_venta") enCamino[Number(datosPend(x).venta_id)]=x; });
+      var pendHtml="";
+      efC.movs.slice().reverse().forEach(function(mv){
+        var f=new Date(mv.fecha).toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"numeric"}), tit, sub="";
+        if(mv.tipo==="venta"){ tit="🧾 Venta del celular"; sub='<div class="eci-sub">'+esc((mv.d.lineas||[]).map(function(l){ return nomProdPend(catCli,l)+" "+kilos(l.kilos)+" kg"; }).join(", "))+'</div>'; }
+        else if(mv.tipo==="abono") tit="💰 Abono <span class=\"eci-det\">· "+esc(nombreCaja(mv.d.caja||"Efectivo"))+(mv.d.nota?" · "+esc(mv.d.nota):"")+"</span>";
+        else tit="↩️ Devolución <span class=\"eci-det\">· "+esc(nomProdPend(catCli, mv.d))+" "+kilos(mv.d.kilos)+" kg</span>";
+        var val = mv.tipo==="venta" ? '<div class="eci-val c-cargo">+'+money(mv.valor)+'</div>' : '<div class="eci-val c-abono">−'+money(mv.valor)+'</div>';
+        pendHtml+='<div class="eci pendc'+(mv.tipo==="venta"?' vps" data-s="'+mv.sol.id:'')+'"><div class="eci-izq"><div class="eci-tit">'+tit+' <span class="pend-tag">⏳ sin sincronizar</span></div><div class="eci-sub">'+f+'</div>'+sub+'</div>'
+          +'<div class="eci-der">'+val+'</div></div>';
+      });
+      var nCamino=Object.keys(enCamino).filter(function(v){ return desc.some(function(m){ return Number(m.venta_id)===Number(v); }); }).length;
+      if(efC.movs.length || nCamino) cab+='<div class="pend-aviso">⏳ "Debe actualmente" ya incluye lo hecho desde el celular que el computador todavía no registra.</div>';
       var saldoAnterior=s, movs=desc.slice().reverse();
       var h=cab;
-      if(!movs.length){ h+='<div class="empty">Sin movimientos registrados.</div>'; host.innerHTML=h; el("volver2").onclick=volver; return; }
+      if(!movs.length && !pendHtml){ h+='<div class="empty">Sin movimientos registrados.</div>'; host.innerHTML=h; el("volver2").onclick=volver; return; }
       // Lo más reciente ARRIBA (pedido del dueño): se recorre del más nuevo al más viejo; el saldo de
       // cada fila es el que quedó después de ese movimiento, y el "Saldo anterior" va al final.
       // UNA fila por FACTURA (pedido del dueño: renglón por renglón se veía desordenado): número de
@@ -1460,6 +1646,8 @@
         var esVenta=g.venta_id!=null, tit, sub="";
         if(esVenta){
           tit=(m.factura ? "🧾 Factura "+esc(m.factura) : "🧾 Venta #"+g.venta_id);
+          var ec=enCamino[Number(g.venta_id)];
+          if(ec) tit+=' <span class="pend-tag">⏳ '+(ec.tipo==="anular_venta" ? "se anula" : "corregida: "+money(totalLineas(datosPend(ec).lineas)))+'</span>';
           var prods = g.items.map(function(x){ return x.producto ? x.producto+(Number(x.kilos)?" "+kilos(x.kilos)+" kg":"") : String(x.detalle||"").replace(/^Fact #\S+ · /,""); });
           sub=(m.titulo?'<div class="eci-sub">📝 '+esc(m.titulo)+'</div>':'')
             +'<div class="eci-sub">'+esc(prods.length>3 ? prods.slice(0,3).join(", ")+" y "+(prods.length-3)+" más" : prods.join(", "))+'</div>';
@@ -1471,12 +1659,15 @@
           +'<div class="eci-der">'+val+'<div class="eci-saldo">Saldo '+money(g.saldo)+'</div></div></div>';
       });
       if(hayMas) filas+='<div class="eci"><div class="eci-izq"><div class="eci-tit">◂ Saldo anterior</div></div><div class="eci-der"><div class="eci-val">'+money(saldoAnterior)+'</div></div></div>';
-      h+='<div class="card ecl">'+filas+'</div>';
+      h+='<div class="card ecl">'+pendHtml+filas+'</div>';
       h+='<p class="updated">Toca una factura para ver sus productos, descargarla o compartirla'+(hayMas?' · mostrando lo más reciente':'')+'</p>';
       if(hayMas) h+='<div style="text-align:center;margin-top:10px"><button class="xls" id="verTodo">Ver todo el historial</button></div>';
       host.innerHTML=h; el("volver2").onclick=volver;
       if(hayMas) el("verTodo").onclick=function(){ verCliente(c, true); };
       Array.prototype.forEach.call(host.querySelectorAll(".eci.vta"), function(d){ d.onclick=function(){ abrirFactura(Number(d.dataset.v), null); }; });
+      Array.prototype.forEach.call(host.querySelectorAll(".eci.vps"), function(d){
+        d.onclick=function(){ var x=pendCli.filter(function(p){ return Number(p.id)===Number(d.dataset.s); })[0]; if(x) abrirFacturaArmada(facDeVentaPend(x, catCli, efC.delta), { aviso:AVISO_PEND }); };
+      });
       state.cache.cliente={c:c, movs:movs, saldoAnterior: hayMas?saldoAnterior:null};
     });
   }
@@ -1543,14 +1734,16 @@
     function cerrar(){ ov.remove(); document.removeEventListener("keydown", teclas); }
     document.addEventListener("keydown", teclas);
     ov.addEventListener("click", function(e){ if(e.target===ov) cerrar(); });
-    var neg=state.negocioId;
+    var neg=state.negocioId, catFac={}, pendFac=[];
     Promise.all([
       cargarEmpresa(),
       sb.from("cliente_movimiento").select("cliente_id,fecha,producto,kilos,precio,cargo,factura,titulo")
         .eq("negocio_id", neg).eq("venta_id", ventaId),
-      cargarCatalogo().catch(function(){ return {cliente:[], config:[]}; })
+      cargarCatalogo().catch(function(){ return {cliente:[], config:[]}; }),
+      cargarPendientes()
     ]).then(function(r){
       var emp=r[0], lin=(r[1] && r[1].data) || [], cat=r[2] || {};
+      catFac=cat; pendFac=r[3]||[];
       // Datos de la factura del PC (pie, saldo destacado) y los del cliente (cédula, dirección…).
       var cfg=((cat.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
       emp.pie=cfg.pie; emp.saldo_destacado=!!cfg.saldo_destacado;
@@ -1596,6 +1789,10 @@
     }).then(function(par){
       if(!document.body.contains(ov)) return;
       if(!par[0]){ ov.innerHTML='<div class="fac-msg">No encontré esa venta en la nube.<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar; return; }
+      // ⏳ Corregida o anulada desde un celular y el PC aún no lo registra: se ve ya como quedará.
+      var sp=pendienteDeVenta(pendFac, ventaId);
+      if(sp && sp.tipo==="corregir_venta"){ mostrarFactura(ov, facConCorreccion(par[0], datosPend(sp), catFac), par[1], cerrar, { aviso:"⏳ Factura CORREGIDA desde el celular: el computador todavía no la registra (lo hace cuando se prenda y sincronice). Ya la puedes imprimir o enviar así." }); return; }
+      if(sp && sp.tipo==="anular_venta"){ mostrarFactura(ov, par[0], par[1], cerrar, { aviso:"🚫⏳ Esta venta se ANULA desde el celular: el computador la anula cuando se prenda y sincronice." }); return; }
       mostrarFactura(ov, par[0], par[1], cerrar, { editable:true });
     }).catch(function(e){
       ov.innerHTML='<div class="fac-msg">No se pudo armar la factura: '+esc(e && e.message || e)+'<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar;
@@ -2092,7 +2289,7 @@
         if(res.error){ say(/row-level security|policy/i.test(res.error.message) ? "La nube todavía no acepta crear "+tipo+"s desde el celular (falta actualizar el servidor)." : "No se pudo enviar: "+res.error.message); return; }
         cerrar();
         say("➕ "+(esCli?"Cliente":"Producto")+" "+nom+": el computador lo crea en unos minutos.");
-        delete state.cache["cat_"+state.negocioId];
+        delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
         if(inp){
           inp.value=nom; inp._acPoniendo=true;
           inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true}));
@@ -2123,7 +2320,7 @@
       if(res.error) throw new Error(/row-level security|policy/i.test(res.error.message)
         ? (esDueno() ? "La nube todavía no acepta esto desde el celular (falta actualizar el servidor)." : "Esto solo lo puede hacer la cuenta del dueño.")
         : "No se pudo enviar: "+res.error.message);
-      delete state.cache["cat_"+state.negocioId];
+      delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
       return res;
     });
   }
@@ -2363,7 +2560,7 @@
   // ----- 💼 COMISIONISTAS: lo que se le debe a cada uno (como Cartera → Comisionistas del programa) -----
   function loadComisionistas(){
     var host=sec("prov"); host.innerHTML=tabsProv()+'<div class="loading">Cargando…</div>';
-    delete state.cache["cat_"+state.negocioId];
+    delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
     cargarCatalogo().then(function(cat){
       if(state.section!=="prov" || state.provTab!=="comis") return;
       var rows=(cat.comisionista||[]).slice().sort(function(a,b){ return Number((b.extra||{}).pendiente||0)-Number((a.extra||{}).pendiente||0); });
@@ -2393,7 +2590,7 @@
   // usuario del PC. El dueño ve a todos; los demás solo lo suyo.
   function loadArqueo(){
     var host=sec("arqueo"); host.innerHTML='<div class="loading">Cargando…</div>';
-    delete state.cache["cat_"+state.negocioId];
+    delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
     Promise.all([cargarCatalogo(), sb.auth.getSession()]).then(function(res){
       if(state.section!=="arqueo") return;
       var cat=res[0], ss=res[1];
@@ -2501,8 +2698,11 @@
     if(!esDueno()){ say("Solo la cuenta del dueño puede anular ventas."); return; }
     var quien = fac.cliente && fac.cliente!=="CONTADO" ? fac.cliente : "contado";
     if(!confirm("¿ANULAR la venta #"+fac.ventaId+" ("+quien+", "+money(fac.total)+")?\n\nEl computador la anula en unos minutos: devuelve el inventario y saca la plata de la caja o de la cartera. No se puede deshacer.")) return;
-    enviarSolicitud("anular_venta", "Anular venta #"+fac.ventaId+" · "+quien+" · "+money(fac.total)+" (desde el celular)", { venta_id:Number(fac.ventaId) }).then(function(){
+    var cat0=state.cache["cat_"+state.negocioId]||{};
+    enviarSolicitud("anular_venta", "Anular venta #"+fac.ventaId+" · "+quien+" · "+money(fac.total)+" (desde el celular)",
+      { venta_id:Number(fac.ventaId), total_antes:Number(fac.total||0), cliente_antes_id:idClienteDeFac(fac, cat0.cliente) }).then(function(){
       say("🚫 Venta #"+fac.ventaId+": el computador la anula en unos minutos."); if(alTerminar) alTerminar();
+      if(state.section==="trans") loadTrans();
     }, function(e){ say(e.message); });
   }
   function abrirCorregirFactura(fac, alTerminar){
@@ -2600,28 +2800,15 @@
         var resumen="Corregir venta #"+fac.ventaId+": "+(c?c.nombre+" (crédito)":"contado"+(caja?" · "+nombreCaja(caja):""))+" · "+resL.join(" + ")+" = "+money(tot)+" (antes "+money(fac.total)+")";
         if(!confirm("¿Guardar la corrección?\n\n"+resumen)) return;
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
-        enviarSolicitud("corregir_venta", resumen, { venta_id:Number(fac.ventaId), cliente_id: c ? Number(c.id) : 0, caja:caja, detalle:el("eTit").value.trim(), lineas:items }).then(function(){
+        var datosEnv={ venta_id:Number(fac.ventaId), cliente_id: c ? Number(c.id) : 0, caja:caja, detalle:el("eTit").value.trim(), lineas:items,
+          total_antes:Number(fac.total||0), cliente_antes_id:idClienteDeFac(fac, clientes) };
+        enviarSolicitud("corregir_venta", resumen, datosEnv).then(function(){
           // 1.4.31: la factura CORREGIDA se ve, imprime y envía ya, sin esperar a que el computador sincronice
           // (misma factura y número; el PC la aplica igual cuando se prenda).
-          var ABRV={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un","x Libra":"lb"}, nueva=JSON.parse(JSON.stringify(fac));
-          nueva.fecha=fac.fecha; nueva.lineas=[];
-          Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-            var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
-            if(!nom || !(k>0)) return;
-            var p=porNombre(nom);
-            nueva.lineas.push({ producto: p ? p.nombre : nom.toUpperCase(), kilos:k, precio: pr.toLocaleString("es-CO",{maximumFractionDigits:2})+" "+(ABRV[tp]||"@"), valor: subtotalVenta(k,pr,tp) });
-          });
-          nueva.total=tot;
-          var mismoCli = c && fac.cliente && String(c.nombre).toUpperCase()===String(fac.cliente).toUpperCase();
-          nueva.cliente = c ? c.nombre : "CONTADO";
-          nueva.pago = c ? "Crédito" : nombreCaja(caja||"Efectivo");
-          if(c){ var dc={ nombre:c.nombre }; Object.keys(c.extra||{}).forEach(function(k){ dc[k]=c.extra[k]; }); nueva.datosCliente=dc; } else nueva.datosCliente=null;
-          // Saldo: el de esa venta corrido por la diferencia (mismo cliente); con otro cliente, el que tiene hoy + esta venta.
-          if(c && mismoCli && fac.saldo) nueva.saldo={ antes: fac.saldo.antes, despues: fac.saldo.antes + tot };
-          else if(c){ var sh=Number((c.extra||{}).saldo||0); nueva.saldo={ antes: sh, despues: sh + tot }; }
-          else delete nueva.saldo;
+          var nueva=facConCorreccion(fac, datosEnv, cat);
           o.cerrar(); if(alTerminar) alTerminar();
-          abrirFacturaArmada(nueva, { aviso:"⏳ Corrección enviada. Esta es la factura corregida: ya la puedes imprimir o enviar. El computador la aplica cuando se prenda (Transacciones y la cartera cambian ahí)." });
+          if(state.section==="trans") loadTrans();
+          abrirFacturaArmada(nueva, { aviso:"⏳ Corrección enviada. Esta es la factura corregida: ya la puedes imprimir o enviar. El computador la aplica cuando se prenda; mientras tanto el celular ya la muestra así (⏳) en Transacciones, la cartera y el estado de cuenta." });
         }, function(e){ btn.disabled=false; btn.textContent="📨 Guardar corrección"; say(e.message); });
       };
     });
@@ -2635,7 +2822,8 @@
     var o=abrirOverlay(), ov=o.ov, cerrar=o.cerrar;
     ov.classList.add("con-hoja");
     ov.innerHTML='<div class="hoja"><div class="fac-msg" style="color:#334155">Cargando clientes…</div></div>';
-    cargarCatalogo().then(function(cat){
+    Promise.all([cargarCatalogo(), cargarPendientes()]).then(function(rr){
+      var cat=rr[0], efA=efectoClientes(rr[1], cat);
       if(!document.body.contains(ov)) return;
       var clientes=cat.cliente||[], elegido=null, caja=CAJAS[0][0];
       var cfgF=((cat.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
@@ -2660,7 +2848,8 @@
         +'<p class="hoja-pie">El computador lo registra en unos minutos: baja lo que debe el cliente y entra a la caja elegida.</p>'
         +'</div>';
       el("aX").onclick=cerrar;
-      function saldo(){ return elegido && elegido.extra ? Number(elegido.extra.saldo||0) : 0; }
+      // Lo que debe = lo que subió el PC + lo hecho desde el celular que el PC aún no registra (⏳).
+      function saldo(){ return elegido && elegido.extra ? Number(elegido.extra.saldo||0) + ((efA[Number(elegido.id)]||{}).delta||0) : 0; }
       function monto(){ return leerPlata(el("aMonto").value); }
       function pintar(){
         var m=monto(), s=saldo();
@@ -2682,6 +2871,7 @@
         el("aBuscar").hidden=true; el("aTarjeta").hidden=false;
         el("aTarjeta").innerHTML='<div class="ct-nom">'+(x.codigo?'<span class="ct-cod">'+esc(x.codigo)+'</span>':'')+esc(c.nombre)+'</div>'
           +(c.sinCatalogo ? '<div class="ct-saldo"><span>Saldo</span><b>lo calcula el PC</b></div>' : '<div class="ct-saldo"><span>'+(s<0?"Saldo a favor":"Debe hoy")+'</span><b>'+money(Math.abs(s))+'</b></div>')
+          +(efA[Number(c.id)] ? '<div class="queda">⏳ Incluye cambios del celular que el computador todavía no registra.</div>' : '')
           +'<button type="button" class="ct-cambiar" id="aCambiar">Cambiar</button>';
         el("aCambiar").onclick=function(){ elegido=null; el("aTarjeta").hidden=true; el("aBuscar").hidden=false; el("aCli").value=""; el("aCli").focus(); pintar(); };
         pintar();
@@ -2723,7 +2913,7 @@
             say(/row-level security|policy/i.test(res.error.message) ? "La nube todavía no acepta abonos desde el celular (falta actualizar el servidor)." : "No se pudo enviar: "+res.error.message);
             return;
           }
-          delete state.cache["cat_"+state.negocioId];
+          delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
           var queda=s-m;
           ov.querySelector(".hoja").innerHTML='<div class="hoja-cab"><b>✅ Abono enviado</b><button class="hoja-x" id="aX2" aria-label="Cerrar">✕</button></div>'
             +'<div class="hecho"><div class="hecho-monto">'+money(m)+'</div><div>'+esc(c.nombre)+' · '+esc(nombreCaja(caja))+'</div>'
@@ -3217,7 +3407,7 @@
         if(res.error){ say("No se pudo enviar: "+res.error.message); return; }
         say("📨 Enviado. El computador lo registra en unos minutos.");
         // El proveedor/viaje nuevo aparecerá en las listas cuando el computador lo cree y sincronice.
-        delete state.cache["cat_"+state.negocioId];
+        delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
         loadIngreso();
       });
     };
@@ -3344,7 +3534,13 @@
     el("vSal").onchange=function(){ try{ localStorage.setItem("pf_vext_sal", this.checked?"1":"0"); }catch(e){} };
     cli.addEventListener("input", verCliente); cli.addEventListener("change", verCliente); verCliente();
     el("vCaja").addEventListener("change", pintarMixto);
-    el("vMixResto").addEventListener("change", pintarMixto);
+    // Al cambiar cuál se completa sola, la que se completaba queda en blanco (si no, su valor viejo se sumaba
+    // a las demás y salía "se pasa del total"). Mismo arreglo que el cuadro del PC (1.4.34).
+    var restoAnterior=cajaResto();
+    el("vMixResto").addEventListener("change", function(){
+      var vieja=document.querySelector('.vMix[data-c="'+restoAnterior+'"]'); if(vieja) vieja.value="";
+      restoAnterior=cajaResto(); pintarMixto();
+    });
     Array.prototype.forEach.call(document.querySelectorAll(".vMix"), function(i){ i.addEventListener("input", pintarMixto); });
 
     el("vEnviar").onclick=function(){
@@ -3400,7 +3596,7 @@
           return;
         }
         say("📨 Venta enviada. El computador la registra en unos minutos.");
-        delete state.cache["cat_"+state.negocioId];
+        delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
         loadVentaExterna();
         // Tiquete para imprimir ya mismo con la impresora del celular (aún sin número: el PC se lo pone).
         var saldoCli = c && c.extra ? Number(c.extra.saldo||0) : 0;
@@ -3430,7 +3626,7 @@
   }
   function loadUsuarios(){
     var host=sec("usuarios"); host.innerHTML='<div class="loading">Cargando…</div>';
-    delete state.cache["cat_"+state.negocioId];   // siempre fresco: lo que cambió el computador
+    delete state.cache["cat_"+state.negocioId]; olvidarPendientes();   // siempre fresco: lo que cambió el computador
     Promise.all([
       cargarCatalogo(),
       sb.from("solicitud_movil").select("id,creado,resumen,estado,error,datos").eq("negocio_id", state.negocioId).eq("tipo","usuario").order("id",{ascending:false}).limit(15)
@@ -3892,7 +4088,7 @@
           return;
         }
         say("📨 Préstamo enviado. El computador lo registra en unos minutos.");
-        delete state.cache["cat_"+state.negocioId];
+        delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
         loadPrestamos();
       });
     };
