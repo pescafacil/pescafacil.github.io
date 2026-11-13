@@ -3057,11 +3057,14 @@
       +'</div></div>'
       +'<label for="iFecha">Fecha de la factura (si no es de hoy)</label><input id="iFecha" type="date" value="'+isoToday()+'" max="'+isoToday()+'">'
       +'<label for="iNota">Nota (opcional)</label><input id="iNota" maxlength="120" placeholder="Ej: factura 1234, llegó a las 5 a. m.">'
+      +'<div id="iIvaBox"><label>IVA de la factura (opcional: se suma a lo que se le debe)</label>'
+      +'<div style="display:flex;gap:8px;align-items:center"><input id="iIvaPct" type="text" inputmode="decimal" autocomplete="off" placeholder="%" style="width:80px"><span>%</span>'
+      +'<input id="iIvaVal" type="text" inputmode="numeric" autocomplete="off" placeholder="o el valor en pesos" style="flex:1"></div></div>'
       +'<div id="iRetBox"><label>Retención en la fuente (opcional: se le descuenta al proveedor)</label>'
       +'<div style="display:flex;gap:8px;align-items:center"><input id="iRetPct" type="text" inputmode="decimal" autocomplete="off" placeholder="%" style="width:80px"><span>%</span>'
       +'<input id="iRetVal" type="text" inputmode="numeric" autocomplete="off" placeholder="o el valor en pesos" style="flex:1"></div></div>'
       +'<div class="total-row" style="margin:14px -14px 0"><span>Total de la factura</span><span class="big num" id="iTotal">$0</span></div>'
-      +'<div class="total-row" id="iNetoFila" style="margin:0 -14px -14px" hidden><span>A pagar (sin la retención)</span><span class="big num" id="iNeto">$0</span></div>'
+      +'<div class="total-row" id="iNetoFila" style="margin:0 -14px -14px" hidden><span>A pagar (+ IVA − retención)</span><span class="big num" id="iNeto">$0</span></div>'
       +'</div></div>'
       +'<button class="btn" id="iEnviar" style="margin-top:12px">📨 Enviar al sistema</button>'
       +'<p class="updated">El computador lo registra solo en unos minutos (tiene que estar prendido y con internet). Sube el inventario y la cuenta del proveedor, o sale de la caja y va al cierre.</p>';
@@ -3076,7 +3079,8 @@
     function porNombre(t){ return buscarPorNombre(cat.producto, t); }
     // Unidad de la línea: la del selector POR (arranca con la del producto; si se cambia, queda como la del producto).
     function unidadLinea(row){ return row.querySelector(".u").value; }
-    var retPorPct=false, totalIng=0;
+    var retPorPct=false, ivaPorPct=false, totalIng=0;
+    function ivaIng(){ var v=leerNum(el("iIvaVal").value); return el("iIvaBox").hidden ? 0 : Math.round(v); }
     function retencion(){ var v=leerNum(el("iRetVal").value); return el("iRetBox").hidden ? 0 : Math.round(v); }
     function total(){
       var tot=0;
@@ -3087,10 +3091,11 @@
       });
       totalIng=tot;
       if(retPorPct){ var pc=leerNum(el("iRetPct").value); el("iRetVal").value = pc ? String(Math.round(tot*pc/100)) : ""; }
-      var r=retencion();
+      if(ivaPorPct){ var pi=leerNum(el("iIvaPct").value); el("iIvaVal").value = pi ? String(Math.round(tot*pi/100)) : ""; }
+      var r=retencion(), iv=ivaIng();
       el("iTotal").textContent=money(tot);
-      el("iNetoFila").hidden = !(r>0);
-      el("iNeto").textContent=money(tot-r);
+      el("iNetoFila").hidden = !(r>0 || iv>0);
+      el("iNeto").textContent=money(tot+iv-r);
     }
     function agregar(){
       var row=document.createElement("div"); row.className="ilin";
@@ -3123,8 +3128,11 @@
       el("iViajeNuevoBox").hidden = viajeSel.value!=="__nuevo";
       el("iFormaBox").hidden = !prov.value || esComision();
       el("iRetBox").hidden = !prov.value || esComision();
+      el("iIvaBox").hidden = !prov.value || esComision();
       total();
     }
+    el("iIvaPct").addEventListener("input", function(){ ivaPorPct = !!leerNum(this.value); total(); });
+    el("iIvaVal").addEventListener("input", function(){ ivaPorPct=false; var v=leerNum(this.value); el("iIvaPct").value = v && totalIng ? String(Math.round(v*10000/totalIng)/100).replace(".",",") : ""; total(); });
     el("iRetPct").addEventListener("input", function(){ retPorPct = !!leerNum(this.value); total(); });
     el("iRetVal").addEventListener("input", function(){ retPorPct=false; var v=leerNum(this.value); el("iRetPct").value = v && totalIng ? String(Math.round(v*10000/totalIng)/100).replace(".",",") : ""; total(); });
     // Viaje de COMPRA con proveedor y no hay proveedor elegido: se pone el del viaje (así la compra se le carga a él).
@@ -3185,9 +3193,9 @@
       var viajeNom = viajeNuevo ? viajeRefNuevo+(comi?" (nuevo, comisión)":" (nuevo)") : el("iViaje").options[el("iViaje").selectedIndex].text;
       var formaTxt = comi ? "viaje de comisión (sin cargo a la cuenta)" : !prov.value ? "solo inventario" : forma==="credito" ? "a crédito" : forma==="contado" ? "de contado ("+nombreCaja(caja)+")" : "pagado por fuera de caja";
       var fechaIng = el("iFecha").value || isoToday();
-      var ret = prov.value && !comi ? retencion() : 0;
+      var ret = prov.value && !comi ? retencion() : 0, ivaE = prov.value && !comi ? ivaIng() : 0;
       if(ret>tot){ say("La retención no puede ser mayor que el total."); return; }
-      var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+(ret?" − retención "+money(ret)+" = "+money(tot-ret):"")+" · "+formaTxt+" · viaje "+viajeNom
+      var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+(ivaE?" + IVA "+money(ivaE):"")+(ret?" − retención "+money(ret):"")+(ivaE||ret?" = "+money(tot+ivaE-ret):"")+" · "+formaTxt+" · viaje "+viajeNom
         +(fechaIng!==isoToday()?" · fecha "+fechaCorta(fechaIng):"")+(el("iNota").value?" · "+el("iNota").value:"");
       if(!confirm("¿Enviar este ingreso al sistema?\n\n"+resumen)) return;
       btn.disabled=true; btn.textContent="Enviando…";
@@ -3201,7 +3209,8 @@
             proveedor_id: prov.value && !provNuevo ? Number(prov.value) : null,
             proveedor_nuevo: provNuevo ? { nombre:provNombreNuevo, telefono:el("iProvTel").value.trim() } : null,
             forma:forma||"", caja:caja, lineas:items, nota:el("iNota").value||"", fecha:fechaIng,
-            retencion: ret, retencion_pct: ret ? leerNum(el("iRetPct").value) : 0 }
+            retencion: ret, retencion_pct: ret ? leerNum(el("iRetPct").value) : 0,
+            iva: ivaE, iva_pct: ivaE ? leerNum(el("iIvaPct").value) : 0 }
         });
       }).then(function(res){
         btn.disabled=false; btn.textContent="📨 Enviar al sistema";
