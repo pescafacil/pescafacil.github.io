@@ -349,6 +349,9 @@
   .eci.pendc{background:#fffbeb}
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .eci.pendc{background:#3a2e10} :root:not([data-theme="light"]) .pend-aviso{background:#3a2e10; color:#fcd34d; border-color:#92400e} }
   :root[data-theme="dark"] .eci.pendc{background:#3a2e10} :root[data-theme="dark"] .pend-aviso{background:#3a2e10; color:#fcd34d; border-color:#92400e}
+  /* Cruce de cuentas (1.4.38): abono al cliente + pago al proveedor sin plata */
+  table.ttx tbody tr.cru{background:#fef3c7} table.ttx tbody tr.cru td.tv,table.ttx tbody tr.cru td.tt{color:#92400e}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) table.ttx tbody tr.cru td{color:#15242e} }
   /* Venta externa registrada desde el celular: celeste (igual que en Transacciones del programa) */
   table.ttx tbody tr.cel{background:#a5f3fc} table.ttx tbody tr.cel td.tv,table.ttx tbody tr.cel td.tt{color:#0e7490}
   /* Ingreso de mercancía (entra al viaje; no es plata del día): gris pizarra, como en el programa */
@@ -1252,7 +1255,7 @@
     var nPend=todas.filter(function(r){ return r.pend; }).length;
     if(nPend) h+='<div class="pend-aviso">⏳ <b>'+nPend+'</b> movimiento'+(nPend===1?'':'s')+' hecho'+(nPend===1?'':'s')+' desde el celular que el computador todavía no registra (con borde naranja). Ya cuentan en los totales; el PC los aplica cuando se prenda.</div>';
     // Filtros: tipo + buscar cliente
-    var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Pago Proveedor","Devolución","Ingreso"];
+    var tipos=["Todas","Venta","Abono","Préstamo","Gasto","Pago Proveedor","Cruce","Devolución","Ingreso"];
     var plural={ "Todas":"Todas", "Devolución":"Devoluciones", "Pago Proveedor":"Pagos prov." };
     h+='<div class="tfil">'+tipos.map(function(t){ return '<button class="tchip'+(state.transTipo===t?' on':'')+'" data-tt="'+t+'">'+(plural[t]||t+"s")+'</button>'; }).join("")+'</div>';
     h+='<input class="tbus" id="tBus" type="search" placeholder="🔎 Buscar cliente o producto…" value="'+esc(state.transBuscar)+'">';
@@ -1269,7 +1272,7 @@
       filas.forEach(function(r){
         var delCel = r.tipo==="Venta" && String(r.detalle||"").indexOf("📱 celular")>=0;   // venta externa del celular
         var cls = (r.pend ? "pend " : "")+(r.estado==="Anulada" ? "anul" : r.marcada ? "marc" : delCel ? "cel" : r.tipo==="Abono" ? "abo" : r.tipo==="Préstamo" ? "pre"
-                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.tipo==="Pago Proveedor" ? "ppv" : r.tipo==="Ingreso" ? "ing" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "");
+                : r.tipo==="Gasto" ? "gas" : r.tipo==="Pago Comisión" ? "com" : r.tipo==="Pago Proveedor" ? "ppv" : r.tipo==="Cruce" ? "cru" : r.tipo==="Ingreso" ? "ing" : r.pago==="Crédito" ? "cre" : r.tipo==="Venta" ? "con" : "");
         var prod = r.producto || r.detalle || "";
         var vid = (r.tipo==="Venta" && r.estado!=="Anulada") ? ventaDeRef(r.ref) : null;
         var pid = (r.tipo==="Pago Proveedor" && r.estado!=="Anulada" && !r.pend && esDueno()) ? pagoDeRef(r.ref) : null;   // el dueño lo corrige o anula
