@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.32",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.32/PescaFacil-Actualizacion-1.4.32.exe",
-    "sha256":  "a6062fa4234962e23a8358a32a694fe09cef44939e0dfd7816161845959ca51a",
-    "notas":  "Venta diaria e Inventario: al cambiar el costo se elige la unidad; Inventario con precio de venta sugerido (compra + margen); botones y filtros de Transacciones y Cierre de caja completos, sin montarse",
+    "version":  "1.4.33",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.33/PescaFacil-Actualizacion-1.4.33.exe",
+    "sha256":  "abfd80da7f63159b5d0ca799299b92af2f612441548b58880f8167d023e41705",
+    "notas":  "IVA en el ingreso (se suma; la retención se resta); Inventario con buscador y movimientos de cada producto (ingresos, ventas, devoluciones); devuelto en el mes en el Cierre de mes; precio automático con el sugerido del inventario; devolución por código o nombre, más rápida",
     "fecha":  "2026-11-12"
 }
