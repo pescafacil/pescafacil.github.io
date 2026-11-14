@@ -3185,7 +3185,15 @@
   function unidadDeTipo(tp){ return tp==="x Kilo"?"Kilo": tp==="x Caja"?"Caja": tp==="x Unidad"?"Unidad": tp==="x Libra"?"Libra":"Arroba"; }
   function tipoDeUnidad(u){ return u==="Kilo"?"x Kilo": u==="Caja"?"x Caja": u==="Unidad"?"x Unidad": u==="Libra"?"x Libra":"x Arroba"; }
   // Precio que se pone solo (el predeterminado del PC; por libra el suyo o la mitad, como en el PC).
-  function precioSugerido(p,tp){ var x=(p&&p.extra)||{}; return Number(tp==="x Libra" ? x.precio_libra : x.precio_venta)||0; }
+  // 1.4.40: el PC manda el precio de venta en SU unidad (tipo_venta); en otra unidad de peso se convierte (kilo → libra ÷ 2…).
+  function precioSugerido(p,tp){
+    var x=(p&&p.extra)||{};
+    if(tp==="x Libra" && Number(x.precio_libra)) return Number(x.precio_libra);
+    var pv=Number(x.precio_venta)||0, suya=x.tipo_venta;
+    if(!suya || tp===suya || !pv) return tp==="x Libra" ? (Number(x.precio_libra)||0) : pv;
+    var kg={"x Arroba":12.5,"x Kilo":1,"x Libra":0.5}, a=kg[suya], b=kg[tp];
+    return a && b ? Math.round(pv/a*b*100)/100 : pv;
+  }
   // Elegir producto: tipo de precio de su unidad y, si la casilla está vacía, su precio.
   function ponerProducto(selT, inP, p){
     if(!p) return;
@@ -3424,7 +3432,7 @@
   function tiposPrecio(){ return primeroPred(esPesca() ? [["x Arroba","@"],["x Kilo","kg"],["x Unidad","und"],["x Caja","caja"],["x Libra","lb"]]
                                            : [["x Kilo","kg"],["x Libra","lb"],["x Unidad","und"],["x Caja","caja"],["x Arroba","@"]], TIPO_PRED, true); }
   function subtotalVenta(kg,precio,tipo){ return Number(kg||0)*Number(precio||0)*1000/(tipo==="x Arroba"?12.5: tipo==="x Libra"?0.5:1); }
-  function tipoPrecioDe(p){ return tipoDeUnidad(unidadDe(p)); }
+  function tipoPrecioDe(p){ return (p && p.extra && p.extra.tipo_venta) || tipoDeUnidad(unidadDe(p)); }   // la unidad de venta del producto (1.4.40)
   function loadVentaExterna(){
     var host=sec("vext"); host.innerHTML='<div class="loading">Cargando…</div>';
     Promise.all([
@@ -3841,7 +3849,7 @@
   }
   // Auditoría que se entiende (igual que el programa, CambiosAuditoria): nombre claro de la acción y,
   // de cada corrección, solo lo que cambió: "MOJARRA kilos: 10 kg → 12 kg", un renglón por campo.
-  var NOMBRES_ACCION={VENTA:"🧾 Venta",EDITAR_VENTA:"✏️ Corrigió una venta",ANULAR_VENTA:"🚫 Anuló una venta",
+  var NOMBRES_ACCION={VENTA:"🧾 Venta",EDITAR_VENTA:"✏️ Corrigió una venta",ANULAR_VENTA:"🚫 Anuló una venta",REVERTIR_ANULACION:"↩️ Revirtió una anulación",
     ABONO:"💰 Abono",EDITAR_ABONO:"✏️ Corrigió un abono",ANULAR_ABONO:"🚫 Anuló un abono",
     PAGO:"💵 Pago a proveedor",EDITAR_PAGO:"✏️ Corrigió un pago a proveedor",ANULAR_PAGO:"🚫 Anuló un pago a proveedor",
     EGRESO:"📤 Gasto / salida",INGRESO:"📥 Entrada de plata",EDITAR_MOVIMIENTO:"✏️ Corrigió un gasto",ANULAR_MOVIMIENTO:"🚫 Anuló un gasto",
