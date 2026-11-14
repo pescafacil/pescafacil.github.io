@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.39",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.39/PescaFacil-Actualizacion-1.4.39.exe",
-    "sha256":  "a3966d8559a2ec085e73132770285cef1ae678a29647e22303fad642aaeb1fe8",
-    "notas":  "Cruce de cuentas: solo clientes y proveedores con saldo en cartera, resultado claro (quien queda debiendo y cuanto dar para quedar en 0) y comprobante con saldos, lo cruzado, el resto pagado y el resultado",
-    "fecha":  "2026-11-13"
+    "version":  "1.4.40",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.40/PescaFacil-Actualizacion-1.4.40.exe",
+    "sha256":  "c52a0a30ac4ad793956248cb54f3b576bb39178c8b8f326229624688ece01966",
+    "notas":  "Unidad del precio de venta por producto que pasa a la venta; precio en blanco si el producto no tiene precio de venta (o el sugerido, segun Configuracion); Inventario mas rapido; resumen por dia en los movimientos del producto; consignacion y fecha en el pago a proveedor; facturar prestamo con su fecha; revertir una venta o abono anulado; cruce de cuentas sin obligar a quedar en 0",
+    "fecha":  "2026-11-14"
 }
