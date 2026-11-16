@@ -1,7 +1,11 @@
 {
-    "version":  "1.4.49",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.49/PescaFacil-Actualizacion-1.4.49.exe",
-    "sha256":  "8a14a01a81960b8b42f446dfc83f8e5d9cf3144450e474da10b1670cee67f2af",
-    "notas":  "Facturación electrónica DIAN \u0027EN CONFIGURACIÓN\u0027 de fábrica (consta que el sistema tiene el módulo, sin afectar nada) con casilla SÍ/NO en Configuración y constancia para imprimir junto a los manuales. El tiquete de venta sin facturación electrónica dice COMPROBANTE DE VENTA (se puede cambiar en Configuración). Contrato de licencia de uso en Soporte → Manuales.",
+    "version":  "1.4.50",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.50/PescaFacil-Actualizacion-1.4.50.exe",
+    "sha256":  "c45a379c0c27a41f91cc80ebec73ae9b459078c117bf49c550ce77608031aa51",
+    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.50/CarniFacil-Actualizacion-1.4.50.exe",
+    "sha256_carni":  "90f7cc910bd6f98c4b31df385c5ec734bf73dbaa7ea677cb324c1a0ded2ddbfc",
+    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.50/PolloFacil-Actualizacion-1.4.50.exe",
+    "sha256_pollo":  "37a8248427f7ca9bad82e0f8c3a7f4f3f9d5f048395e1900d26080d83ee05277",
+    "notas":  "Tres instaladores: PescaFácil, CarniFácil y PolloFácil, cada uno con su ícono; cada equipo se actualiza con el de su tipo de negocio. Respaldos más seguros: se revisan al sacarlos, uno automático cada pocas horas y al cerrar, restaurar revisa el archivo (también desde una USB o Drive) y aviso si no hay copia fuera del equipo. Código ordenado.",
     "fecha":  "2026-11-16"
 }
