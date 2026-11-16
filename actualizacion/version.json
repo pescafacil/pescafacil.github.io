@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.42",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.42/PescaFacil-Actualizacion-1.4.42.exe",
-    "sha256":  "f8faafd0a9bb366ea11c139fd97fd7aab5f3f55ee9db190d3d3b760afa3952a0",
-    "notas":  "Venta táctil para mostrador con pantalla táctil (cuadros grandes, teclado en pantalla, báscula en vivo, cobrar con cambio, operarios con PIN). Varios equipos en el local: equipo principal y mostradores por la red, como cajas separadas con una sola numeración de factura o como puntos de venta que generan tiquetes con código de barras que se cobran en la caja.",
+    "version":  "1.4.43",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.43/PescaFacil-Actualizacion-1.4.43.exe",
+    "sha256":  "7907f90498f87bd8f76e8bef4aa0c605bc853bf5f79d956c7f6b57cce6258e13",
+    "notas":  "Configuración sin partes cortadas (se acomoda sola). Auditoría: ahora salen las entradas al sistema y los intentos con clave equivocada, con filtros por tipo. Roles y permisos rediseñados: por sección, marcar columnas completas, copiar de otro rol y aviso de cambios sin guardar.",
     "fecha":  "2026-11-15"
 }
