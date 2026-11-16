@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.41",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.41/PescaFacil-Actualizacion-1.4.41.exe",
-    "sha256":  "938a11a4ed580280bbf3d6765b1b3ce0eebb1583790a10122321af4013f401dc",
-    "notas":  "Pago a proveedor: Consignación ahora es una opción de la lista CAJA (sin casilla aparte). Buscador en el menú lateral: escribe \u0027cierre\u0027, \u0027provee\u0027... y Enter abre el primero.",
-    "fecha":  "2026-11-14"
+    "version":  "1.4.42",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.42/PescaFacil-Actualizacion-1.4.42.exe",
+    "sha256":  "f8faafd0a9bb366ea11c139fd97fd7aab5f3f55ee9db190d3d3b760afa3952a0",
+    "notas":  "Venta táctil para mostrador con pantalla táctil (cuadros grandes, teclado en pantalla, báscula en vivo, cobrar con cambio, operarios con PIN). Varios equipos en el local: equipo principal y mostradores por la red, como cajas separadas con una sola numeración de factura o como puntos de venta que generan tiquetes con código de barras que se cobran en la caja.",
+    "fecha":  "2026-11-15"
 }
