@@ -1165,7 +1165,7 @@
   function conPendientes(rows, pend, cat, fecha){
     var out=rows.slice(), nuevas=[];
     (pend||[]).forEach(function(sol){
-      var d=datosPend(sol), cre=new Date(sol.creado), dia=iso(cre);
+      var d=datosPend(sol), cre=new Date(sol.creado), dia=(d && /^\d{4}-\d{2}-\d{2}$/.test(d.fecha||"")) ? d.fecha : iso(cre);
       var b0={ pend:true, sol:sol, fecha:dia, momento:sol.creado, hora:cre.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"}), estado:"Activa", marcada:false,
         viaje:"", kilos:0, precio:"", producto:"", cliente:"", valor:0, pago:"", detalle:"📱 celular" };
       function fila(o){ var r={}; Object.keys(b0).forEach(function(k){ r[k]=b0[k]; }); Object.keys(o).forEach(function(k){ r[k]=o[k]; }); nuevas.push(r); }
@@ -2273,15 +2273,16 @@
           +'<label for="nCed">Cédula / NIT (opcional)</label><input id="nCed" maxlength="30" autocomplete="off">'
           +'<label for="nDir">Dirección (opcional)</label><input id="nDir" maxlength="80" autocomplete="off">'
         : '<label for="nUni">Se vende / compra por</label><select id="nUni">'+unidadesNuevo().map(function(u){ return '<option value="'+u[0]+'">'+u[1]+'</option>'; }).join("")+'</select>'
-          +'<label for="nPre">Precio de venta en miles (opcional)</label><input id="nPre" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 100">')
+          +'<label for="nPre">Precio de venta (opcional)</label><input id="nPre" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 100">')
       +'<div class="fac-bar" style="margin-top:16px"><button class="imp" id="nGuardar">➕ Crear</button><button class="sec2" id="nX">✕ Cancelar</button></div>'
       +'<p>El computador lo crea solo en unos minutos, con el siguiente código.</p></div>';
     el("nX").onclick=cerrar;
+    if(!esCli){ precioCasilla(el("nPre"), function(){ return el("nUni").value; }); el("nUni").addEventListener("change", function(){ precioTipoCambio(el("nPre")); }); }
     el("nNom").focus();
     el("nGuardar").onclick=function(){
       var nom=el("nNom").value.trim().toUpperCase(); if(!nom){ say("Escribe el nombre."); return; }
       var datos = esCli ? { nombre:nom, telefono:el("nTel").value.trim(), cedula:el("nCed").value.trim(), direccion:el("nDir").value.trim() }
-                        : { nombre:nom, unidad:el("nUni").value, precio_venta:leerNum(el("nPre").value) };
+                        : { nombre:nom, unidad:el("nUni").value, precio_venta:leerPrecio(el("nPre")) };
       var btn=this; btn.disabled=true; btn.textContent="Enviando…";
       sb.auth.getSession().then(function(ss){
         var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
@@ -2301,7 +2302,7 @@
             var fila=inp.closest(".ilin"), t=fila && fila.querySelector(".t");
             if(t){
               t.value = tipoDeUnidad(datos.unidad); t._tp=t.value;
-              var p=fila.querySelector(".p"); if(p && !p.value && datos.precio_venta) p.value=String(datos.precio_venta);
+              var p=fila.querySelector(".p"); if(p && !p.value && datos.precio_venta) ponerPrecio(p, datos.precio_venta);
               t.dispatchEvent(new Event("change",{bubbles:true}));
             }
           }
@@ -2385,8 +2386,9 @@
         +'<label class="hoja-lab" for="gProv">Descontar de la cuenta de un proveedor (opcional)</label>'
         +'<input id="gProv" class="hoja-in" list="dlProvG" placeholder="🔎 Proveedor" autocomplete="off"><datalist id="dlProvG">'+opcionesProveedor(cat.proveedor)+'</datalist>'
         +'</div>'
+        +fechaHTML("gFecha", true)
         +'<button class="hoja-ok" id="gGuardar" disabled>Escribe el valor</button>'
-        +'<p class="hoja-pie">Si sale de una caja, el computador lo pone también en GASTOS del cierre de hoy.</p>';
+        +'<p class="hoja-pie">Si sale de una caja, el computador lo pone también en GASTOS del cierre de ese día.</p>';
       el("gX").onclick=o.cerrar;
       function pintar(){
         var m=leerPlata(el("gMonto").value), b=el("gGuardar");
@@ -2404,9 +2406,10 @@
         var vId=Number(el("gViaje").value||0), vNom=vId ? el("gViaje").selectedOptions[0].textContent : "";
         var provTxt=el("gProv").value.trim(), prov=provTxt ? buscarPorNombre(cat.proveedor||[], provTxt) : null;
         if(provTxt && !prov){ say("Ese proveedor no está en el programa: elígelo de la lista."); return; }
-        var resumen="Gasto "+money(m)+" · "+con+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(vNom?" · viaje "+vNom:"")+(prov?" · descontado a "+prov.nombre:"");
+        var fecha=leerFecha("gFecha");
+        var resumen="Gasto "+money(m)+" · "+con+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(vNom?" · viaje "+vNom:"")+(prov?" · descontado a "+prov.nombre:"")+textoFecha(fecha);
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
-        enviarSolicitud("gasto", resumen, { monto:m, concepto:con, caja:caja, viaje_id:vId, proveedor_id: prov ? Number(prov.id) : 0 }).then(function(){
+        enviarSolicitud("gasto", resumen, { monto:m, concepto:con, caja:caja, viaje_id:vId, proveedor_id: prov ? Number(prov.id) : 0, fecha:fecha }).then(function(){
           hojaHecha(o, "Gasto enviado", money(m), [esc(con), esc(caja?nombreCaja(caja):"Por fuera de caja")+(prov?" · descontado a "+esc(prov.nombre):"")], "📤 Registrar otro gasto", abrirGasto);
         }, function(e){ btn.disabled=false; pintar(); say(e.message); });
       };
@@ -2430,18 +2433,19 @@
         +'<div class="ilin dev-prod"><input id="dProd" class="hoja-in" list="dlProdD" placeholder="🔎 Producto" autocomplete="off"><input class="k" hidden><input class="p" hidden><select class="t" hidden>'+tiposPrecio().map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div>'
         +'<datalist id="dlProdD">'+opcionesProducto(cat.producto)+'</datalist>'
         +'<div class="dev-fila"><div><label class="hoja-lab" for="dKg" id="dKgLab">Kilos</label><input id="dKg" class="hoja-in" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>'
-        +'<div><label class="hoja-lab" for="dPre">Precio (miles)</label><input id="dPre" class="hoja-in" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>'
+        +'<div><label class="hoja-lab" for="dPre">Precio</label><input id="dPre" class="hoja-in" type="text" inputmode="decimal" autocomplete="off" placeholder="0"></div>'
         +'<div><label class="hoja-lab" for="dTipo">Por</label><select id="dTipo" class="hoja-in">'+tiposPrecio().map(function(t){ return '<option value="'+t[0]+'">'+t[1]+'</option>'; }).join("")+'</select></div></div>'
         +'<div id="dValor" class="queda"></div>'
         +'<button type="button" class="nota-link" id="dNotaBtn">+ Agregar nota</button>'
         +'<input id="dNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional): ej. llegó dañado" autocomplete="off" hidden>'
+        +fechaHTML("dFecha", true)
         +'</div>'
         +'<button class="hoja-ok" id="dGuardar" disabled>Elige el cliente</button>'
         +'<p class="hoja-pie">El computador la registra en unos minutos: el producto vuelve al inventario y se le baja lo que debe (no toca la caja).</p>';
       el("dX").onclick=o.cerrar;
       function saldo(){ return elegido && elegido.extra ? Number(elegido.extra.saldo||0) : 0; }
       function prod(){ return buscarPorNombre(cat.producto||[], el("dProd").value); }
-      function valor(){ return subtotalVenta(leerNum(el("dKg").value), leerNum(el("dPre").value), el("dTipo").value); }
+      function valor(){ return subtotalVenta(leerNum(el("dKg").value), leerPrecio(el("dPre")), el("dTipo").value); }
       function pintar(){
         el("dResto").classList.toggle("hoja-off", !elegido);
         var v=valor(), s=saldo(), t=el("dTipo").value, nom=el("dProd").value.trim();
@@ -2449,7 +2453,7 @@
         var q=el("dValor");
         if(!elegido || !v){ q.innerHTML = nom && !prod() ? '<span class="nuevo-tag">➕ Producto nuevo: se crea al registrar</span>' : ""; q.className="queda"; }
         else { q.innerHTML="Valor: <b>"+money(v)+"</b> · "+(s-v<0 ? "le queda saldo a favor de <b>"+money(v-s)+"</b>" : "queda debiendo <b>"+money(s-v)+"</b>"); q.className="queda"+(s-v<0?" aviso":""); }
-        var b=el("dGuardar"), k=leerNum(el("dKg").value), pr=leerNum(el("dPre").value);
+        var b=el("dGuardar"), k=leerNum(el("dKg").value), pr=leerPrecio(el("dPre"));
         b.disabled=!(elegido && nom && k>0 && pr>0);
         b.textContent = !elegido ? "Elige el cliente" : !nom ? "Elige el producto" : !(k>0) ? "Escribe "+el("dKgLab").textContent.toLowerCase() : !(pr>0) ? "Escribe el precio" : "↩️ Registrar devolución de "+money(v);
       }
@@ -2470,18 +2474,18 @@
       });
       enlazarTipoPrecio(el("dTipo"), el("dPre"), prod);
       var tEsc=o.ov.querySelector(".dev-prod .t"), pEsc=o.ov.querySelector(".dev-prod .p");
-      tEsc.addEventListener("change", function(){ el("dTipo").value=tEsc.value; if(pEsc.value && !el("dPre").value) el("dPre").value=pEsc.value; pintar(); });
+      tEsc.addEventListener("change", function(){ el("dTipo").value=tEsc.value; precioTipoCambio(el("dPre")); if(pEsc.value && !el("dPre").value) ponerPrecio(el("dPre"), leerNum(pEsc.value)); pintar(); });
       ["dProd","dKg","dPre"].forEach(function(id){ el(id).addEventListener("input", pintar); });
       el("dTipo").addEventListener("change", pintar);
       el("dNotaBtn").onclick=function(){ this.hidden=true; el("dNota").hidden=false; el("dNota").focus(); };
       el("dGuardar").onclick=function(){
-        var c=elegido, nom=el("dProd").value.trim(), p=prod(), k=leerNum(el("dKg").value), pr=leerNum(el("dPre").value), tp=el("dTipo").value, v=valor(), nota=el("dNota").value.trim();
+        var c=elegido, nom=el("dProd").value.trim(), p=prod(), k=leerNum(el("dKg").value), pr=leerPrecio(el("dPre")), tp=el("dTipo").value, v=valor(), nota=el("dNota").value.trim(), fecha=leerFecha("dFecha");
         if(!c || !nom || !(k>0) || !(pr>0)) return;
         var nombreProd = p ? p.nombre : nom.toUpperCase();
         var unidadNueva = unidadDeTipo(tp);
-        var datos = { cliente_id:Number(c.id), kilos:k, precio:pr, tipo_precio:tp, viaje_id:0, nota:nota };
+        var datos = { cliente_id:Number(c.id), kilos:k, precio:pr, tipo_precio:tp, viaje_id:0, nota:nota, fecha:fecha };
         if(p) datos.producto_id=Number(p.id); else { datos.producto_id=0; datos.producto_nuevo={ nombre:nombreProd, unidad:unidadNueva }; }
-        var resumen="Devolución de "+c.nombre+": "+kilos(k)+" "+(tp==="x Caja"?"cj":tp==="x Unidad"?"und":"kg")+" de "+nombreProd+(p?"":" (nuevo)")+" = "+money(v)+(nota?" · "+nota:"");
+        var resumen="Devolución de "+c.nombre+": "+kilos(k)+" "+(tp==="x Caja"?"cj":tp==="x Unidad"?"und":"kg")+" de "+nombreProd+(p?"":" (nuevo)")+" = "+money(v)+(nota?" · "+nota:"")+textoFecha(fecha);
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
         enviarSolicitud("devolucion", resumen, datos).then(function(){
           var queda=saldo()-v;
@@ -2513,6 +2517,7 @@
         +'<label class="hoja-lab">Sale de</label>'+segmCajas("pCajas", true, "Efectivo")
         +'<button type="button" class="nota-link" id="pNotaBtn">+ Agregar nota</button>'
         +'<input id="pNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional)" autocomplete="off" hidden>'
+        +fechaHTML("pFecha", true)
         +'</div>'
         +'<button class="hoja-ok" id="pGuardar" disabled>Elige el proveedor</button>'
         +'<p class="hoja-pie">El computador lo registra en unos minutos: baja lo que le debes y, si sale de una caja, va a PAGOS del cierre.</p>';
@@ -2546,11 +2551,11 @@
       conectarSegm("pCajas", function(c){ caja=c; });
       el("pNotaBtn").onclick=function(){ this.hidden=true; el("pNota").hidden=false; el("pNota").focus(); };
       el("pGuardar").onclick=function(){
-        var p=elegido, m=leerPlata(el("pMonto").value), nota=el("pNota").value.trim();
+        var p=elegido, m=leerPlata(el("pMonto").value), nota=el("pNota").value.trim(), fecha=leerFecha("pFecha");
         if(!p || !(m>0)) return;
-        var resumen="Pago a "+p.nombre+": "+money(m)+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(nota?" · "+nota:"");
+        var resumen="Pago a "+p.nombre+": "+money(m)+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(nota?" · "+nota:"")+textoFecha(fecha);
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
-        enviarSolicitud("pago_proveedor", resumen, { proveedor_id:Number(p.id), monto:m, caja:caja, nota:nota }).then(function(){
+        enviarSolicitud("pago_proveedor", resumen, { proveedor_id:Number(p.id), monto:m, caja:caja, nota:nota, fecha:fecha }).then(function(){
           var queda=saldo()-m;
           hojaHecha(o, "Pago enviado", money(m), [esc(p.nombre)+" · "+esc(caja?nombreCaja(caja):"Por fuera de caja"), "Le quedas debiendo: <b>"+money(Math.max(0,queda))+"</b>"], null, null);
         }, function(e){ btn.disabled=false; pintar(); say(e.message); });
@@ -2662,6 +2667,7 @@
       +'<label class="hoja-lab">Sale de</label>'+segmCajas("cCajas", true, "Efectivo")
       +'<button type="button" class="nota-link" id="cNotaBtn">+ Agregar nota</button>'
       +'<input id="cNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional)" autocomplete="off" hidden>'
+      +fechaHTML("cFecha", true)
       +'<button class="hoja-ok" id="cGuardar" disabled>Escribe el valor</button>'
       +'<p class="hoja-pie">El computador lo registra en unos minutos como pago del viaje (baja lo que se le debe y, si sale de una caja, va a PAGOS del cierre).</p>';
     el("cX").onclick=o.cerrar;
@@ -2679,10 +2685,10 @@
     conectarSegm("cCajas", function(c){ caja=c; });
     el("cNotaBtn").onclick=function(){ this.hidden=true; el("cNota").hidden=false; el("cNota").focus(); };
     el("cGuardar").onclick=function(){
-      var m=leerPlata(el("cMonto").value), nota=el("cNota").value.trim(); if(!(m>0)) return;
-      var resumen="Pago de comisión a "+(x.comisionista||"comisionista")+" (viaje "+r.nombre+"): "+money(m)+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(nota?" · "+nota:"");
+      var m=leerPlata(el("cMonto").value), nota=el("cNota").value.trim(), fecha=leerFecha("cFecha"); if(!(m>0)) return;
+      var resumen="Pago de comisión a "+(x.comisionista||"comisionista")+" (viaje "+r.nombre+"): "+money(m)+" · "+(caja?nombreCaja(caja):"por fuera de caja")+(nota?" · "+nota:"")+textoFecha(fecha);
       var btn=this; btn.disabled=true; btn.textContent="Enviando…";
-      enviarSolicitud("pago_comision", resumen, { viaje_id:Number(r.id), monto:m, caja:caja, nota:nota }).then(function(){
+      enviarSolicitud("pago_comision", resumen, { viaje_id:Number(r.id), monto:m, caja:caja, nota:nota, fecha:fecha }).then(function(){
         hojaHecha(o, "Pago enviado", money(m), [esc(x.comisionista||"")+" · viaje "+esc(r.nombre), esc(caja?nombreCaja(caja):"Por fuera de caja")], null, null);
         if(state.section==="prov" && state.provTab==="comis") setTimeout(loadComisionistas, 300);
       }, function(e){ btn.disabled=false; pintar(); say(e.message); });
@@ -2695,7 +2701,7 @@
   function precioDeTexto(t){
     var s=String(t||"").trim(), m=/^([\d.,]+)\s*(@|kg|lb|cj|un|und|caja)?/i.exec(s);
     var tp = !m || !m[2] || m[2]==="@" ? "x Arroba" : /^kg$/i.test(m[2]) ? "x Kilo" : /^lb$/i.test(m[2]) ? "x Libra" : /^(cj|caja)$/i.test(m[2]) ? "x Caja" : "x Unidad";
-    return { precio: m ? leerNum(m[1]) : 0, tipo: tp };
+    return { precio: !m ? 0 : precioPesos(tp) && /\./.test(m[1]) && !/,/.test(m[1]) ? Number(m[1].replace(/\D/g,""))/1000 : leerNum(m[1]), tipo: tp };
   }
   function anularVentaCel(fac, alTerminar){
     if(!esDueno()){ say("Solo la cuenta del dueño puede anular ventas."); return; }
@@ -2737,7 +2743,7 @@
         var tot=0;
         Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
           var nom=row.querySelector(".n").value.trim(), p=porNombre(nom);
-          var v=subtotalVenta(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), row.querySelector(".t").value); tot+=v;
+          var v=subtotalVenta(leerNum(row.querySelector(".k").value), leerPrecio(row.querySelector(".p")), row.querySelector(".t").value); tot+=v;
           row.querySelector(".sub").innerHTML=(nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo</span> · ' : '')+(v?money(v):"");
         });
         el("eTotal").textContent=money(tot);
@@ -2784,7 +2790,7 @@
       el("eGuardar").onclick=function(){
         var items=[], resL=[], malo=null;
         Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-          var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
+          var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerPrecio(row.querySelector(".p")), tp=row.querySelector(".t").value;
           if(!nom && !k) return;
           if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
           var p=porNombre(nom), nombreProd = p ? p.nombre : nom.toUpperCase();
@@ -2846,6 +2852,7 @@
         +'<div class="segm" id="aCajas">'+CAJAS.map(function(c,i){ return '<button type="button" data-c="'+c[0]+'"'+(i===0?' class="on"':'')+'>'+c[1]+' '+(c[0]==="Transferencia"?"Transf.":c[0])+'</button>'; }).join("")+'</div>'
         +'<button type="button" class="nota-link" id="aNotaBtn">+ Agregar nota</button>'
         +'<input id="aNota" class="hoja-in" maxlength="60" placeholder="Nota (opcional)" autocomplete="off" hidden>'
+        +fechaHTML("aFecha", true)
         +'</div>'
         +'<button class="hoja-ok" id="aGuardar" disabled>Elige el cliente</button>'
         +'<p class="hoja-pie">El computador lo registra en unos minutos: baja lo que debe el cliente y entra a la caja elegida.</p>'
@@ -2899,16 +2906,16 @@
       });
       el("aNotaBtn").onclick=function(){ this.hidden=true; el("aNota").hidden=false; el("aNota").focus(); };
       el("aGuardar").onclick=function(){
-        var c=elegido, m=monto(), nota=el("aNota").value.trim();
+        var c=elegido, m=monto(), nota=el("aNota").value.trim(), fecha=leerFecha("aFecha");
         if(!c || !(m>0)) return;
         var s=saldo();
-        var resumen="Abono de "+c.nombre+": "+money(m)+" · "+nombreCaja(caja)+(nota?" · "+nota:"");
+        var resumen="Abono de "+c.nombre+": "+money(m)+" · "+nombreCaja(caja)+(nota?" · "+nota:"")+textoFecha(fecha);
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
         sb.auth.getSession().then(function(ss){
           var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
           return sb.from("solicitud_movil").insert({
             negocio_id:state.negocioId, origen:"celular", tipo:"abono", estado:"aprobada", creado_por:email, resumen:resumen,
-            datos:{ cliente_id:Number(c.id)||0, cliente_nombre: c.sinCatalogo ? c.nombre : "", monto:m, caja:caja, nota:nota }
+            datos:{ cliente_id:Number(c.id)||0, cliente_nombre: c.sinCatalogo ? c.nombre : "", monto:m, caja:caja, nota:nota, fecha:fecha }
           });
         }).then(function(res){
           if(res.error){
@@ -3154,6 +3161,9 @@
       var cfgF=((c.config||[]).filter(function(x){ return x.nombre==="factura"; })[0]||{}).extra||{};
       LOGO_PCT=Number(cfgF.logo_pct)||100;
       TIPO_PRED=cfgF.tipo_precio||null;   // tipo de precio predeterminado del PC (1.4.31)
+      // 1.4.46: precios como en el PC (miles solo por arroba) y la fecha de lo que se registra (la decide el negocio).
+      PRECIO_SOLO_ARROBA=!!cfgF.precio_solo_arroba; PRECIO_EN_PESOS=!!cfgF.precio_en_pesos;
+      FECHA_MODO=cfgF.fecha_modo||""; FECHA_DIAS=Number(cfgF.fecha_dias)||0;
       state.cache[k]=c;
       // Edición del negocio (PescaFácil/CarniFácil/PolloFácil). Un PC anterior a 1.4.31 no la manda = PescaFácil.
       if((c.config||[]).length){
@@ -3166,7 +3176,64 @@
   }
   // Tamaño del logo en la factura/recibo/estado de cuenta: el de fábrica (≤300×190 en 576) por el
   // % de Configuración → Impresora del PC ("Tamaño del logo"), sin pasarse del ancho del papel.
-  var LOGO_PCT=100, TIPO_PRED=null;
+  var LOGO_PCT=100, TIPO_PRED=null, PRECIO_SOLO_ARROBA=false, PRECIO_EN_PESOS=false, FECHA_MODO="", FECHA_DIAS=0;
+
+  // ===== PRECIOS (1.4.46, igual que el PC): por arroba en miles (150 = $150.000); por kilo, libra, caja o unidad
+  // completo (12.500), con los puntos de mil mientras se escribe. Un PC viejo no manda la opción: todo en miles.
+  // Por dentro (lo que se le manda al PC) el precio SIEMPRE va en miles.
+  function esArrobaTipo(t){ return !/kilo|libra|caja|unidad/i.test(String(t||"")); }
+  function precioPesos(t){ return PRECIO_EN_PESOS || (PRECIO_SOLO_ARROBA && !esArrobaTipo(t)); }
+  function pesosTxt(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+  function ayudaPrecio(){ return PRECIO_SOLO_ARROBA && !PRECIO_EN_PESOS ? "precio por arroba en miles, por kilo/caja/unidad completo" : PRECIO_EN_PESOS ? "precio completo" : "precio en miles"; }
+  // Engancha una casilla de precio a su tipo (función que devuelve "x Kilo", "Arroba"…). Lo que ya tenga escrito se toma en miles.
+  function precioCasilla(inp, tipoDe){
+    if(!inp || inp._tipoDe) return;
+    var antes=leerNum(inp.value);
+    inp._tipoDe=tipoDe; inp._pesos=precioPesos(tipoDe());
+    inp.placeholder = inp._pesos ? "Precio $" : "Precio $mil";
+    if(antes) ponerPrecio(inp, antes);
+    inp.addEventListener("input", function(){
+      if(!inp._pesos) return;
+      var d=inp.value.replace(/\D/g,"").replace(/^0+/,""), n=d?pesosTxt(Number(d)):"";
+      if(n===inp.value) return;
+      var desdeFin=inp.value.length-(inp.selectionStart==null?inp.value.length:inp.selectionStart);
+      inp.value=n; var pos=Math.max(0,n.length-desdeFin); try{ inp.setSelectionRange(pos,pos); }catch(e){}
+    });
+  }
+  // Cambió el tipo: el mismo valor, escrito en la forma del tipo nuevo (miles ↔ completo).
+  function precioTipoCambio(inp){
+    if(!inp || !inp._tipoDe) return;
+    var nuevo=precioPesos(inp._tipoDe()); if(nuevo===inp._pesos) return;
+    var m=leerPrecio(inp); inp._pesos=nuevo; inp.placeholder = nuevo ? "Precio $" : "Precio $mil";
+    if(String(inp.value).trim()) ponerPrecio(inp, m);
+  }
+  // El precio de la casilla EN MILES (lo que entiende el PC).
+  function leerPrecio(inp){
+    if(!inp) return 0; var t=String(inp.value||"").trim(); if(!t) return 0;
+    if(inp._pesos){ var d=t.replace(/\D/g,""); return d ? Number(d)/1000 : 0; }
+    return leerNum(t);
+  }
+  // Precio para mostrar en un resumen: $12.500 (completo) o $150 mil (por arroba).
+  function precioTexto(miles, t){ miles=Number(miles)||0; return precioPesos(t) ? "$"+pesosTxt(miles*1000) : "$"+String(Math.round(miles*1000)/1000).replace(".",",")+" mil"; }
+  function ponerPrecio(inp, miles){
+    if(!inp) return; miles=Number(miles)||0;
+    inp.value = !miles ? "" : inp._pesos ? pesosTxt(miles*1000) : String(Math.round(miles*1000)/1000).replace(".",",");
+  }
+
+  // ===== FECHA de lo que se registra desde el celular (1.4.46). El negocio decide en el PC (Configuración →
+  // Celular): FECHA_MODO "todos" | "dueno" | "no", hasta FECHA_DIAS atrás. Un PC viejo no la manda: no se pide.
+  function puedeFecha(){ return (FECHA_MODO==="todos" || (FECHA_MODO==="dueno" && esDueno())) && FECHA_DIAS>0; }
+  function fechaMinima(){ var d=new Date(); d.setDate(d.getDate()-FECHA_DIAS); return iso(d); }
+  function fechaHTML(id, hoja){
+    if(!puedeFecha()) return "";
+    return '<label'+(hoja?' class="hoja-lab"':'')+' for="'+id+'">📅 Fecha (si no es de hoy · hasta '+FECHA_DIAS+' día'+(FECHA_DIAS===1?'':'s')+' atrás)</label>'
+      +'<input id="'+id+'" type="date"'+(hoja?' class="hoja-in"':'')+' value="'+isoToday()+'" min="'+fechaMinima()+'" max="'+isoToday()+'">';
+  }
+  function leerFecha(id){
+    var e=el(id), v=e && e.value; if(!v || !puedeFecha()) return isoToday();
+    return v>isoToday() ? isoToday() : v<fechaMinima() ? fechaMinima() : v;
+  }
+  function textoFecha(f){ return f && f!==isoToday() ? " · fecha "+fechaCorta(f) : ""; }
   // El predeterminado de Configuración del PC va primero (así queda elegido de entrada).
   function primeroPred(lista, pred, clave){ if(!pred) return lista; var i=-1; lista.forEach(function(x,j){ if((clave?x[0]:x)===pred) i=j; }); return i<=0 ? lista : [lista[i]].concat(lista.slice(0,i), lista.slice(i+1)); }
   function tamLogo(logo, W){
@@ -3198,16 +3265,19 @@
   function ponerProducto(selT, inP, p){
     if(!p) return;
     selT.value=tipoPrecioDe(p); selT._tp=selT.value;
-    var sp=precioSugerido(p, selT.value); if(!inP.value && sp) inP.value=String(sp).replace(".",",");
+    precioCasilla(inP, function(){ return selT.value; }); precioTipoCambio(inP);
+    var sp=precioSugerido(p, selT.value); if(!inP.value && sp) ponerPrecio(inP, sp);
   }
   // Cambiar kilo ↔ libra: si el precio era el sugerido (o está vacío), pasa al del otro tipo.
   function enlazarTipoPrecio(selT, inP, getP){
     selT._tp=selT.value;
+    precioCasilla(inP, function(){ return selT.value; });
     selT.addEventListener("change", function(){
+      precioTipoCambio(inP);
       var p=getP(), antes=selT._tp; selT._tp=selT.value;
       if(!p) return;
-      var v=leerNum(inP.value), sa=precioSugerido(p,antes), sn=precioSugerido(p,selT.value);
-      if(sn && (!v || v===sa)) inP.value=String(sn).replace(".",",");
+      var v=leerPrecio(inP), sa=precioSugerido(p,antes), sn=precioSugerido(p,selT.value);
+      if(sn && (!v || v===sa)) ponerPrecio(inP, sn);
     });
   }
   function buscarPorNombre(lista, t){
@@ -3248,7 +3318,7 @@
       +'<label>Tipo de viaje</label><div class="formas">'
       +'<label><input type="radio" name="iTipoViaje" value="COMPRA" checked> Normal (compra: la mercancía es mía)</label>'
       +'<label><input type="radio" name="iTipoViaje" value="COMISION"> Comisión (vendo por cuenta del proveedor)</label></div></div>'
-      +'<label>Productos (kilos · precio de compra en miles · POR arroba, kilo, libra…)</label><div id="iLineas"></div>'
+      +'<label>Productos (kilos · '+ayudaPrecio()+' · POR arroba, kilo, libra…)</label><div id="iLineas"></div>'
       +'<datalist id="dlProd">'+opcionesProducto(cat.producto)+'</datalist>'
       +'<button type="button" class="addl" id="iAdd">➕ Otro producto</button>'
       +'<div id="iFormaBox"><label>¿Cómo se paga?</label><div class="formas">'
@@ -3256,7 +3326,7 @@
       +'<label><input type="radio" name="iForma" value="contado"> De contado, sale de la caja <select id="iCaja" style="width:auto;padding:5px 8px;margin-left:auto">'+CAJAS.map(function(c){ return '<option value="'+c[0]+'">'+c[2]+'</option>'; }).join("")+'</select></label>'
       +'<label><input type="radio" name="iForma" value="fuera"> Ya pagado por fuera de la caja</label>'
       +'</div></div>'
-      +'<label for="iFecha">Fecha de la factura (si no es de hoy)</label><input id="iFecha" type="date" value="'+isoToday()+'" max="'+isoToday()+'">'
+      +(FECHA_MODO ? fechaHTML("iFecha") : '<label for="iFecha">Fecha de la factura (si no es de hoy)</label><input id="iFecha" type="date" value="'+isoToday()+'" max="'+isoToday()+'">')
       +'<label for="iNota">Nota (opcional)</label><input id="iNota" maxlength="120" placeholder="Ej: factura 1234, llegó a las 5 a. m.">'
       +'<div id="iIvaBox"><label>IVA de la factura (opcional: se suma a lo que se le debe)</label>'
       +'<div style="display:flex;gap:8px;align-items:center"><input id="iIvaPct" type="text" inputmode="decimal" autocomplete="off" placeholder="%" style="width:80px"><span>%</span>'
@@ -3287,7 +3357,7 @@
       var tot=0;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
         var nom=row.querySelector(".n").value.trim(), p=porNombre(nom), u=unidadLinea(row);
-        var v=valorCompra(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), u); tot+=v;
+        var v=valorCompra(leerNum(row.querySelector(".k").value), leerPrecio(row.querySelector(".p")), u); tot+=v;
         row.querySelector(".st").innerHTML = (nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '') + (v?money(v):"");
       });
       totalIng=tot;
@@ -3304,11 +3374,12 @@
         +'<div class="sub"><span class="un">POR <select class="u" aria-label="Precio por">'+unidadesCompra().map(function(u){ return '<option value="'+u+'">'+u+'</option>'; }).join("")+'</select> · </span><span class="st"></span></div>';
       row.querySelector(".n").addEventListener("change", function(){
         var p=porNombre(this.value), pr=row.querySelector(".p");
-        if(p){ row.querySelector(".u").value=unidadDe(p); if(!pr.value && p.extra && Number(p.extra.precio_compra)) pr.value=p.extra.precio_compra; }
+        if(p){ row.querySelector(".u").value=unidadDe(p); precioTipoCambio(pr); if(!pr.value && p.extra && Number(p.extra.precio_compra)) ponerPrecio(pr, Number(p.extra.precio_compra)); }
         total();
       });
       row.querySelector(".n").addEventListener("input", total);
-      row.querySelector(".u").addEventListener("change", total);
+      precioCasilla(row.querySelector(".p"), function(){ return unidadLinea(row); });
+      row.querySelector(".u").addEventListener("change", function(){ precioTipoCambio(row.querySelector(".p")); total(); });
       row.querySelector(".k").addEventListener("input", total);
       row.querySelector(".p").addEventListener("input", total);
       row.querySelector(".x").addEventListener("click", function(){ if(lineas.children.length>1){ row.remove(); total(); } });
@@ -3367,7 +3438,7 @@
     el("iEnviar").onclick=function(){
       var btn=this, items=[], resumenL=[], tot=0, malo=null;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-        var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value);
+        var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerPrecio(row.querySelector(".p"));
         if(!nom && !k) return;
         if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
         var p=porNombre(nom), u=unidadLinea(row), nombreProd = p ? p.nombre : nom.toUpperCase();
@@ -3376,7 +3447,7 @@
         items.push(p ? {producto_id:p.id, nombre:p.nombre, kilos:k, precio:pr, unidad:u}
                      : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:u}, nombre:nombreProd, kilos:k, precio:pr});
         tot+=valorCompra(k,pr,u);
-        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+abrevUnidad(u));
+        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg a "+precioTexto(pr,u)+" "+abrevUnidad(u));
       });
       if(malo){ say(malo); return; }
       if(!items.length){ say("Agrega al menos un producto con kilos."); return; }
@@ -3393,7 +3464,7 @@
       var provNom = provNuevo ? provNombreNuevo+" (nuevo)" : prov.value ? prov.options[prov.selectedIndex].text : "";
       var viajeNom = viajeNuevo ? viajeRefNuevo+(comi?" (nuevo, comisión)":" (nuevo)") : el("iViaje").options[el("iViaje").selectedIndex].text;
       var formaTxt = comi ? "viaje de comisión (sin cargo a la cuenta)" : !prov.value ? "solo inventario" : forma==="credito" ? "a crédito" : forma==="contado" ? "de contado ("+nombreCaja(caja)+")" : "pagado por fuera de caja";
-      var fechaIng = el("iFecha").value || isoToday();
+      var fechaIng = FECHA_MODO ? leerFecha("iFecha") : ((el("iFecha") && el("iFecha").value) || isoToday());
       var ret = prov.value && !comi ? retencion() : 0, ivaE = prov.value && !comi ? ivaIng() : 0;
       if(ret>tot){ say("La retención no puede ser mayor que el total."); return; }
       var resumen = "Ingreso"+(provNom?" de "+provNom:"")+": "+resumenL.join(" + ")+" = "+money(tot)+(ivaE?" + IVA "+money(ivaE):"")+(ret?" − retención "+money(ret):"")+(ivaE||ret?" = "+money(tot+ivaE-ret):"")+" · "+formaTxt+" · viaje "+viajeNom
@@ -3456,7 +3527,7 @@
       +'<datalist id="dlCli">'+opcionesCliente(clientes)+'</datalist>'
       +'<div class="m" id="vCliInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px"></div>'
       +'<div id="vCliNuevoBox" hidden><label for="vCliTel">Teléfono del cliente nuevo (opcional)</label><input id="vCliTel" inputmode="tel" maxlength="30"></div>'
-      +'<label>Productos (kilos · precio de venta en miles)</label><div id="vLineas"></div>'
+      +'<label>Productos (kilos · '+ayudaPrecio()+')</label><div id="vLineas"></div>'
       +'<datalist id="dlProdV">'+opcionesProducto(cat.producto)+'</datalist>'
       +'<button type="button" class="addl" id="vAdd">➕ Otro producto</button>'
       // Igual que en el programa: sin cliente es de contado, con cliente es a crédito. No se pregunta.
@@ -3470,6 +3541,7 @@
       +'<label for="vViaje">Viaje de donde sale la mercancía</label><select id="vViaje"><option value="">Automático (el que tenga el producto)</option>'
       +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
       +'<label for="vDet">Título de la factura (opcional)</label><input id="vDet" maxlength="40" placeholder="Ej: Pedido de la calle 5">'
+      +fechaHTML("vFecha")
       +'<div class="total-row" style="margin:14px -14px -14px"><span>Total de la venta</span><span class="big num" id="vTotal">$0</span></div>'
       +'</div></div>'
       +'<div class="vext-imp"><label><input type="checkbox" id="vImp"> 🖨️ Imprimir factura al registrar</label>'
@@ -3514,7 +3586,7 @@
       var tot=0;
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
         var nom=row.querySelector(".n").value.trim(), p=porNombre(nom);
-        var v=subtotalVenta(leerNum(row.querySelector(".k").value), leerNum(row.querySelector(".p").value), row.querySelector(".t").value); tot+=v;
+        var v=subtotalVenta(leerNum(row.querySelector(".k").value), leerPrecio(row.querySelector(".p")), row.querySelector(".t").value); tot+=v;
         row.querySelector(".sub").innerHTML=(nom && !p ? '<span class="nuevo-tag">➕ Producto nuevo (se crea al registrar)</span> · ' : '')+(v?money(v):"");
       });
       el("vTotal").textContent=money(tot); totalVext=tot; pintarMixto();
@@ -3558,7 +3630,7 @@
       var btn=this, items=[], resumenL=[], tot=0, malo=null, paraTiquete=[];
       var ABREV={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un","x Libra":"lb"};
       Array.prototype.forEach.call(lineas.querySelectorAll(".ilin"), function(row){
-        var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerNum(row.querySelector(".p").value), tp=row.querySelector(".t").value;
+        var nom=row.querySelector(".n").value.trim(), k=leerNum(row.querySelector(".k").value), pr=leerPrecio(row.querySelector(".p")), tp=row.querySelector(".t").value;
         if(!nom && !k) return;
         if(!nom){ malo="Hay una línea con kilos pero sin producto."; return; }
         var p=porNombre(nom), nombreProd = p ? p.nombre : nom.toUpperCase();
@@ -3569,7 +3641,7 @@
                      : {producto_id:0, producto_nuevo:{nombre:nombreProd, unidad:unidadNueva}, kilos:k, precio:pr, tipo_precio:tp});
         tot+=subtotalVenta(k,pr,tp);
         paraTiquete.push({ producto:nombreProd, kilos:k, precio:pr.toLocaleString("es-CO",{maximumFractionDigits:2})+" "+(ABREV[tp]||"@"), valor:subtotalVenta(k,pr,tp) });
-        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg @"+pr+" "+(tiposPrecio().filter(function(t){ return t[0]===tp; })[0]||["","@"])[1]);
+        resumenL.push(nombreProd+(p?"":" (nuevo)")+" "+kilos(k)+" kg a "+precioTexto(pr,tp)+" "+(tiposPrecio().filter(function(t){ return t[0]===tp; })[0]||["","@"])[1]);
       });
       if(malo){ say(malo); return; }
       if(!items.length){ say("Agrega al menos un producto con kilos y precio."); return; }
@@ -3585,7 +3657,7 @@
       }
       var cliTxt = !t ? "contado" : c ? c.nombre : t.toUpperCase()+" (nuevo)";
       var resumen = "Venta externa a "+cliTxt+": "+resumenL.join(" + ")+" = "+money(tot)+" · "+(pago==="credito"?"a crédito":"de contado ("+textoCaja(caja,tot)+")")
-        +(el("vDet").value.trim()?" · "+el("vDet").value.trim():"");
+        +(el("vDet").value.trim()?" · "+el("vDet").value.trim():"")+textoFecha(leerFecha("vFecha"));
       if(!confirm("¿Registrar esta venta?\n\n"+resumen)) return;
       var detTxt=el("vDet").value.trim();
       var imprimirFac=el("vImp").checked, facConSaldo=el("vSal").checked;
@@ -3598,7 +3670,7 @@
             cliente_id: c ? Number(c.id) : null,
             cliente_nuevo: t && !c ? { nombre:t.toUpperCase(), telefono:el("vCliTel").value.trim() } : null,
             pago:pago, caja:caja, viaje_id: el("vViaje").value ? Number(el("vViaje").value) : null,
-            detalle: el("vDet").value.trim(), lineas:items }
+            detalle: el("vDet").value.trim(), lineas:items, fecha:leerFecha("vFecha") }
         });
       }).then(function(res){
         btn.disabled=false; btn.textContent="📨 Registrar venta";
@@ -4066,6 +4138,7 @@
       +'<label for="pViaje">Viaje</label><select id="pViaje"><option value="">Automático</option>'
       +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
       +'<label for="pNota">Nota (opcional)</label><input id="pNota" maxlength="100" placeholder="Ej: lo devuelve el sábado">'
+      +fechaHTML("prFecha")
       +'</div></div><button class="btn" id="pEnviar" style="margin:0 0 14px">📨 Registrar préstamo</button>';
     function info(){
       var c=buscarPorNombre(clientes, el("pCli").value), p=buscarPorNombre(cat.producto, el("pProd").value);
@@ -4081,7 +4154,7 @@
       if(!(kg>0)){ say("Escribe los kilos."); el("pKg").focus(); return; }
       var c=buscarPorNombre(clientes, tc), p=buscarPorNombre(cat.producto, tp);
       var cliTxt = c ? c.nombre : tc.toUpperCase()+" (nuevo)", prodTxt = p ? p.nombre : tp.toUpperCase()+" (nuevo)";
-      var resumen = (dir==="NOS_DEBEN" ? "Le presté a " : "Me prestó ")+cliTxt+": "+prodTxt+" "+kilos(kg)+" kg"+(el("pNota").value.trim()?" · "+el("pNota").value.trim():"");
+      var resumen = (dir==="NOS_DEBEN" ? "Le presté a " : "Me prestó ")+cliTxt+": "+prodTxt+" "+kilos(kg)+" kg"+(el("pNota").value.trim()?" · "+el("pNota").value.trim():"")+textoFecha(leerFecha("prFecha"));
       if(!confirm("¿Registrar este préstamo?\n\n"+resumen)) return;
       btn.disabled=true; btn.textContent="Enviando…";
       sb.auth.getSession().then(function(ss){
@@ -4090,7 +4163,7 @@
           negocio_id:state.negocioId, origen:"celular", tipo:"prestamo", estado:"aprobada", creado_por:email, resumen:resumen,
           datos:{ direccion:dir, cliente_id: c ? Number(c.id) : null, cliente_nuevo: c ? null : { nombre:tc.toUpperCase(), telefono:"" },
                   producto_id: p ? Number(p.id) : 0, producto_nuevo: p ? null : { nombre:tp.toUpperCase(), unidad:"Arroba" },
-                  kilos:kg, viaje_id: el("pViaje").value ? Number(el("pViaje").value) : null, nota: el("pNota").value.trim() }
+                  kilos:kg, viaje_id: el("pViaje").value ? Number(el("pViaje").value) : null, nota: el("pNota").value.trim(), fecha:leerFecha("prFecha") }
         });
       }).then(function(res){
         btn.disabled=false; btn.textContent="📨 Registrar préstamo";
