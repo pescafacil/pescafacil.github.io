@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.47",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.47/PescaFacil-Actualizacion-1.4.47.exe",
-    "sha256":  "ac62e0594bfa3497e3e49c299e8ca23f06b9fd1d8b7a644df5fa195b255048c4",
-    "notas":  "Asistente para conectar Siigo dentro del programa: pasos explicados en pantalla, trae de su Siigo los tipos de factura, formas de pago y vendedores para escoger, y prueba la conexión. Guía de facturación electrónica (Siigo, otro proveedor o pruebas) sin salir del programa.",
+    "version":  "1.4.48",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.48/PescaFacil-Actualizacion-1.4.48.exe",
+    "sha256":  "1155e9a94cc4ac69088a39f6e590653666fc5f692ec6591941263ac372c63044",
+    "notas":  "En el abono, gastos, pagos, cierre de caja y todas las casillas de plata, los puntos de mil salen mientras escribe (1.000, 50.000) para no perderse con los ceros.",
     "fecha":  "2026-11-16"
 }
