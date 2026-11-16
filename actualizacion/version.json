@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.44",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.44/PescaFacil-Actualizacion-1.4.44.exe",
-    "sha256":  "d96e73bbd9d07cd39f9834a07733782356a8cccc75098099ae8598a0d936540f",
-    "notas":  "Venta táctil: un solo botón cobrar/fiar según haya cliente, factura con o sin saldo, precio escrito completo, escoger lote, teclado en pantalla, crear cliente/producto y fijar precio según permisos. Rol \u0027Vendedor de mostrador\u0027 que solo entra a la venta táctil. Columna DESDE con el nombre del equipo y de cada celular. Tiquetes de los puntos de venta visibles en Transacciones.",
-    "fecha":  "2026-11-15"
+    "version":  "1.4.45",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.45/PescaFacil-Actualizacion-1.4.45.exe",
+    "sha256":  "846ff930291f6683596dd2cb739e72ae45e9dff141cc07a04a7d2e1d1b39024c",
+    "notas":  "Facturación electrónica DIAN (modo por negocio: factura y POS electrónico con CUFE y QR, nota crédito al anular). Precio por kilo, libra, caja o unidad se escribe completo con los puntos de mil al teclear (en miles solo por arroba). Claves y PIN cifrados, bloqueo tras 5 intentos y cierre de sesión por inactividad. Tarjetas de Transacciones que se pueden quitar. Manuales para descargar en Gestión → Soporte. Ningún texto cortado en las pantallas.",
+    "fecha":  "2026-11-16"
 }

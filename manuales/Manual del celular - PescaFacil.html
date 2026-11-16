@@ -1,0 +1,374 @@
+<title>El negocio en el celular</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F4F7FB; --surface:#FFFFFF; --surface-2:#F1F5F9; --surface-3:#E9EFF6;
+    --ink:#0F172A; --ink-2:#334155; --muted:#64748B; --faint:#94A3B8;
+    --border:#E2E8F0; --border-2:#CBD5E1;
+    --primary:#2563EB; --primary-bright:#3B82F6; --primary-soft:#DBEAFE;
+    --emerald:#059669; --emerald-bright:#10B981; --emerald-soft:#D1FAE5;
+    --red:#DC2626; --red-bright:#EF4444; --red-soft:#FEE2E2;
+    --amber:#D97706; --amber-bright:#F59E0B; --amber-soft:#FEF3C7;
+    --violet:#8B5CF6; --violet-soft:#EDE9FE;
+    --slate:#475569;
+    --shadow:0 1px 2px rgba(15,23,42,.04),0 8px 24px -14px rgba(15,23,42,.14);
+    --shadow-lg:0 2px 4px rgba(15,23,42,.05),0 24px 50px -22px rgba(15,23,42,.22);
+    --radius:16px;
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"Instrument Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0A0F1C; --surface:#0F172A; --surface-2:#141E33; --surface-3:#1B2740;
+      --ink:#F1F5F9; --ink-2:#CBD5E1; --muted:#94A3B8; --faint:#64748B;
+      --border:#1E293B; --border-2:#2C3B54;
+      --primary:#60A5FA; --primary-bright:#3B82F6; --primary-soft:#17233c;
+      --emerald:#34D399; --emerald-bright:#10B981; --emerald-soft:#0f2e26;
+      --red:#F87171; --red-bright:#EF4444; --red-soft:#3a1717;
+      --amber:#FBBF24; --amber-bright:#F59E0B; --amber-soft:#3a2c0d;
+      --violet:#A78BFA; --violet-soft:#241a3d; --slate:#94A3B8;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 30px -14px rgba(0,0,0,.6);
+      --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 30px 60px -22px rgba(0,0,0,.75);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0A0F1C; --surface:#0F172A; --surface-2:#141E33; --surface-3:#1B2740;
+    --ink:#F1F5F9; --ink-2:#CBD5E1; --muted:#94A3B8; --faint:#64748B;
+    --border:#1E293B; --border-2:#2C3B54;
+    --primary:#60A5FA; --primary-bright:#3B82F6; --primary-soft:#17233c;
+    --emerald:#34D399; --emerald-bright:#10B981; --emerald-soft:#0f2e26;
+    --red:#F87171; --red-bright:#EF4444; --red-soft:#3a1717;
+    --amber:#FBBF24; --amber-bright:#F59E0B; --amber-soft:#3a2c0d;
+    --violet:#A78BFA; --violet-soft:#241a3d; --slate:#94A3B8;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 30px -14px rgba(0,0,0,.6);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 30px 60px -22px rgba(0,0,0,.75);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:var(--display);font-weight:800;line-height:1.08;text-wrap:balance;letter-spacing:-.02em;margin:0}
+  p{margin:0 0 1rem;color:var(--ink-2)}
+  a{color:var(--primary)}
+  .mono{font-family:var(--mono)}
+
+  .layout{display:grid;grid-template-columns:270px 1fr;max-width:1280px;margin:0 auto}
+  .side{position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 20px;border-right:1px solid var(--border);background:var(--surface);scrollbar-width:thin}
+  .side .brand{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .brand-mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(150deg,var(--primary-bright),var(--primary));color:#fff;font-size:20px;box-shadow:var(--shadow)}
+  .brand-name{font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:-.01em}
+  .brand-name span{color:var(--primary)}
+  .side .sub{font-size:.8rem;color:var(--muted);margin:2px 0 22px}
+  .side nav{display:flex;flex-direction:column;gap:1px}
+  .side nav a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.9rem;font-weight:500}
+  .side nav a:hover{background:var(--surface-2);color:var(--ink)}
+  .side nav a .num{font-family:var(--mono);font-size:.72rem;color:var(--faint);width:16px;text-align:right;flex:none}
+  .side .navlabel{font-family:var(--mono);font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin:20px 0 7px 10px}
+
+  .content{min-width:0;padding:0 clamp(20px,5vw,72px)}
+  .content-inner{max-width:770px;margin:0 auto;padding:52px 0 100px}
+
+  .doc-hero{padding:56px 0 38px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .doc-hero .kicker{font-family:var(--mono);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;color:var(--primary);font-weight:500;margin-bottom:16px}
+  .doc-hero h1{font-size:clamp(2.4rem,6vw,3.7rem);letter-spacing:-.03em}
+  .doc-hero p{font-size:1.16rem;color:var(--ink-2);max-width:60ch;margin-top:18px}
+  .doc-hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .doc-hero .meta span{font-family:var(--mono);font-size:.76rem;padding:5px 11px;border-radius:20px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+
+  .chapter{padding-top:18px;margin-top:56px;scroll-margin-top:16px}
+  .area-head{scroll-margin-top:16px;margin-top:70px;padding-top:26px;border-top:2px solid var(--border)}
+  .area-head .al{font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--ac,var(--primary));margin-bottom:8px}
+  .area-head h2{font-size:clamp(1.8rem,4.4vw,2.5rem);letter-spacing:-.025em}
+  .area-head>p{font-size:1.05rem;max-width:62ch;margin-top:10px}
+
+  .chapter>.ctag{font-family:var(--mono);font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;font-weight:600;color:var(--primary);display:inline-flex;align-items:center;gap:9px;margin-bottom:13px}
+  .chapter>.ctag i{width:26px;height:26px;border-radius:8px;background:var(--primary-soft);display:grid;place-items:center;font-style:normal;font-size:14px}
+  .chapter h2{font-size:clamp(1.6rem,4vw,2.25rem);letter-spacing:-.025em;margin-bottom:13px}
+  .chapter>p{font-size:1.05rem;max-width:64ch}
+  h3.sub{font-size:1.18rem;font-weight:700;margin:32px 0 10px}
+
+  .steps{counter-reset:st;display:grid;gap:11px;margin:24px 0}
+  .step{counter-increment:st;display:grid;grid-template-columns:42px 1fr;gap:17px;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+  .step::before{content:counter(st);font-family:var(--display);font-weight:800;font-size:1.2rem;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(150deg,var(--primary-bright),var(--primary));color:#fff}
+  .step h4{font-size:1.03rem;margin-bottom:4px}
+  .step p{margin:0;font-size:.97rem}
+
+  kbd{font-family:var(--mono);font-size:.85em;font-weight:600;background:var(--surface);border:1px solid var(--border-2);border-bottom-width:2px;border-radius:7px;padding:2px 8px;color:var(--ink)}
+  .shortcuts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px;margin-top:22px}
+  .sc{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+  .sc kbd{font-size:1rem;min-width:44px;text-align:center}
+  .sc .scl{font-weight:600;color:var(--ink);font-size:.96rem}
+  .sc .scd{color:var(--muted);font-size:.82rem;margin-top:1px}
+
+  .tip,.warn,.note{border-radius:13px;padding:15px 19px 15px 17px;margin:20px 0;font-size:.96rem;border:1px solid;display:grid;grid-template-columns:24px 1fr;gap:13px;align-items:start}
+  .tip{background:var(--emerald-soft);border-color:color-mix(in srgb,var(--emerald-bright) 34%,transparent)}
+  .warn{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber-bright) 38%,transparent)}
+  .note{background:var(--primary-soft);border-color:color-mix(in srgb,var(--primary) 30%,transparent)}
+  .tip .ic,.warn .ic,.note .ic{font-size:1.1rem;line-height:1.35}
+  .tip p,.warn p,.note p{margin:0;color:var(--ink-2)}
+  .tip b,.warn b,.note b{color:var(--ink)}
+
+  /* Module cards */
+  .modcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0;box-shadow:var(--shadow);margin:20px 0;overflow:hidden}
+  .modcard .mh{display:flex;align-items:center;gap:14px;padding:18px 22px;border-left:5px solid var(--mc,var(--primary));background:linear-gradient(90deg,color-mix(in srgb,var(--mc,var(--primary)) 7%,transparent),transparent 60%)}
+  .modcard .mh .mi{width:42px;height:42px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--mc,var(--primary)) 15%,var(--surface))}
+  .modcard .mh h3{font-size:1.18rem;margin:0}
+  .modcard .mh .mp{font-size:.9rem;color:var(--muted);margin:2px 0 0}
+  .modcard .mb{padding:6px 22px 20px}
+  .modcard .mb .what{font-size:1rem;color:var(--ink-2);margin:12px 0 14px}
+  .fns{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+  .fns li{position:relative;padding-left:22px;font-size:.95rem;color:var(--ink-2)}
+  .fns li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:3px;background:var(--mc,var(--primary))}
+  .fns li b{color:var(--ink);font-weight:600}
+  .badge-new{display:inline-block;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--emerald-soft);color:var(--emerald);border:1px solid color-mix(in srgb,var(--emerald-bright) 40%,transparent);vertical-align:middle;margin-left:8px}
+
+  /* Mockups */
+  .mock{border:1px solid var(--border-2);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);margin:26px 0;background:#F8FAFC}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mock{background:#0d1424}}
+  :root[data-theme="dark"] .mock{background:#0d1424}
+  .mock-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(180deg,#3B82F6,#2f74e6)}
+  .mock-bar .mt{color:#fff;font-weight:700;font-size:.9rem;font-family:var(--display);letter-spacing:-.01em}
+  .mock-bar .dots{display:flex;gap:6px;margin-left:auto}
+  .mock-bar .dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.5)}
+  .mock-body{padding:16px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .kpi{border-radius:11px;padding:12px 14px;color:#fff}
+  .kpi .kl{font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;opacity:.92}
+  .kpi .kv{font-family:var(--display);font-weight:800;font-size:1.24rem;margin-top:5px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .kpi.g{background:linear-gradient(160deg,#10B981,#059669)}
+  .kpi.a{background:linear-gradient(160deg,#F59E0B,#D97706)}
+  .kpi.b{background:linear-gradient(160deg,#3B82F6,#2563EB)}
+  .kpi.r{background:linear-gradient(160deg,#EF4444,#DC2626)}
+  .mrow-tools{display:flex;gap:7px;margin:14px 0 10px;flex-wrap:wrap}
+  .mbtn{font-size:.73rem;font-weight:600;padding:6px 11px;border-radius:8px;color:#fff}
+  .mtable{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;font-size:.8rem}
+  .mtable .th,.mtable .tr{display:grid;grid-template-columns:56px 1.4fr 1fr .8fr .8fr;gap:8px;padding:9px 13px;align-items:center}
+  .mtable .th{background:#1E293B;color:#fff;font-weight:600;font-size:.67rem;letter-spacing:.05em;text-transform:uppercase}
+  .mtable .tr{border-top:1px solid var(--border);color:var(--ink-2)}
+  .mtable .tr:nth-child(even){background:var(--surface-2)}
+  .mtable .tag{font-weight:600;font-size:.71rem;padding:2px 8px;border-radius:20px}
+  .mtable .num{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+  .tg-con{background:var(--emerald-soft);color:var(--emerald)}
+  .tg-cre{background:var(--amber-soft);color:var(--amber)}
+  .mcap{font-size:.85rem;color:var(--muted);margin-top:12px;text-align:center;font-style:italic}
+
+  .qs{max-width:430px;margin:22px auto;border:1px solid var(--border-2);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-lg);background:var(--surface)}
+  .qs-h{background:linear-gradient(180deg,#10B981,#059669);color:#fff;padding:12px 18px;font-family:var(--display);font-weight:700;font-size:1rem}
+  .qs-b{padding:18px}
+  .qs-field{margin-bottom:12px}
+  .qs-field label{display:block;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:5px}
+  .qs-field .inp{border:1px solid var(--border-2);border-radius:9px;padding:9px 12px;font-size:.95rem;color:var(--ink);background:var(--ground);display:flex;align-items:center;justify-content:space-between}
+  .qs-field .inp.focus{border-color:var(--emerald-bright);box-shadow:0 0 0 3px var(--emerald-soft)}
+  .qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .qs-save{margin-top:6px;background:linear-gradient(150deg,#10B981,#059669);color:#fff;text-align:center;padding:11px;border-radius:10px;font-weight:700;font-family:var(--display)}
+
+  /* Golden rule flow */
+  .golden{background:linear-gradient(150deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--shadow);margin:22px 0}
+  .rule-flow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .rule-side{border-radius:13px;padding:18px}
+  .rule-side.contado{background:var(--emerald-soft);border:1px solid color-mix(in srgb,var(--emerald-bright) 35%,transparent)}
+  .rule-side.credito{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber-bright) 35%,transparent)}
+  .rule-side .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  .rule-side.contado .k{color:var(--emerald)}
+  .rule-side.credito .k{color:var(--amber)}
+  .rule-side h4{font-family:var(--display);font-size:1.15rem;margin:.35rem 0 .4rem;color:var(--ink)}
+  .rule-side p{font-size:.92rem;margin:0}
+
+  hr.sep{border:none;border-top:1px solid var(--border);margin:52px 0}
+  footer{border-top:1px solid var(--border);margin-top:16px;padding:34px 0;color:var(--muted);font-size:.9rem;text-align:center}
+
+  .topbar{display:none}
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .side{display:none}
+    .topbar{display:flex;position:sticky;top:0;z-index:30;align-items:center;gap:11px;padding:12px 18px;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .mtable .th,.mtable .tr{grid-template-columns:48px 1.3fr .9fr .8fr;}
+    .mtable .col-hide{display:none}
+    .rule-flow{grid-template-columns:1fr}
+  }
+</style>
+
+<div class="topbar">
+  <div class="brand-mark" style="width:32px;height:32px;font-size:17px;border-radius:9px">📱</div>
+  <div class="brand-name" style="font-size:1rem">Pesca<span>Fácil</span> · El negocio en el celular</div>
+</div>
+
+<div class="layout">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark">📱</div>
+      <div><div class="brand-name">Pesca<span>Fácil</span></div></div>
+    </div>
+    <p class="sub">El negocio en el celular</p>
+    <nav>
+      <div class="navlabel">Empezar</div>
+      <a href="#que"><span class="num">1</span> Cómo funciona</a>
+      <a href="#activar"><span class="num">2</span> Activarlo</a>
+      <a href="#perfiles"><span class="num">3</span> Dueño y empleados</a>
+      <div class="navlabel">Vender y cobrar</div>
+      <a href="#vender"><span class="num">4</span> Vender desde el celular</a>
+      <a href="#abonar"><span class="num">5</span> Recibir un abono</a>
+      <a href="#gastos"><span class="num">6</span> Gastos y devoluciones</a>
+      <a href="#factura"><span class="num">7</span> Facturas: ver, compartir, corregir</a>
+      <div class="navlabel">Proveedores y mercancía</div>
+      <a href="#pagar"><span class="num">8</span> Pagar a proveedores y comisionistas</a>
+      <a href="#ingreso"><span class="num">9</span> Registrar la factura de un proveedor</a>
+      <a href="#prestamos"><span class="num">10</span> Préstamos de patio</a>
+      <div class="navlabel">Mirar el negocio</div>
+      <a href="#mirar"><span class="num">11</span> Lo que se puede ver</a>
+      <a href="#cambios"><span class="num">12</span> Aprobar cambios y manejar usuarios</a>
+      <div class="navlabel">Bueno saber</div>
+      <a href="#impresora"><span class="num">13</span> Imprimir desde el celular</a>
+      <a href="#pendientes"><span class="num">14</span> Lo que está “sin sincronizar”</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="content-inner">
+      <div class="doc-hero">
+        <div class="kicker">Manual del tablero móvil</div>
+        <h1>El negocio en el bolsillo</h1>
+        <p>Ver las ventas, la caja y la cartera desde cualquier parte, y también vender, cobrar, registrar gastos e ingresos, pagar proveedores y corregir facturas desde el celular. El computador del negocio recibe todo y lo aplica solo.</p>
+        <div class="meta"><span>pescafacil.github.io</span><span>Celular o computador</span><span>Impresora Bluetooth</span><span>Funciona con poca señal</span><span>Cada negocio ve solo lo suyo</span></div>
+      </div>
+
+      <section class="chapter" id="que">
+        <span class="ctag"><i>1</i> Empezar</span>
+        <h2>Cómo funciona</h2>
+        <p>El computador del negocio sube una “foto” de la información a la nube apenas se guarda algo (y además cada pocos minutos). El celular la muestra en <span class="mono">https://pescafacil.github.io</span>. Lo que usted registra en el celular baja al computador, que lo aplica con las mismas reglas que si se hubiera hecho allá.</p>
+        <div class="warn"><span class="ic">💻</span><p>Para que lo del celular quede en el sistema, <b>el computador debe estar prendido y con internet</b>. Mientras tanto, lo que usted registró se ve en el celular marcado <b>⏳ sin sincronizar</b>, y si el computador lleva más de 10 minutos sin conectarse, arriba sale un aviso naranja.</p></div>
+      </section>
+
+      <section class="chapter" id="activar">
+        <span class="ctag"><i>2</i> Empezar</span>
+        <h2>Activarlo</h2>
+        <div class="steps">
+        <div class="step"><div><h4>Pida su acceso a soporte</h4><p>Le crean la cuenta del negocio y le dan un correo y una clave para el celular.</p></div></div>
+        <div class="step"><div><h4>En el computador</h4><p>Normalmente se activa solo (soporte lo enlaza a su equipo). Si le dieron un token: Gestión → Configuración → Celular → TABLERO MÓVIL, péguelo y active. Abajo a la derecha verá el estado de la sincronización; también puede escoger cada cuántos minutos sube (1 a 10).</p></div></div>
+        <div class="step"><div><h4>En el celular</h4><p>Abra <span class="mono">pescafacil.github.io</span> y entre con su correo y clave. En el menú del navegador, <b>“Agregar a la pantalla de inicio”</b> lo deja como una app más.</p></div></div>
+        </div>
+        <div class="tip"><span class="ic">🔑</span><p>La clave se cambia con la 🔑. Si la olvida: “¿Olvidaste tu contraseña?” le manda un correo.</p></div>
+      </section>
+
+      <section class="chapter" id="perfiles">
+        <span class="ctag"><i>3</i> Empezar</span>
+        <h2>Dueño y empleados</h2>
+        <p>Cada correo tiene un perfil. El <b>dueño</b> ve y puede todo: aprobar cambios, pagar a proveedores, corregir y anular facturas, manejar usuarios. Un <b>empleado</b> (por ejemplo el domiciliario) puede vender, abonar, registrar gastos y devoluciones, y ve su propio arqueo.</p>
+        <p>En el computador, Configuración → Sistema → <b>Nombres de los celulares</b>: póngale nombre a cada correo y en Transacciones (columna DESDE) y en el arqueo saldrá “📱 Domiciliario Juan”.</p>
+      </section>
+
+      <section class="chapter" id="vender">
+        <span class="ctag"><i>4</i> Vender y cobrar</span>
+        <h2>Vender desde el celular</h2>
+        <div class="steps">
+        <div class="step"><div><h4>🛒 Vender</h4><p>Desde el atajo de Transacciones.</p></div></div>
+        <div class="step"><div><h4>Cliente</h4><p>Sin cliente = contado; con cliente = crédito. El buscador encuentra por código o parte del nombre, sin tildes; al final de la lista está <b>➕ Nuevo cliente</b>.</p></div></div>
+        <div class="step"><div><h4>Productos</h4><p>Producto (o ➕ Nuevo producto), kilos y precio (con coma o punto), y el tipo: arroba, kilo, libra, caja o unidad. El precio sugerido del producto se pone solo.</p></div></div>
+        <div class="step"><div><h4>Pago</h4><p>De contado: la caja o <b>Pago mixto</b>. Las casillas “🖨️ Imprimir factura al registrar” y “Con el saldo del cliente” se recuerdan.</p></div></div>
+        </div>
+        <p>Al enviar, sale de una vez el comprobante para imprimir o compartir. En el computador la venta queda como “📱 Venta” (cian) y en DESDE con el nombre del celular.</p>
+      </section>
+
+      <section class="chapter" id="abonar">
+        <span class="ctag"><i>5</i> Vender y cobrar</span>
+        <h2>Recibir un abono</h2>
+        <p><b>💰 Abonar</b>: escoja el cliente, se ve su saldo en grande; <b>💯 Cancelar todo</b> llena lo que debe. Escriba el valor, la caja y una nota. Sale un recibo con saldo anterior, abono y saldo pendiente (o PAZ Y SALVO).</p>
+      </section>
+
+      <section class="chapter" id="gastos">
+        <span class="ctag"><i>6</i> Vender y cobrar</span>
+        <h2>Gastos y devoluciones</h2>
+        <ul class="fns" style="--mc:#DC2626">
+        <li><b>📤 Gasto:</b> valor, concepto y caja (o “por fuera”). Puede amarrarse a un viaje o descontarse de la cuenta de un proveedor. Cae en los GASTOS del cierre del día, igual que F9.</li>
+        <li><b>↩️ Devolución:</b> cliente, producto, kilos y precio: la mercancía vuelve al inventario y se le baja lo que debe, igual que F11.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="factura">
+        <span class="ctag"><i>7</i> Vender y cobrar</span>
+        <h2>Facturas: ver, compartir, corregir</h2>
+        <p>Toque una venta (🧾) en Transacciones o en el estado de cuenta de un cliente: se abre la factura con el mismo formato del POS.</p>
+        <ul class="fns" style="--mc:#2563EB">
+        <li><b>⬇️ Descargar</b> o <b>📤 Compartir</b> (por WhatsApp, por ejemplo) o <b>🖨️ Imprimir</b>.</li>
+        <li><b>✏️ Corregir factura</b> (solo el dueño): cambia productos, kilos, precios o cliente. La factura corregida se ve <b>al instante</b> para mandarla; el computador la aplica al sincronizar.</li>
+        <li><b>🚫 Anular venta</b> (solo el dueño).</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="pagar">
+        <span class="ctag"><i>8</i> Proveedores y mercancía</span>
+        <h2>Pagar a proveedores y comisionistas</h2>
+        <p>En <b>Proveedores</b> hay dos pestañas: <b>🚛 Proveedores</b> (cuánto se les debe) y <b>💼 Comisionistas</b> (lo pendiente de cada viaje en comisión).</p>
+        <ul class="fns" style="--mc:#8B5CF6">
+        <li><b>💵 Pagar</b> (solo el dueño): valor, caja (o por fuera) y nota. En el computador sale del cierre como un pago normal (F7).</li>
+        <li>Un pago ya hecho se toca en Transacciones para <b>corregirlo o anularlo</b>.</li>
+        <li><b>Pagar / anticipo</b> a un comisionista, desde su pestaña.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="ingreso">
+        <span class="ctag"><i>9</i> Proveedores y mercancía</span>
+        <h2>Registrar la factura de un proveedor</h2>
+        <div class="steps">
+        <div class="step"><div><h4>📥 Ingreso</h4><p>También desde el botón Ingreso de cada proveedor (ya trae el proveedor y su viaje de compra).</p></div></div>
+        <div class="step"><div><h4>Proveedor y viaje</h4><p>Existentes o nuevos. En un viaje de comisión la mercancía entra sin cargarle nada a nadie.</p></div></div>
+        <div class="step"><div><h4>Productos</h4><p>Kilos, precio y POR (arroba, kilo, libra, caja, unidad). Retención en % o valor e IVA si la factura los trae. Fecha.</p></div></div>
+        <div class="step"><div><h4>Forma de pago</h4><p>A crédito (sube la cuenta del proveedor), de contado de una caja, o pagado por fuera.</p></div></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="prestamos">
+        <span class="ctag"><i>10</i> Proveedores y mercancía</span>
+        <h2>Préstamos de patio</h2>
+        <p>En Préstamos: los saldos por contacto y por producto ya cruzados, y <b>➕ Registrar préstamo</b> (yo presté / me prestaron, contacto, producto, kilos, viaje y nota).</p>
+      </section>
+
+      <section class="chapter" id="mirar">
+        <span class="ctag"><i>11</i> Mirar el negocio</span>
+        <h2>Lo que se puede ver</h2>
+        <ul class="fns" style="--mc:#10B981">
+        <li><b>Transacciones:</b> lo mismo del computador, con tarjetas de contado, crédito, abonos y gastos, filtros y buscador.</li>
+        <li><b>Cartera y estado de cuenta:</b> buscador de clientes; el estado de cuenta va por factura, con DESDE/HASTA, y se imprime.</li>
+        <li><b>Cierre de caja:</b> igual al del computador: contado + abonos, conteo, gastos, pagos, diferencia y base.</li>
+        <li><b>Cuentas y bancos, inventario (también por viaje), resumen del día y venta por producto.</b></li>
+        <li><b>🛵 Arqueo:</b> cuánto debe entregar cada persona; un empleado ve solo el suyo.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="cambios">
+        <span class="ctag"><i>12</i> Mirar el negocio</span>
+        <h2>Aprobar cambios y manejar usuarios</h2>
+        <ul class="fns" style="--mc:#F59E0B">
+        <li><b>🛡️ Cambios:</b> cuando un cajero sin permiso pide anular o corregir una venta en el computador, el dueño lo <b>aprueba o rechaza</b> aquí. También está el registro de lo que se anuló y corrigió, con cómo estaba y cómo quedó.</li>
+        <li><b>👤 Usuarios:</b> crear usuarios del computador, cambiarles la clave, el rol y los permisos.</li>
+        <li><b>🔔 Campana:</b> avisa abonos nuevos, solicitudes por aprobar y cambios, mientras tenga la página abierta.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="impresora">
+        <span class="ctag"><i>13</i> Bueno saber</span>
+        <h2>Imprimir desde el celular</h2>
+        <div class="steps">
+        <div class="step"><div><h4>Botón 🖨️ arriba</h4><p>Escoja el papel: <b>58 mm</b> u <b>80 mm</b>.</p></div></div>
+        <div class="step"><div><h4>Bluetooth directo</h4><p>En Chrome de Android con impresora Bluetooth: “Conectar” y escoja la impresora. Imprime facturas, comprobantes, recibos y estados de cuenta.</p></div></div>
+        <div class="step"><div><h4>O la app de la impresora</h4><p>Comparte la imagen del tiquete con RawBT o la app del fabricante.</p></div></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="pendientes">
+        <span class="ctag"><i>14</i> Bueno saber</span>
+        <h2>Lo que está “sin sincronizar”</h2>
+        <p>Todo lo que registra en el celular se ve de inmediato marcado <b>⏳ sin sincronizar</b> (borde naranja): ya cuenta en las tarjetas, en la cartera y en el estado de cuenta. Cuando el computador lo aplica, la marca desaparece. Si algo no se pudo aplicar (por ejemplo, un cliente que no existe), la campana avisa el error.</p>
+        <div class="note"><span class="ic">📶</span><p>Con poca señal, el celular usa lo último que bajó (la lista de productos y clientes queda guardada en el teléfono).</p></div>
+      </section>
+
+      <footer>📱 PescaFácil · El negocio en el celular · versión 1.4.45 — desarrollado por Kevin Ortiz · También sirve para CarniFácil y PolloFácil</footer>
+    </div>
+  </main>
+</div>

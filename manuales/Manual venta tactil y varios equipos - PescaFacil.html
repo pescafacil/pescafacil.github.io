@@ -1,0 +1,425 @@
+<title>Venta táctil y varios equipos</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F4F7FB; --surface:#FFFFFF; --surface-2:#F1F5F9; --surface-3:#E9EFF6;
+    --ink:#0F172A; --ink-2:#334155; --muted:#64748B; --faint:#94A3B8;
+    --border:#E2E8F0; --border-2:#CBD5E1;
+    --primary:#2563EB; --primary-bright:#3B82F6; --primary-soft:#DBEAFE;
+    --emerald:#059669; --emerald-bright:#10B981; --emerald-soft:#D1FAE5;
+    --red:#DC2626; --red-bright:#EF4444; --red-soft:#FEE2E2;
+    --amber:#D97706; --amber-bright:#F59E0B; --amber-soft:#FEF3C7;
+    --violet:#8B5CF6; --violet-soft:#EDE9FE;
+    --slate:#475569;
+    --shadow:0 1px 2px rgba(15,23,42,.04),0 8px 24px -14px rgba(15,23,42,.14);
+    --shadow-lg:0 2px 4px rgba(15,23,42,.05),0 24px 50px -22px rgba(15,23,42,.22);
+    --radius:16px;
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"Instrument Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0A0F1C; --surface:#0F172A; --surface-2:#141E33; --surface-3:#1B2740;
+      --ink:#F1F5F9; --ink-2:#CBD5E1; --muted:#94A3B8; --faint:#64748B;
+      --border:#1E293B; --border-2:#2C3B54;
+      --primary:#60A5FA; --primary-bright:#3B82F6; --primary-soft:#17233c;
+      --emerald:#34D399; --emerald-bright:#10B981; --emerald-soft:#0f2e26;
+      --red:#F87171; --red-bright:#EF4444; --red-soft:#3a1717;
+      --amber:#FBBF24; --amber-bright:#F59E0B; --amber-soft:#3a2c0d;
+      --violet:#A78BFA; --violet-soft:#241a3d; --slate:#94A3B8;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 30px -14px rgba(0,0,0,.6);
+      --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 30px 60px -22px rgba(0,0,0,.75);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0A0F1C; --surface:#0F172A; --surface-2:#141E33; --surface-3:#1B2740;
+    --ink:#F1F5F9; --ink-2:#CBD5E1; --muted:#94A3B8; --faint:#64748B;
+    --border:#1E293B; --border-2:#2C3B54;
+    --primary:#60A5FA; --primary-bright:#3B82F6; --primary-soft:#17233c;
+    --emerald:#34D399; --emerald-bright:#10B981; --emerald-soft:#0f2e26;
+    --red:#F87171; --red-bright:#EF4444; --red-soft:#3a1717;
+    --amber:#FBBF24; --amber-bright:#F59E0B; --amber-soft:#3a2c0d;
+    --violet:#A78BFA; --violet-soft:#241a3d; --slate:#94A3B8;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 30px -14px rgba(0,0,0,.6);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 30px 60px -22px rgba(0,0,0,.75);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:var(--display);font-weight:800;line-height:1.08;text-wrap:balance;letter-spacing:-.02em;margin:0}
+  p{margin:0 0 1rem;color:var(--ink-2)}
+  a{color:var(--primary)}
+  .mono{font-family:var(--mono)}
+
+  .layout{display:grid;grid-template-columns:270px 1fr;max-width:1280px;margin:0 auto}
+  .side{position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 20px;border-right:1px solid var(--border);background:var(--surface);scrollbar-width:thin}
+  .side .brand{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .brand-mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(150deg,var(--primary-bright),var(--primary));color:#fff;font-size:20px;box-shadow:var(--shadow)}
+  .brand-name{font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:-.01em}
+  .brand-name span{color:var(--primary)}
+  .side .sub{font-size:.8rem;color:var(--muted);margin:2px 0 22px}
+  .side nav{display:flex;flex-direction:column;gap:1px}
+  .side nav a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.9rem;font-weight:500}
+  .side nav a:hover{background:var(--surface-2);color:var(--ink)}
+  .side nav a .num{font-family:var(--mono);font-size:.72rem;color:var(--faint);width:16px;text-align:right;flex:none}
+  .side .navlabel{font-family:var(--mono);font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin:20px 0 7px 10px}
+
+  .content{min-width:0;padding:0 clamp(20px,5vw,72px)}
+  .content-inner{max-width:770px;margin:0 auto;padding:52px 0 100px}
+
+  .doc-hero{padding:56px 0 38px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .doc-hero .kicker{font-family:var(--mono);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;color:var(--primary);font-weight:500;margin-bottom:16px}
+  .doc-hero h1{font-size:clamp(2.4rem,6vw,3.7rem);letter-spacing:-.03em}
+  .doc-hero p{font-size:1.16rem;color:var(--ink-2);max-width:60ch;margin-top:18px}
+  .doc-hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .doc-hero .meta span{font-family:var(--mono);font-size:.76rem;padding:5px 11px;border-radius:20px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+
+  .chapter{padding-top:18px;margin-top:56px;scroll-margin-top:16px}
+  .area-head{scroll-margin-top:16px;margin-top:70px;padding-top:26px;border-top:2px solid var(--border)}
+  .area-head .al{font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--ac,var(--primary));margin-bottom:8px}
+  .area-head h2{font-size:clamp(1.8rem,4.4vw,2.5rem);letter-spacing:-.025em}
+  .area-head>p{font-size:1.05rem;max-width:62ch;margin-top:10px}
+
+  .chapter>.ctag{font-family:var(--mono);font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;font-weight:600;color:var(--primary);display:inline-flex;align-items:center;gap:9px;margin-bottom:13px}
+  .chapter>.ctag i{width:26px;height:26px;border-radius:8px;background:var(--primary-soft);display:grid;place-items:center;font-style:normal;font-size:14px}
+  .chapter h2{font-size:clamp(1.6rem,4vw,2.25rem);letter-spacing:-.025em;margin-bottom:13px}
+  .chapter>p{font-size:1.05rem;max-width:64ch}
+  h3.sub{font-size:1.18rem;font-weight:700;margin:32px 0 10px}
+
+  .steps{counter-reset:st;display:grid;gap:11px;margin:24px 0}
+  .step{counter-increment:st;display:grid;grid-template-columns:42px 1fr;gap:17px;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+  .step::before{content:counter(st);font-family:var(--display);font-weight:800;font-size:1.2rem;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(150deg,var(--primary-bright),var(--primary));color:#fff}
+  .step h4{font-size:1.03rem;margin-bottom:4px}
+  .step p{margin:0;font-size:.97rem}
+
+  kbd{font-family:var(--mono);font-size:.85em;font-weight:600;background:var(--surface);border:1px solid var(--border-2);border-bottom-width:2px;border-radius:7px;padding:2px 8px;color:var(--ink)}
+  .shortcuts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px;margin-top:22px}
+  .sc{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+  .sc kbd{font-size:1rem;min-width:44px;text-align:center}
+  .sc .scl{font-weight:600;color:var(--ink);font-size:.96rem}
+  .sc .scd{color:var(--muted);font-size:.82rem;margin-top:1px}
+
+  .tip,.warn,.note{border-radius:13px;padding:15px 19px 15px 17px;margin:20px 0;font-size:.96rem;border:1px solid;display:grid;grid-template-columns:24px 1fr;gap:13px;align-items:start}
+  .tip{background:var(--emerald-soft);border-color:color-mix(in srgb,var(--emerald-bright) 34%,transparent)}
+  .warn{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber-bright) 38%,transparent)}
+  .note{background:var(--primary-soft);border-color:color-mix(in srgb,var(--primary) 30%,transparent)}
+  .tip .ic,.warn .ic,.note .ic{font-size:1.1rem;line-height:1.35}
+  .tip p,.warn p,.note p{margin:0;color:var(--ink-2)}
+  .tip b,.warn b,.note b{color:var(--ink)}
+
+  /* Module cards */
+  .modcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0;box-shadow:var(--shadow);margin:20px 0;overflow:hidden}
+  .modcard .mh{display:flex;align-items:center;gap:14px;padding:18px 22px;border-left:5px solid var(--mc,var(--primary));background:linear-gradient(90deg,color-mix(in srgb,var(--mc,var(--primary)) 7%,transparent),transparent 60%)}
+  .modcard .mh .mi{width:42px;height:42px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--mc,var(--primary)) 15%,var(--surface))}
+  .modcard .mh h3{font-size:1.18rem;margin:0}
+  .modcard .mh .mp{font-size:.9rem;color:var(--muted);margin:2px 0 0}
+  .modcard .mb{padding:6px 22px 20px}
+  .modcard .mb .what{font-size:1rem;color:var(--ink-2);margin:12px 0 14px}
+  .fns{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+  .fns li{position:relative;padding-left:22px;font-size:.95rem;color:var(--ink-2)}
+  .fns li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:3px;background:var(--mc,var(--primary))}
+  .fns li b{color:var(--ink);font-weight:600}
+  .badge-new{display:inline-block;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--emerald-soft);color:var(--emerald);border:1px solid color-mix(in srgb,var(--emerald-bright) 40%,transparent);vertical-align:middle;margin-left:8px}
+
+  /* Mockups */
+  .mock{border:1px solid var(--border-2);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);margin:26px 0;background:#F8FAFC}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mock{background:#0d1424}}
+  :root[data-theme="dark"] .mock{background:#0d1424}
+  .mock-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(180deg,#3B82F6,#2f74e6)}
+  .mock-bar .mt{color:#fff;font-weight:700;font-size:.9rem;font-family:var(--display);letter-spacing:-.01em}
+  .mock-bar .dots{display:flex;gap:6px;margin-left:auto}
+  .mock-bar .dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.5)}
+  .mock-body{padding:16px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .kpi{border-radius:11px;padding:12px 14px;color:#fff}
+  .kpi .kl{font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;opacity:.92}
+  .kpi .kv{font-family:var(--display);font-weight:800;font-size:1.24rem;margin-top:5px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .kpi.g{background:linear-gradient(160deg,#10B981,#059669)}
+  .kpi.a{background:linear-gradient(160deg,#F59E0B,#D97706)}
+  .kpi.b{background:linear-gradient(160deg,#3B82F6,#2563EB)}
+  .kpi.r{background:linear-gradient(160deg,#EF4444,#DC2626)}
+  .mrow-tools{display:flex;gap:7px;margin:14px 0 10px;flex-wrap:wrap}
+  .mbtn{font-size:.73rem;font-weight:600;padding:6px 11px;border-radius:8px;color:#fff}
+  .mtable{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;font-size:.8rem}
+  .mtable .th,.mtable .tr{display:grid;grid-template-columns:56px 1.4fr 1fr .8fr .8fr;gap:8px;padding:9px 13px;align-items:center}
+  .mtable .th{background:#1E293B;color:#fff;font-weight:600;font-size:.67rem;letter-spacing:.05em;text-transform:uppercase}
+  .mtable .tr{border-top:1px solid var(--border);color:var(--ink-2)}
+  .mtable .tr:nth-child(even){background:var(--surface-2)}
+  .mtable .tag{font-weight:600;font-size:.71rem;padding:2px 8px;border-radius:20px}
+  .mtable .num{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+  .tg-con{background:var(--emerald-soft);color:var(--emerald)}
+  .tg-cre{background:var(--amber-soft);color:var(--amber)}
+  .mcap{font-size:.85rem;color:var(--muted);margin-top:12px;text-align:center;font-style:italic}
+
+  .qs{max-width:430px;margin:22px auto;border:1px solid var(--border-2);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-lg);background:var(--surface)}
+  .qs-h{background:linear-gradient(180deg,#10B981,#059669);color:#fff;padding:12px 18px;font-family:var(--display);font-weight:700;font-size:1rem}
+  .qs-b{padding:18px}
+  .qs-field{margin-bottom:12px}
+  .qs-field label{display:block;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:5px}
+  .qs-field .inp{border:1px solid var(--border-2);border-radius:9px;padding:9px 12px;font-size:.95rem;color:var(--ink);background:var(--ground);display:flex;align-items:center;justify-content:space-between}
+  .qs-field .inp.focus{border-color:var(--emerald-bright);box-shadow:0 0 0 3px var(--emerald-soft)}
+  .qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .qs-save{margin-top:6px;background:linear-gradient(150deg,#10B981,#059669);color:#fff;text-align:center;padding:11px;border-radius:10px;font-weight:700;font-family:var(--display)}
+
+  /* Golden rule flow */
+  .golden{background:linear-gradient(150deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--shadow);margin:22px 0}
+  .rule-flow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .rule-side{border-radius:13px;padding:18px}
+  .rule-side.contado{background:var(--emerald-soft);border:1px solid color-mix(in srgb,var(--emerald-bright) 35%,transparent)}
+  .rule-side.credito{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber-bright) 35%,transparent)}
+  .rule-side .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  .rule-side.contado .k{color:var(--emerald)}
+  .rule-side.credito .k{color:var(--amber)}
+  .rule-side h4{font-family:var(--display);font-size:1.15rem;margin:.35rem 0 .4rem;color:var(--ink)}
+  .rule-side p{font-size:.92rem;margin:0}
+
+  hr.sep{border:none;border-top:1px solid var(--border);margin:52px 0}
+  footer{border-top:1px solid var(--border);margin-top:16px;padding:34px 0;color:var(--muted);font-size:.9rem;text-align:center}
+
+  .topbar{display:none}
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .side{display:none}
+    .topbar{display:flex;position:sticky;top:0;z-index:30;align-items:center;gap:11px;padding:12px 18px;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .mtable .th,.mtable .tr{grid-template-columns:48px 1.3fr .9fr .8fr;}
+    .mtable .col-hide{display:none}
+    .rule-flow{grid-template-columns:1fr}
+  }
+</style>
+
+<div class="topbar">
+  <div class="brand-mark" style="width:32px;height:32px;font-size:17px;border-radius:9px">🖐️</div>
+  <div class="brand-name" style="font-size:1rem">Pesca<span>Fácil</span> · Venta táctil y varios equipos</div>
+</div>
+
+<div class="layout">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark">🖐️</div>
+      <div><div class="brand-name">Pesca<span>Fácil</span></div></div>
+    </div>
+    <p class="sub">Venta táctil y varios equipos</p>
+    <nav>
+      <div class="navlabel">Empezar</div>
+      <a href="#que"><span class="num">1</span> Qué es y cuándo usarla</a>
+      <a href="#abrir"><span class="num">2</span> Abrirla</a>
+      <a href="#pin"><span class="num">3</span> Operarios con PIN</a>
+      <div class="navlabel">Vender en la pantalla táctil</div>
+      <a href="#pantalla"><span class="num">4</span> La pantalla</a>
+      <a href="#pesar"><span class="num">5</span> Kilos, báscula y precio</a>
+      <a href="#lote"><span class="num">6</span> De qué lote o viaje sale</a>
+      <a href="#cobrar"><span class="num">7</span> Cobrar de contado</a>
+      <a href="#fiar"><span class="num">8</span> Fiar a un cliente</a>
+      <a href="#teclado"><span class="num">9</span> El teclado en pantalla</a>
+      <a href="#altas"><span class="num">10</span> Crear clientes y productos sin salir</a>
+      <div class="navlabel">Varios equipos en el local</div>
+      <a href="#red"><span class="num">11</span> Cómo funciona con varios equipos</a>
+      <a href="#principal"><span class="num">12</span> Configurar el equipo principal</a>
+      <a href="#mostrador"><span class="num">13</span> Configurar un mostrador</a>
+      <a href="#modos"><span class="num">14</span> Las tres maneras de trabajar</a>
+      <a href="#tiquetes"><span class="num">15</span> Tiquetes: imprimir, cobrar y anular</a>
+      <div class="navlabel">Si algo pasa</div>
+      <a href="#caida"><span class="num">16</span> Si se cae la red o se apaga el principal</a>
+      <a href="#preguntas"><span class="num">17</span> Preguntas frecuentes</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="content-inner">
+      <div class="doc-hero">
+        <div class="kicker">Manual de venta táctil</div>
+        <h1>La venta táctil y los negocios con varias cajas</h1>
+        <p>Cómo vender con una pantalla táctil, cómo entran los operarios con su PIN y cómo poner a trabajar varias cajas o puntos de venta contra un solo equipo principal, sin internet.</p>
+        <div class="meta"><span>Pantalla completa</span><span>Operarios con PIN</span><span>Teclado en pantalla</span><span>Cajas y puntos de venta en red</span><span>Tiquetes con código de barras</span></div>
+      </div>
+
+      <section class="chapter" id="que">
+        <span class="ctag"><i>1</i> Empezar</span>
+        <h2>Qué es y cuándo usarla</h2>
+        <p>La venta táctil es una pantalla completa pensada para el mostrador: botones grandes que se tocan con el dedo, la lista de productos a la izquierda, el teclado de números en el centro y el carrito a la derecha. Sirve en PescaFácil, CarniFácil y PolloFácil.</p>
+        <ul class="fns" style="--mc:#10B981">
+        <li><b>Úsela</b> en una carnicería, pollería o pescadería con mostrador y pantalla táctil, o cuando varias personas venden en el mismo equipo (cada una con su PIN).</li>
+        <li><b>Sigue funcionando con mouse y teclado</b>: si empieza a escribir con el teclado físico, busca el producto; con el código + <kbd>Enter</kbd> lo escoge.</li>
+        <li>La venta que se guarda es una venta normal: mueve el inventario, la caja o la cartera, sale en Transacciones y en el cierre, igual que una venta con <kbd>F2</kbd>.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="abrir">
+        <span class="ctag"><i>2</i> Empezar</span>
+        <h2>Abrirla</h2>
+        <div class="steps">
+        <div class="step"><div><h4>Desde Acciones rápidas</h4><p>Botón <b>🖐️ VENTA TÁCTIL</b> en el menú de la izquierda.</p></div></div>
+        <div class="step"><div><h4>Que abra sola al entrar</h4><p>Gestión → Configuración → Sistema → PANTALLA → <b>“Abrir la VENTA TÁCTIL al entrar”</b>.</p></div></div>
+        <div class="step"><div><h4>Empleados que solo venden</h4><p>Gestión → Usuarios → Roles: marque en el rol <b>“🔒 Este rol SOLO entra a la venta táctil”</b> (viene listo el rol <b>Vendedor de mostrador</b>). Ese usuario entra con su clave y ve únicamente la venta táctil; al tocar <b>🔒 SALIR</b> se cierra la sesión.</p></div></div>
+        </div>
+        <div class="note"><span class="ic">🖥️</span><p>Funciona desde pantallas de 1024 × 768. En pantallas angostas la columna del centro se achica sola.</p></div>
+      </section>
+
+      <section class="chapter" id="pin">
+        <span class="ctag"><i>3</i> Empezar</span>
+        <h2>Operarios con PIN</h2>
+        <p>Cada venta queda a nombre de quien la hizo, aunque el programa esté abierto con otro usuario.</p>
+        <div class="steps">
+        <div class="step"><div><h4>Póngale un PIN a cada operario</h4><p>Gestión → Usuarios → editar el usuario → <b>PIN VENTA TÁCTIL</b> (de 4 a 8 números). Sin PIN, entra con su contraseña.</p></div></div>
+        <div class="step"><div><h4>Cambiar de operario</h4><p>Toque <b>👤 Nombre ⇄</b> arriba, escoja la persona y escriba su PIN.</p></div></div>
+        <div class="step"><div><h4>Qué puede hacer cada uno</h4><p>Lo deciden sus permisos: crear clientes (Clientes → Crear), crear productos y fijar precios (Productos → Crear / Editar).</p></div></div>
+        </div>
+        <div class="warn"><span class="ic">🔒</span><p>Tras <b>5 PIN equivocados</b> ese operario espera 5 minutos, y los intentos quedan en Auditoría. Los PIN se guardan cifrados.</p></div>
+      </section>
+
+      <section class="chapter" id="pantalla">
+        <span class="ctag"><i>4</i> Vender en la pantalla táctil</span>
+        <h2>La pantalla</h2>
+        <ul class="fns" style="--mc:#2563EB">
+        <li><b>Izquierda — grupos y productos:</b> arriba los grupos (los tipos de viaje o de lote, y <b>⭐ MÁS VENDIDOS</b> de los últimos 30 días); debajo los cuadros de producto con código, nombre y precio (“$12.000 /kg”). El buscador filtra por código o parte del nombre. 🔄 recarga la lista.</li>
+        <li><b>Centro — lo que se está vendiendo:</b> el producto, la unidad (kilo, libra, arroba; o caja/unidad), KILOS, PRECIO, el subtotal y el teclado: <kbd>7 8 9 ⌫</kbd> <kbd>4 5 6 C</kbd> <kbd>1 2 3 00</kbd> <kbd>0 , 000</kbd>, y <b>➕ AGREGAR</b>.</li>
+        <li><b>Derecha — el carrito:</b> dos renglones por producto (“2,5 kg × $12.000 /kg”), ✕ para quitar uno, el TOTAL grande, y los botones de cobrar y BORRAR.</li>
+        <li><b>Arriba:</b> el cliente (vacío = contado), el operario y, en una caja, el botón de tiquetes por cobrar.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="pesar">
+        <span class="ctag"><i>5</i> Vender en la pantalla táctil</span>
+        <h2>Kilos, báscula y precio</h2>
+        <div class="steps">
+        <div class="step"><div><h4>Toque el producto</h4><p>Se pone su precio de venta (si lo tiene) en la unidad en que se vende.</p></div></div>
+        <div class="step"><div><h4>Kilos</h4><p>Con báscula conectada, KILOS muestra el peso <b>en vivo</b> (verde = quieto, ámbar = moviéndose). Si teclea, pasa a mano; <b>⚖ usar báscula</b> vuelve a la báscula.</p></div></div>
+        <div class="step"><div><h4>Precio completo</h4><p>En la venta táctil el precio se escribe <b>siempre completo</b>: <kbd>12000</kbd> = $12.000 y <kbd>12</kbd> = $12. Se ve en pesos con sus puntos.</p></div></div>
+        <div class="step"><div><h4>➕ AGREGAR</h4><p>Pasa al carrito y queda listo para el siguiente producto.</p></div></div>
+        </div>
+        <div class="tip"><span class="ic">✏️</span><p>Si escribe un precio distinto al del producto aparece <b>“✏️ fijar como precio de venta”</b>: lo deja como el precio del producto para todas las ventas (solo con permiso de editar productos; queda en Auditoría).</p></div>
+      </section>
+
+      <section class="chapter" id="lote">
+        <span class="ctag"><i>6</i> Vender en la pantalla táctil</span>
+        <h2>De qué lote o viaje sale</h2>
+        <p>Debajo de las unidades está el botón <b>LOTE</b>. En <b>automático</b> el sistema escoge solo de dónde sale el producto (el viaje predeterminado o el que lo trae). Si escoge uno, <b>se queda escogido</b> para las siguientes ventas, y muestra cuánto le queda de ese producto en ese lote. El lote sale también en el tiquete.</p>
+      </section>
+
+      <section class="chapter" id="cobrar">
+        <span class="ctag"><i>7</i> Vender en la pantalla táctil</span>
+        <h2>Cobrar de contado</h2>
+        <p>Sin cliente, el botón grande dice <b>💵 COBRAR</b>.</p>
+        <div class="steps">
+        <div class="step"><div><h4>Caja</h4><p>Efectivo, Nequi, Transferencia o Daviplata.</p></div></div>
+        <div class="step"><div><h4>Recibe y cambio</h4><p>En efectivo toque los billetes que le dieron (o escriba el valor) y el sistema muestra el <b>CAMBIO</b>.</p></div></div>
+        <div class="step"><div><h4>Con o sin factura</h4><p>Con factura imprime y le da número; sin factura guarda la venta sin imprimir.</p></div></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="fiar">
+        <span class="ctag"><i>8</i> Vender en la pantalla táctil</span>
+        <h2>Fiar a un cliente</h2>
+        <p>Escoja el cliente arriba (se ve cuánto debe; con <b>➕ NUEVO</b> lo crea ahí mismo). El botón pasa a decir <b>📒 FIAR A …</b>: no hay un botón aparte de fiar, el cliente decide.</p>
+        <ul class="fns" style="--mc:#F59E0B">
+        <li>Antes de guardar confirma “queda debiendo $X”.</li>
+        <li><b>CON / SIN FACTURA</b> y <b>💰 CON / SIN SALDO</b>: la factura puede mostrar o no lo que debe en total.</li>
+        <li>La venta sube su cartera; la caja no se mueve hasta que abone.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="teclado">
+        <span class="ctag"><i>9</i> Vender en la pantalla táctil</span>
+        <h2>El teclado en pantalla</h2>
+        <p>Al <b>tocar</b> una casilla de texto (el buscador, el cliente, la contraseña del operario o un cliente/producto nuevo) sale un teclado abajo de la pantalla — o arriba, si taparía la casilla. Escribe sin quitarle el foco a la casilla; <b>✔ LISTO</b> equivale a <kbd>Enter</kbd>. Con un teclado físico no hace falta: escriba normal.</p>
+      </section>
+
+      <section class="chapter" id="altas">
+        <span class="ctag"><i>10</i> Vender en la pantalla táctil</span>
+        <h2>Crear clientes y productos sin salir</h2>
+        <ul class="fns" style="--mc:#8B5CF6">
+        <li><b>➕ en la barra de grupos:</b> producto nuevo (nombre, unidad y precio de venta). Necesita permiso de crear en Productos.</li>
+        <li><b>➕ NUEVO en el buscador de clientes:</b> cliente nuevo con teléfono y cédula. Necesita permiso de crear en Clientes.</li>
+        <li>Sin el permiso, el botón no aparece. El Admin puede todo.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="red">
+        <span class="ctag"><i>11</i> Varios equipos en el local</span>
+        <h2>Cómo funciona con varios equipos</h2>
+        <p>Un equipo es el <b>PRINCIPAL</b>: ahí vive la base de datos y ahí queda todo guardado. Los demás son <b>MOSTRADORES</b>: abren la venta táctil y le mandan cada venta al principal por la <b>red del local</b> (el mismo router o wifi). <b>No necesita internet.</b></p>
+        <div class="golden"><div class="rule-flow">
+        <div class="rule-side contado"><div class="k">Principal</div><h4>Guarda todo</h4><p>Inventario, caja, cartera, numeración de facturas, cierre. Debe estar prendido mientras se vende.</p></div>
+        <div class="rule-side credito"><div class="k">Mostradores</div><h4>Venden contra él</h4><p>Ven los productos, precios y clientes del principal e imprimen en SU propia impresora.</p></div>
+        </div></div>
+        <div class="warn"><span class="ic">⛔</span><p><b>Nunca comparta la carpeta de la base de datos por red</b> para que otro equipo la abra: la base se daña. Use siempre esta función.</p></div>
+      </section>
+
+      <section class="chapter" id="principal">
+        <span class="ctag"><i>12</i> Varios equipos en el local</span>
+        <h2>Configurar el equipo principal</h2>
+        <div class="steps">
+        <div class="step"><div><h4>Gestión → Configuración → Sistema</h4><p>Tarjeta <b>VARIOS EQUIPOS EN EL LOCAL</b> → “Configurar varios equipos…”.</p></div></div>
+        <div class="step"><div><h4>Escoja PRINCIPAL</h4><p>El cuadro muestra la <b>dirección</b> de este equipo en la red y una <b>clave de enlace de 8 números</b>. Anótelas.</p></div></div>
+        <div class="step"><div><h4>Póngale nombre</h4><p>En Configuración → Sistema → NOMBRES DE EQUIPOS: por ejemplo “Caja principal”. Así sale en la columna DESDE.</p></div></div>
+        </div>
+        <div class="note"><span class="ic">🛡️</span><p>El instalador ya abre el cortafuegos de Windows para la red del local (“PescaFacil red del local”, solo redes privadas). Si Windows pregunta, diga que sí en redes privadas.</p></div>
+      </section>
+
+      <section class="chapter" id="mostrador">
+        <span class="ctag"><i>13</i> Varios equipos en el local</span>
+        <h2>Configurar un mostrador</h2>
+        <div class="steps">
+        <div class="step"><div><h4>Instale PescaFácil en el mostrador</h4><p>Con su licencia, como cualquier equipo.</p></div></div>
+        <div class="step"><div><h4>Configuración → Sistema → Varios equipos → MOSTRADOR</h4><p>Pulse <b>🔎 Buscar en la red</b> (encuentra solo al principal) o escriba su dirección. Escriba la clave de enlace y el <b>nombre del puesto</b> (“Caja 2”, “Pesa 1”).</p></div></div>
+        <div class="step"><div><h4>Escoja la manera de trabajar</h4><p>Ver el capítulo siguiente. Pulse <b>Probar</b>: debe decir que conectó.</p></div></div>
+        <div class="step"><div><h4>Listo</h4><p>Al entrar, el mostrador abre la venta táctil solo y pide escoger operario.</p></div></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="modos">
+        <span class="ctag"><i>14</i> Varios equipos en el local</span>
+        <h2>Las tres maneras de trabajar</h2>
+        <div class="modcard" style="--mc:#10B981"><div class="mh"><div class="mi">🧾</div><div><h3>Punto de venta: genera el tiquete y se cobra en la caja</h3><p class="mp">Varios puntos que pesan y una sola caja que cobra</p></div></div><div class="mb">
+        <p class="what">El operario de la pesa arma el pedido y toca <b>🎫 IMPRIMIR TIQUETE</b>. El tiquete NO es una venta todavía: no mueve inventario ni plata. El cliente va a la caja, la caja lo escanea y ahí se cobra y se vuelve venta.</p>
+        <ul class="fns"><li>Ideal para carnicerías o pescaderías grandes con varias pesas.</li><li>El tiquete queda registrado desde que se imprime (quién, qué puesto, a qué hora).</li></ul></div></div>
+        <div class="modcard" style="--mc:#2563EB"><div class="mh"><div class="mi">🖥️</div><div><h3>Caja separada con factura unificada</h3><p class="mp">Varias cajas que cobran cada una</p></div></div><div class="mb">
+        <p class="what">Cada caja vende y cobra. La numeración de facturas es UNA sola (la del principal), pero la plata de cada caja sale aparte en el <b>Arqueo por persona</b> (“🖥️ Caja 2”), para cuadrar cada cajero.</p></div></div>
+        <div class="modcard" style="--mc:#F59E0B"><div class="mh"><div class="mi">💵</div><div><h3>Vende y cobra con la caja general</h3><p class="mp">Un segundo mostrador que ayuda</p></div></div><div class="mb">
+        <p class="what">El mostrador vende y cobra, y todo cae en la caja general del principal (el arqueo va por operario). Para cuando no hace falta separar la plata.</p></div></div>
+        <p>En todos los casos cada venta lleva el puesto: en Transacciones la columna DESDE dice “🖥️ Caja 2”.</p>
+      </section>
+
+      <section class="chapter" id="tiquetes">
+        <span class="ctag"><i>15</i> Varios equipos en el local</span>
+        <h2>Tiquetes: imprimir, cobrar y anular</h2>
+        <div class="steps">
+        <div class="step"><div><h4>En la pesa: 🎫 IMPRIMIR TIQUETE</h4><p>Sale con número del día en grande, los productos, el TOTAL A PAGAR y un <b>código de barras</b>. Dice “Este tiquete NO es factura”.</p></div></div>
+        <div class="step"><div><h4>En la caja: escanear</h4><p>Pase el lector por el código (o escriba <kbd>T123</kbd> + <kbd>Enter</kbd> en el buscador). Las líneas pasan al carrito con su cliente. Se pueden juntar varios tiquetes en un solo cobro.</p></div></div>
+        <div class="step"><div><h4>O desde la lista</h4><p>El botón <b>🎫 POR COBRAR (n)</b> se actualiza solo cada pocos segundos y avisa “🎫 Llegó el tiquete N° x de Punto 2”. Ahí se ven los abiertos, el más viejo primero (los de otro día con ⚠️).</p></div></div>
+        <div class="step"><div><h4>Cobrar</h4><p>Igual que cualquier venta. El tiquete queda <b>Cobrado</b> y amarrado a su venta; si otra caja ya lo cobró, el sistema no deja cobrarlo dos veces.</p></div></div>
+        </div>
+        <p>En <b>Transacciones</b> cada tiquete sale como “🎫 Tiquete” (lila): <b>Por cobrar</b>, <b>Cobrado → Venta #n</b> o <b>Anulado</b>. No suma a los totales (la venta es la que suma). Un tiquete por cobrar se puede <b>anular</b> (nunca se borra) o reimprimir.</p>
+      </section>
+
+      <section class="chapter" id="caida">
+        <span class="ctag"><i>16</i> Si algo pasa</span>
+        <h2>Si se cae la red o se apaga el principal</h2>
+        <ul class="fns" style="--mc:#DC2626">
+        <li>Sin conexión, el mostrador <b>no vende</b>: muestra un cuadro con <b>REINTENTAR</b>. Revise que el principal esté prendido y en la misma red.</li>
+        <li>Si el principal se reinició, el mostrador pide <b>volver a escoger operario</b>.</li>
+        <li>Lo que ya se guardó está seguro en el principal: no se pierde nada por una caída.</li>
+        <li>El principal avisa abajo a la derecha cuando llega un tiquete.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="preguntas">
+        <span class="ctag"><i>17</i> Si algo pasa</span>
+        <h2>Preguntas frecuentes</h2>
+        <h3 class="sub">¿Cuántos mostradores aguanta?</h3><p>Se probó con tres cajas y una pesa vendiendo al mismo tiempo: 110 de 110 ventas guardadas, sin facturas repetidas y el inventario exacto; cada venta tarda menos de un segundo.</p>
+        <h3 class="sub">¿Cada mostrador necesita licencia?</h3><p>Sí, cada equipo donde se instala PescaFácil lleva su licencia.</p>
+        <h3 class="sub">¿Dónde se imprime?</h3><p>Cada equipo en su propia impresora y con su propio ajuste de papel. La factura la dibuja el principal, así sale idéntica en todos.</p>
+        <h3 class="sub">¿Se puede usar la venta táctil sin varios equipos?</h3><p>Claro: en un solo equipo funciona igual, contra su propia base.</p>
+      </section>
+
+      <footer>🖐️ PescaFácil · Venta táctil y varios equipos · versión 1.4.45 — desarrollado por Kevin Ortiz · También sirve para CarniFácil y PolloFácil</footer>
+    </div>
+  </main>
+</div>

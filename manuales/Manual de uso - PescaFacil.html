@@ -1,0 +1,1119 @@
+<title>Manual de PescaFácil</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F4F7FB; --surface:#FFFFFF; --surface-2:#F1F5F9; --surface-3:#E9EFF6;
+    --ink:#0F172A; --ink-2:#334155; --muted:#64748B; --faint:#94A3B8;
+    --border:#E2E8F0; --border-2:#CBD5E1;
+    --primary:#2563EB; --primary-bright:#3B82F6; --primary-soft:#DBEAFE;
+    --emerald:#059669; --emerald-bright:#10B981; --emerald-soft:#D1FAE5;
+    --red:#DC2626; --red-bright:#EF4444; --red-soft:#FEE2E2;
+    --amber:#D97706; --amber-bright:#F59E0B; --amber-soft:#FEF3C7;
+    --violet:#8B5CF6; --violet-soft:#EDE9FE;
+    --slate:#475569;
+    --shadow:0 1px 2px rgba(15,23,42,.04),0 8px 24px -14px rgba(15,23,42,.14);
+    --shadow-lg:0 2px 4px rgba(15,23,42,.05),0 24px 50px -22px rgba(15,23,42,.22);
+    --radius:16px;
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"Instrument Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0A0F1C; --surface:#0F172A; --surface-2:#141E33; --surface-3:#1B2740;
+      --ink:#F1F5F9; --ink-2:#CBD5E1; --muted:#94A3B8; --faint:#64748B;
+      --border:#1E293B; --border-2:#2C3B54;
+      --primary:#60A5FA; --primary-bright:#3B82F6; --primary-soft:#17233c;
+      --emerald:#34D399; --emerald-bright:#10B981; --emerald-soft:#0f2e26;
+      --red:#F87171; --red-bright:#EF4444; --red-soft:#3a1717;
+      --amber:#FBBF24; --amber-bright:#F59E0B; --amber-soft:#3a2c0d;
+      --violet:#A78BFA; --violet-soft:#241a3d; --slate:#94A3B8;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 30px -14px rgba(0,0,0,.6);
+      --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 30px 60px -22px rgba(0,0,0,.75);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0A0F1C; --surface:#0F172A; --surface-2:#141E33; --surface-3:#1B2740;
+    --ink:#F1F5F9; --ink-2:#CBD5E1; --muted:#94A3B8; --faint:#64748B;
+    --border:#1E293B; --border-2:#2C3B54;
+    --primary:#60A5FA; --primary-bright:#3B82F6; --primary-soft:#17233c;
+    --emerald:#34D399; --emerald-bright:#10B981; --emerald-soft:#0f2e26;
+    --red:#F87171; --red-bright:#EF4444; --red-soft:#3a1717;
+    --amber:#FBBF24; --amber-bright:#F59E0B; --amber-soft:#3a2c0d;
+    --violet:#A78BFA; --violet-soft:#241a3d; --slate:#94A3B8;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 30px -14px rgba(0,0,0,.6);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 30px 60px -22px rgba(0,0,0,.75);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:var(--display);font-weight:800;line-height:1.08;text-wrap:balance;letter-spacing:-.02em;margin:0}
+  p{margin:0 0 1rem;color:var(--ink-2)}
+  a{color:var(--primary)}
+  .mono{font-family:var(--mono)}
+
+  .layout{display:grid;grid-template-columns:270px 1fr;max-width:1280px;margin:0 auto}
+  .side{position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 20px;border-right:1px solid var(--border);background:var(--surface);scrollbar-width:thin}
+  .side .brand{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .brand-mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(150deg,var(--primary-bright),var(--primary));color:#fff;font-size:20px;box-shadow:var(--shadow)}
+  .brand-name{font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:-.01em}
+  .brand-name span{color:var(--primary)}
+  .side .sub{font-size:.8rem;color:var(--muted);margin:2px 0 22px}
+  .side nav{display:flex;flex-direction:column;gap:1px}
+  .side nav a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.9rem;font-weight:500}
+  .side nav a:hover{background:var(--surface-2);color:var(--ink)}
+  .side nav a .num{font-family:var(--mono);font-size:.72rem;color:var(--faint);width:16px;text-align:right;flex:none}
+  .side .navlabel{font-family:var(--mono);font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin:20px 0 7px 10px}
+
+  .content{min-width:0;padding:0 clamp(20px,5vw,72px)}
+  .content-inner{max-width:770px;margin:0 auto;padding:52px 0 100px}
+
+  .doc-hero{padding:56px 0 38px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .doc-hero .kicker{font-family:var(--mono);font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;color:var(--primary);font-weight:500;margin-bottom:16px}
+  .doc-hero h1{font-size:clamp(2.4rem,6vw,3.7rem);letter-spacing:-.03em}
+  .doc-hero p{font-size:1.16rem;color:var(--ink-2);max-width:60ch;margin-top:18px}
+  .doc-hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .doc-hero .meta span{font-family:var(--mono);font-size:.76rem;padding:5px 11px;border-radius:20px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+
+  .chapter{padding-top:18px;margin-top:56px;scroll-margin-top:16px}
+  .area-head{scroll-margin-top:16px;margin-top:70px;padding-top:26px;border-top:2px solid var(--border)}
+  .area-head .al{font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--ac,var(--primary));margin-bottom:8px}
+  .area-head h2{font-size:clamp(1.8rem,4.4vw,2.5rem);letter-spacing:-.025em}
+  .area-head>p{font-size:1.05rem;max-width:62ch;margin-top:10px}
+
+  .chapter>.ctag{font-family:var(--mono);font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;font-weight:600;color:var(--primary);display:inline-flex;align-items:center;gap:9px;margin-bottom:13px}
+  .chapter>.ctag i{width:26px;height:26px;border-radius:8px;background:var(--primary-soft);display:grid;place-items:center;font-style:normal;font-size:14px}
+  .chapter h2{font-size:clamp(1.6rem,4vw,2.25rem);letter-spacing:-.025em;margin-bottom:13px}
+  .chapter>p{font-size:1.05rem;max-width:64ch}
+  h3.sub{font-size:1.18rem;font-weight:700;margin:32px 0 10px}
+
+  .steps{counter-reset:st;display:grid;gap:11px;margin:24px 0}
+  .step{counter-increment:st;display:grid;grid-template-columns:42px 1fr;gap:17px;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+  .step::before{content:counter(st);font-family:var(--display);font-weight:800;font-size:1.2rem;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(150deg,var(--primary-bright),var(--primary));color:#fff}
+  .step h4{font-size:1.03rem;margin-bottom:4px}
+  .step p{margin:0;font-size:.97rem}
+
+  kbd{font-family:var(--mono);font-size:.85em;font-weight:600;background:var(--surface);border:1px solid var(--border-2);border-bottom-width:2px;border-radius:7px;padding:2px 8px;color:var(--ink)}
+  .shortcuts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px;margin-top:22px}
+  .sc{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+  .sc kbd{font-size:1rem;min-width:44px;text-align:center}
+  .sc .scl{font-weight:600;color:var(--ink);font-size:.96rem}
+  .sc .scd{color:var(--muted);font-size:.82rem;margin-top:1px}
+
+  .tip,.warn,.note{border-radius:13px;padding:15px 19px 15px 17px;margin:20px 0;font-size:.96rem;border:1px solid;display:grid;grid-template-columns:24px 1fr;gap:13px;align-items:start}
+  .tip{background:var(--emerald-soft);border-color:color-mix(in srgb,var(--emerald-bright) 34%,transparent)}
+  .warn{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber-bright) 38%,transparent)}
+  .note{background:var(--primary-soft);border-color:color-mix(in srgb,var(--primary) 30%,transparent)}
+  .tip .ic,.warn .ic,.note .ic{font-size:1.1rem;line-height:1.35}
+  .tip p,.warn p,.note p{margin:0;color:var(--ink-2)}
+  .tip b,.warn b,.note b{color:var(--ink)}
+
+  /* Module cards */
+  .modcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0;box-shadow:var(--shadow);margin:20px 0;overflow:hidden}
+  .modcard .mh{display:flex;align-items:center;gap:14px;padding:18px 22px;border-left:5px solid var(--mc,var(--primary));background:linear-gradient(90deg,color-mix(in srgb,var(--mc,var(--primary)) 7%,transparent),transparent 60%)}
+  .modcard .mh .mi{width:42px;height:42px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--mc,var(--primary)) 15%,var(--surface))}
+  .modcard .mh h3{font-size:1.18rem;margin:0}
+  .modcard .mh .mp{font-size:.9rem;color:var(--muted);margin:2px 0 0}
+  .modcard .mb{padding:6px 22px 20px}
+  .modcard .mb .what{font-size:1rem;color:var(--ink-2);margin:12px 0 14px}
+  .fns{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+  .fns li{position:relative;padding-left:22px;font-size:.95rem;color:var(--ink-2)}
+  .fns li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:3px;background:var(--mc,var(--primary))}
+  .fns li b{color:var(--ink);font-weight:600}
+  .badge-new{display:inline-block;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--emerald-soft);color:var(--emerald);border:1px solid color-mix(in srgb,var(--emerald-bright) 40%,transparent);vertical-align:middle;margin-left:8px}
+
+  /* Mockups */
+  .mock{border:1px solid var(--border-2);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);margin:26px 0;background:#F8FAFC}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mock{background:#0d1424}}
+  :root[data-theme="dark"] .mock{background:#0d1424}
+  .mock-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(180deg,#3B82F6,#2f74e6)}
+  .mock-bar .mt{color:#fff;font-weight:700;font-size:.9rem;font-family:var(--display);letter-spacing:-.01em}
+  .mock-bar .dots{display:flex;gap:6px;margin-left:auto}
+  .mock-bar .dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.5)}
+  .mock-body{padding:16px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .kpi{border-radius:11px;padding:12px 14px;color:#fff}
+  .kpi .kl{font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;opacity:.92}
+  .kpi .kv{font-family:var(--display);font-weight:800;font-size:1.24rem;margin-top:5px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .kpi.g{background:linear-gradient(160deg,#10B981,#059669)}
+  .kpi.a{background:linear-gradient(160deg,#F59E0B,#D97706)}
+  .kpi.b{background:linear-gradient(160deg,#3B82F6,#2563EB)}
+  .kpi.r{background:linear-gradient(160deg,#EF4444,#DC2626)}
+  .mrow-tools{display:flex;gap:7px;margin:14px 0 10px;flex-wrap:wrap}
+  .mbtn{font-size:.73rem;font-weight:600;padding:6px 11px;border-radius:8px;color:#fff}
+  .mtable{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;font-size:.8rem}
+  .mtable .th,.mtable .tr{display:grid;grid-template-columns:56px 1.4fr 1fr .8fr .8fr;gap:8px;padding:9px 13px;align-items:center}
+  .mtable .th{background:#1E293B;color:#fff;font-weight:600;font-size:.67rem;letter-spacing:.05em;text-transform:uppercase}
+  .mtable .tr{border-top:1px solid var(--border);color:var(--ink-2)}
+  .mtable .tr:nth-child(even){background:var(--surface-2)}
+  .mtable .tag{font-weight:600;font-size:.71rem;padding:2px 8px;border-radius:20px}
+  .mtable .num{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+  .tg-con{background:var(--emerald-soft);color:var(--emerald)}
+  .tg-cre{background:var(--amber-soft);color:var(--amber)}
+  .mcap{font-size:.85rem;color:var(--muted);margin-top:12px;text-align:center;font-style:italic}
+
+  .qs{max-width:430px;margin:22px auto;border:1px solid var(--border-2);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-lg);background:var(--surface)}
+  .qs-h{background:linear-gradient(180deg,#10B981,#059669);color:#fff;padding:12px 18px;font-family:var(--display);font-weight:700;font-size:1rem}
+  .qs-b{padding:18px}
+  .qs-field{margin-bottom:12px}
+  .qs-field label{display:block;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:5px}
+  .qs-field .inp{border:1px solid var(--border-2);border-radius:9px;padding:9px 12px;font-size:.95rem;color:var(--ink);background:var(--ground);display:flex;align-items:center;justify-content:space-between}
+  .qs-field .inp.focus{border-color:var(--emerald-bright);box-shadow:0 0 0 3px var(--emerald-soft)}
+  .qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .qs-save{margin-top:6px;background:linear-gradient(150deg,#10B981,#059669);color:#fff;text-align:center;padding:11px;border-radius:10px;font-weight:700;font-family:var(--display)}
+
+  /* Golden rule flow */
+  .golden{background:linear-gradient(150deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--shadow);margin:22px 0}
+  .rule-flow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .rule-side{border-radius:13px;padding:18px}
+  .rule-side.contado{background:var(--emerald-soft);border:1px solid color-mix(in srgb,var(--emerald-bright) 35%,transparent)}
+  .rule-side.credito{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber-bright) 35%,transparent)}
+  .rule-side .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  .rule-side.contado .k{color:var(--emerald)}
+  .rule-side.credito .k{color:var(--amber)}
+  .rule-side h4{font-family:var(--display);font-size:1.15rem;margin:.35rem 0 .4rem;color:var(--ink)}
+  .rule-side p{font-size:.92rem;margin:0}
+
+  hr.sep{border:none;border-top:1px solid var(--border);margin:52px 0}
+  footer{border-top:1px solid var(--border);margin-top:16px;padding:34px 0;color:var(--muted);font-size:.9rem;text-align:center}
+
+  .topbar{display:none}
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .side{display:none}
+    .topbar{display:flex;position:sticky;top:0;z-index:30;align-items:center;gap:11px;padding:12px 18px;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .mtable .th,.mtable .tr{grid-template-columns:48px 1.3fr .9fr .8fr;}
+    .mtable .col-hide{display:none}
+    .rule-flow{grid-template-columns:1fr}
+  }
+</style>
+
+<div class="topbar">
+  <div class="brand-mark" style="width:32px;height:32px;font-size:17px;border-radius:9px">🐟</div>
+  <div class="brand-name" style="font-size:1rem">Pesca<span>Fácil</span> · Manual</div>
+</div>
+
+<div class="layout">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark">🐟</div>
+      <div><div class="brand-name">Pesca<span>Fácil</span></div></div>
+    </div>
+    <p class="sub">Manual de uso completo</p>
+    <nav>
+      <div class="navlabel">Empezar</div>
+      <a href="#entrar"><span class="num">1</span> Entrar al programa</a>
+      <a href="#config"><span class="num">2</span> Configurar el negocio</a>
+      <a href="#pantalla"><span class="num">3</span> La pantalla principal</a>
+      <div class="navlabel">El día a día</div>
+      <a href="#venta"><span class="num">4</span> Hacer una venta</a>
+      <a href="#abono"><span class="num">5</span> Cobrar un abono</a>
+      <a href="#viaje"><span class="num">6</span> Registrar un viaje</a>
+      <a href="#gasto"><span class="num">7</span> Anotar un gasto</a>
+      <a href="#cierre"><span class="num">8</span> Cerrar la caja</a>
+      <a href="#devolucion"><span class="num">9</span> Devoluciones y procesos</a>
+      <div class="navlabel">Guía por módulos</div>
+      <a href="#m-inicio"><span class="num">◆</span> Inicio</a>
+      <a href="#m-inventario"><span class="num">◆</span> Inventario</a>
+      <a href="#m-cartera"><span class="num">◆</span> Cartera</a>
+      <a href="#m-finanzas"><span class="num">◆</span> Finanzas</a>
+      <a href="#m-reportes"><span class="num">◆</span> Reportes</a>
+      <a href="#m-gestion"><span class="num">◆</span> Gestión</a>
+      <div class="navlabel">Más del día a día</div>
+      <a href="#precios"><span class="num">10</span> Cómo se escriben los precios</a>
+      <a href="#unidades"><span class="num">11</span> Caja, unidad y libra</a>
+      <a href="#bascula"><span class="num">12</span> Pesadas y báscula</a>
+      <a href="#mixto"><span class="num">13</span> Pago mixto</a>
+      <a href="#pagos"><span class="num">14</span> Pagos y cruce de cuentas</a>
+      <a href="#ingresos"><span class="num">15</span> Ingresos al detalle</a>
+      <a href="#prestamos"><span class="num">16</span> Préstamos al detalle</a>
+      <a href="#transacciones"><span class="num">17</span> Sacarle provecho a Transacciones</a>
+      <a href="#arqueo"><span class="num">18</span> Arqueo por persona</a>
+      <a href="#seguridad"><span class="num">19</span> Auditoría, roles y seguridad</a>
+      <a href="#tactil"><span class="num">20</span> Venta táctil y varios equipos</a>
+      <a href="#dian"><span class="num">21</span> Facturación electrónica DIAN</a>
+      <a href="#ediciones"><span class="num">22</span> CarniFácil y PolloFácil</a>
+      <a href="#manuales"><span class="num">23</span> Los manuales en el programa</a>
+      <div class="navlabel">Bueno saber</div>
+      <a href="#reglas"><span class="num">★</span> Reglas de oro</a>
+      <a href="#celular"><span class="num">📱</span> El negocio en el celular</a>
+      <a href="#actualizar"><span class="num">⬆</span> Actualizaciones</a>
+      <a href="#respaldo"><span class="num">☁</span> Respaldo en la nube</a>
+      <a href="#limpiar"><span class="num">🧹</span> Dejar en blanco</a>
+      <a href="#licencia"><span class="num">🔑</span> Licencia</a>
+      <a href="#requisitos"><span class="num">💻</span> Requisitos del equipo</a>
+      <a href="#atajos"><span class="num">⌨</span> Atajos de teclado</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="content-inner">
+      <div class="doc-hero">
+        <div class="kicker">Manual de uso</div>
+        <h1>PescaFácil, de principio a fin</h1>
+        <p>Cómo atender el mostrador todos los días y para qué sirve cada una de las pantallas del sistema. Todo explicado sin tecnicismos.</p>
+        <div class="meta"><span>Versión 1.4.45</span><span>27 pantallas</span><span>6 secciones</span><span>Atajos F2 – F12</span><span>Con tablero en el celular</span><span>Facturación electrónica DIAN</span></div>
+      </div>
+
+      <!-- 1 -->
+      <section class="chapter" id="entrar">
+        <span class="ctag"><i>1</i> Empezar</span>
+        <h2>Entrar al programa</h2>
+        <p>La primera vez entra con el usuario de administrador. Desde ahí crea los demás usuarios (cajeros, bodega) y decide qué puede ver cada uno.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Abra PescaFácil</h4><p>Doble clic en el ícono del escritorio. Arranca solo, no hay que abrir nada más.</p></div></div>
+          <div class="step"><div><h4>Escriba usuario y clave</h4><p>La primera vez: usuario <kbd>admin</kbd> y clave <kbd>admin123</kbd>. La casilla <b>“Mostrar contraseña”</b> deja ver lo que escribe para no equivocarse.</p></div></div>
+          <div class="step"><div><h4>Cambie la clave</h4><p>En <b>Gestión → Usuarios</b>, cámbiele la clave al administrador por una suya.</p></div></div>
+        </div>
+        <div class="warn"><span class="ic">⚠️</span><p><b>Hágalo el primer día.</b> Mientras la clave siga en <span class="mono">admin123</span>, cualquiera que la conozca entra con todos los permisos.</p></div>
+      </section>
+
+      <!-- 2 -->
+      <section class="chapter" id="config">
+        <span class="ctag"><i>2</i> Empezar</span>
+        <h2>Configurar el negocio</h2>
+        <p>Antes de vender, deje listos los datos del negocio en <b>Gestión → Configuración</b>. Esto es lo que sale en los tiquetes y define cómo se comporta el sistema.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Datos de la empresa y logo</h4><p>Nombre, NIT, dirección, teléfono y el logo que aparece en la factura.</p></div></div>
+          <div class="step"><div><h4>Cargue los productos</h4><p>El sistema se instala <b>vacío</b>. En la tarjeta <b>“Productos y viaje predeterminado”</b> pulse <b>“Cargar productos de fábrica”</b> (78 pescados y mariscos comunes) y luego <b>“Crear viaje predeterminado”</b> para poder vender sin registrar viajes. Si prefiere, cree solo los suyos en Inventario → Productos.</p></div></div>
+          <div class="step"><div><h4>Ventas y factura</h4><p>Decida si la factura sale <b>con el saldo del cliente</b> por defecto (en cada venta se puede cambiar), si en las facturas a crédito la cifra grande es el <b>saldo final</b> en vez del total de la venta, el % para los viajes de comisión y los textos del pie de la factura.</p></div></div>
+          <div class="step"><div><h4>Tipos de viaje</h4><p>Mojarreros, Bagre y Congelados ya vienen armados con sus productos. Al crear un viaje, elige el tipo y le carga la lista de una vez. Se cambian en la tarjeta <b>“Tipos de viaje”</b>.</p></div></div>
+          <div class="step"><div><h4>Cargue clientes y proveedores que ya venían debiendo</h4><p>Al crearlos ponga su <b>saldo inicial</b> (ver la sección de Cartera). Así arranca el sistema con las cuentas al día.</p></div></div>
+        </div>
+        <div class="tip"><span class="ic">☁️</span><p>Aproveche y deje configurado el <b>respaldo en la nube</b> (ver más abajo). Cinco minutos ahora le pueden salvar el negocio si el equipo se daña.</p></div>
+      </section>
+
+      <!-- 3 -->
+      <section class="chapter" id="pantalla">
+        <span class="ctag"><i>3</i> Empezar</span>
+        <h2>La pantalla principal</h2>
+        <p>Al entrar ve el tablero del día: cuánto lleva de contado, de crédito y de abonos, y la lista de todo lo que ha pasado hoy. A la izquierda está el menú con las seis secciones.</p>
+        <div class="mock" role="img" aria-label="Tablero del día con tarjetas de totales y la lista de ventas">
+          <div class="mock-bar"><span class="mt">🐟 Transacciones — Lunes, 31 de agosto</span><span class="dots"><i></i><i></i><i></i></span></div>
+          <div class="mock-body">
+            <div class="kpis">
+              <div class="kpi g"><div class="kl">Contado</div><div class="kv">$2.112.000</div></div>
+              <div class="kpi a"><div class="kl">Crédito</div><div class="kv">$1.584.000</div></div>
+              <div class="kpi b"><div class="kl">Abonos</div><div class="kv">$0</div></div>
+              <div class="kpi r"><div class="kl">Gastos</div><div class="kv">$120.000</div></div>
+            </div>
+            <div class="mrow-tools">
+              <span class="mbtn" style="background:#3B82F6">Actualizar</span>
+              <span class="mbtn" style="background:#EF4444">Anular</span>
+              <span class="mbtn" style="background:#3B82F6">Editar</span>
+              <span class="mbtn" style="background:#F59E0B">Marcar</span>
+              <span class="mbtn" style="background:#10B981">Excel</span>
+              <span class="mbtn" style="background:#8B5CF6">Tiquete</span>
+            </div>
+            <div class="mtable">
+              <div class="th"><span>N°</span><span>Cliente</span><span>Producto</span><span class="col-hide">Pago</span><span style="text-align:right">Valor</span></div>
+              <div class="tr"><span class="num">93</span><span>Pescadería La 14</span><span>Bocachico</span><span class="col-hide"><span class="tag tg-cre">Crédito</span></span><span class="num" style="text-align:right">$576.000</span></div>
+              <div class="tr"><span class="num">92</span><span>Restaurante El Puerto</span><span>Mojarra</span><span class="col-hide"><span class="tag tg-cre">Crédito</span></span><span class="num" style="text-align:right">$1.008.000</span></div>
+              <div class="tr"><span class="num">91</span><span>Contado</span><span>Bocachico</span><span class="col-hide"><span class="tag tg-con">Contado</span></span><span class="num" style="text-align:right">$768.000</span></div>
+              <div class="tr"><span class="num">90</span><span>Contado</span><span>Mojarra</span><span class="col-hide"><span class="tag tg-con">Contado</span></span><span class="num" style="text-align:right">$1.344.000</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="mcap">El tablero del día: las tarjetas se actualizan solas con cada venta.</p>
+        <div class="note"><span class="ic">💡</span><p><b>El menú se puede achicar.</b> El botón junto al logo lo colapsa a solo íconos para ganar espacio en pantalla.</p></div>
+      </section>
+
+      <!-- 4 venta -->
+      <section class="chapter" id="venta">
+        <span class="ctag"><i>4</i> El día a día</span>
+        <h2>Hacer una venta</h2>
+        <p>Es lo que más va a hacer. Hay dos formas: la <b>venta normal</b> (<kbd>F2</kbd>, con factura y varios productos) y la <b>venta rápida</b> (<kbd>F10</kbd>, un producto, para las horas de afán).</p>
+        <h3 class="sub">La forma rápida — tecla <kbd>F10</kbd></h3>
+        <p>Escribe el cliente (o lo deja en contado), el producto, los kilos y el precio. Al dar <kbd>Enter</kbd> en el precio, la venta se guarda y el formulario se limpia para la siguiente.</p>
+        <p>La casilla “🖨️ Con factura” decide si imprime y da número (se recuerda). El VIAJE se escoge solo, pero se puede cambiar en la esquina de la fila del producto.</p>
+        <div class="qs" role="img" aria-label="Formulario de venta rápida">
+          <div class="qs-h">⚡ Venta rápida</div>
+          <div class="qs-b">
+            <div class="qs-field"><label>Cliente (vacío = contado)</label><div class="inp" style="color:var(--muted)">CONTADO</div></div>
+            <div class="qs-field"><label>Producto</label><div class="inp">Mojarra</div></div>
+            <div class="qs-grid">
+              <div class="qs-field"><label>Kilos</label><div class="inp">120</div></div>
+              <div class="qs-field"><label>Precio ($mil) · x Arroba</label><div class="inp focus">140</div></div>
+            </div>
+            <div class="qs-save">Guardar venta &nbsp;·&nbsp; Enter ⏎</div>
+          </div>
+        </div>
+        <h3 class="sub">La venta normal — tecla <kbd>F2</kbd></h3>
+        <p>Abre una ventana con <b>pestañas</b>: puede tener varias ventas a medio hacer a la vez (un cliente que fue por más pescado, otro que espera) y cambiar entre ellas.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Cliente</h4><p>Vacío = contado. Con cliente = crédito, y se ve cuánto debe. Debajo puede escribir un <b>título</b> para la factura (por ejemplo “Pedido Mosquera”) que sale impreso arriba.</p></div></div>
+          <div class="step"><div><h4>Productos</h4><p>Busque el producto, escriba kilos (o use <b>Σ</b> / <kbd>F5</kbd> para sumar varias pesadas, o la báscula con <kbd>F12</kbd>) y el precio: <b>por arroba en miles</b> (<kbd>150</kbd> = $150.000) y <b>por kilo completo</b> (<kbd>12500</kbd> = $12.500, los puntos salen solos). Agréguelo; puede agregar varios y la ✕ quita uno.</p></div></div>
+          <div class="step"><div><h4>Factura y saldo</h4><p>Elija si lleva número de factura y si <b>imprime el saldo</b> del cliente. Guarde: sale la factura en la impresora POS.</p></div></div>
+        </div>
+        <div class="tip"><span class="ic">🧾</span><p><b>La factura</b> sale con el estilo de un POS profesional: fecha y número arriba, los <b>datos del cliente</b> (NIT/C.C, dirección, teléfono, correo — los que no tenga salen “N/A”), la lista de productos y el total.</p></div>
+        <div class="note"><span class="ic">✏️</span><p><b>¿Falta un producto o un cliente?</b> En el buscador está el botón <b>“➕ Nuevo”</b>, y para productos también <b>“Editar”</b>: corrige el nombre o el código sin salir de la venta. Si el código que escribe ya lo tiene otro producto, el sistema ofrece <b>intercambiarlos</b> o pasar el otro al siguiente código libre.</p></div>
+        <div class="tip"><span class="ic">🚢</span><p><b>¿Necesita un viaje aparte o le falta mercancía?</b> Sin salir de la venta: <kbd>F6</kbd> crea un viaje nuevo (ya con el producto que está vendiendo) y lo deja elegido; <kbd>F4</kbd> hace el ingreso de mercancía al viaje elegido. Y si el viaje no tiene ese producto, al vender se le agrega solo.</p></div>
+        <div class="note"><span class="ic">🧾</span><p><b>¿Se equivocó?</b> No la borre. Búsquela en el tablero y use <b>Editar</b> (puede quitar una sola pesada, cambiar kilos, precio, cliente o pasar de contado a crédito) o <b>Anular</b>: el sistema revierte solo el stock, la caja y la cartera, y siempre queda el historial.</p></div>
+      </section>
+
+      <!-- 5 abono -->
+      <section class="chapter" id="abono">
+        <span class="ctag"><i>5</i> El día a día</span>
+        <h2>Cobrar un abono</h2>
+        <p>Cuando un cliente a crédito le paga, registre el abono. Esto baja lo que le debe y mete la plata a la caja.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Presione <kbd>F3</kbd></h4><p>Abre la ventana de abono desde cualquier pantalla.</p></div></div>
+          <div class="step"><div><h4>Busque el cliente</h4><p>Escriba parte del nombre; el sistema le muestra cuánto debe.</p></div></div>
+          <div class="step"><div><h4>Monto y caja</h4><p>Cuánto abona y a dónde entra (Efectivo, Nequi…). Guarde e imprima el recibo.</p></div></div>
+        </div>
+      </section>
+
+      <!-- 6 viaje -->
+      <section class="chapter" id="viaje">
+        <span class="ctag"><i>6</i> El día a día</span>
+        <h2>Registrar un viaje</h2>
+        <p>Un “viaje” es la mercancía que llega. Al registrarlo entra el pescado al inventario y, si es a crédito, sube lo que le debe al proveedor; los gastos (hielo, transporte) salen de la caja.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Presione <kbd>F6</kbd></h4><p>Abre un viaje nuevo, con un <b>código ya sugerido</b> (el siguiente número) que puede cambiar.</p></div></div>
+          <div class="step"><div><h4>Compra o comisión</h4><p><b>Compra:</b> usted compra y vende. <b>Comisión:</b> vende por cuenta de un tercero y cobra un porcentaje.</p></div></div>
+          <div class="step"><div><h4>Tipo de viaje y productos</h4><p>Elija <b>Mojarreros, Bagre o Congelados</b> y pulse <b>“Cargar productos”</b>: llega toda la lista en 0 kg. Escriba los <b>kilos y el precio de compra</b> directamente en la lista, y en <b>POR</b> elija si ese precio es por <b>arroba, kilo, caja o unidad</b> (solo la arroba divide entre 12,5). Ese precio es el que después calcula la utilidad y lo que se le carga al proveedor.</p></div></div>
+          <div class="step"><div><h4>Gastos y caja</h4><p>Hielo, transporte, etc. Elija de qué caja salen: se descuentan de verdad y quedan anotados solos en el cierre de caja del día.</p></div></div>
+        </div>
+        <div class="note"><span class="ic">📥</span><p><b>¿Llegó la factura de un proveedor para un viaje que ya existe?</b> Use <kbd>F4</kbd> <b>Ingreso rápido</b>: entra la mercancía al viaje y sube la cuenta del proveedor (o sale de la caja si fue de contado).</p></div>
+        <div class="tip"><span class="ic">➖</span><p><b>El stock puede quedar en negativo, y está bien.</b> En el terminal el pescado se vende apenas llega y el ingreso se registra después. El sistema no lo bloquea, a propósito.</p></div>
+      </section>
+
+      <!-- 7 gasto -->
+      <section class="chapter" id="gasto">
+        <span class="ctag"><i>7</i> El día a día</span>
+        <h2>Anotar un gasto</h2>
+        <p>Cualquier salida de plata que no sea pago a proveedor: almuerzo, bolsas, un domicilio.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Presione <kbd>F9</kbd></h4><p>Abre el gasto rápido.</p></div></div>
+          <div class="step"><div><h4>Monto, caja y concepto</h4><p>Si el gasto es de un viaje, puede amarrarlo para que cuente en su balance.</p></div></div>
+          <div class="step"><div><h4>¿Sale de la caja?</h4><p>Marcado (normal): se descuenta de la caja y <b>se anota solo en el cierre de caja</b> del día. Desmarcado: queda como gasto “por fuera de caja” (lo pagó de su bolsillo) sin mover el saldo.</p></div></div>
+        </div>
+        <div class="note"><span class="ic">💸</span><p>Lo mismo pasa con el <b>pago a proveedor</b> (<kbd>F7</kbd>): si sale de la caja, cae solo en los PAGOS del cierre.</p></div>
+      </section>
+
+      <!-- 8 cierre -->
+      <section class="chapter" id="cierre">
+        <span class="ctag"><i>8</i> El día a día</span>
+        <h2>Cerrar la caja</h2>
+        <p>Al terminar el día, cuenta la plata y el sistema le dice si cuadra con lo que se vendió de contado y lo que se abonó. Deja lista la base para mañana.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Finanzas → Cierre de caja</h4><p>Arriba ve la <b>venta de contado + abonos</b> del día: eso es lo que tiene que cuadrar. Con ◀ ▶ y HOY cambia de día.</p></div></div>
+          <div class="step"><div><h4>Cuente por denominaciones</h4><p>Cuántos billetes de cada valor y monedas; el sistema suma solo. Escriba lo que entró por Nequi, transferencia o Daviplata.</p></div></div>
+          <div class="step"><div><h4>Gastos y pagos</h4><p>Los gastos (F9) y pagos a proveedor (F7) que salieron de la caja <b>ya aparecen solos</b>. Puede sumar a mano otros, o anotarlos uno por uno en la 📝 libreta.</p></div></div>
+          <div class="step"><div><h4>Diferencia y base</h4><p>Efectivo + digital + gastos + pagos − base de ayer debe dar igual a la venta de contado + abonos. Le muestra si <b>cuadra, sobra o falta</b>. Ponga la base para mañana, guarde e imprima el cierre.</p></div></div>
+        </div>
+        <div class="tip"><span class="ic">💾</span><p><b>¿Lo interrumpieron a mitad del conteo?</b> Use <b>“Guardar avance”</b>, o simplemente cambie de pantalla: lo que lleva tecleado se guarda solo y vuelve a aparecer.</p></div>
+      </section>
+
+      <!-- 9 devoluciones y procesos -->
+      <section class="chapter" id="devolucion">
+        <span class="ctag"><i>9</i> El día a día</span>
+        <h2>Devoluciones y procesos</h2>
+        <h3 class="sub">Devolución de un cliente — tecla <kbd>F11</kbd></h3>
+        <p>Cuando un cliente devuelve mercancía: el producto vuelve al inventario y se le baja lo que debe (o le queda saldo a favor). La caja no se toca. Aparece en Transacciones y se puede editar o anular.</p>
+        <h3 class="sub">Procesos — Inventario → Procesos</h3>
+        <p>Para quien transforma producto: porcionar salmón, glasear camarón, filetear. Saca la <b>materia prima</b> del inventario y entra lo que se produjo con su <b>costo real por kilo</b>.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Lo que sale</h4><p>Ej.: 30 kg de salmón salar. El sistema toma su costo de compra.</p></div></div>
+          <div class="step"><div><h4>Lo que entra</h4><p>Ej.: 25 kg de porcionado + 3 kg de recorte. Puede sumar costos extra (mano de obra, empaque, hielo).</p></div></div>
+          <div class="step"><div><h4>Guardar</h4><p>Le muestra el <b>rendimiento</b> (merma o kilos ganados, como en el glaseo) y cuánto le sale cada kilo. La utilidad de Venta diaria sale sola con ese costo.</p></div></div>
+        </div>
+        <div class="tip"><span class="ic">📋</span><p>Si hace el mismo proceso seguido, guárdelo como <b>receta</b>: la próxima vez solo escribe los kilos de entrada y el resto se calcula. Un proceso mal hecho se <b>anula</b> y todo vuelve como estaba.</p></div>
+      </section>
+
+      <!-- ============ GUÍA POR MÓDULOS ============ -->
+
+      <!-- INICIO -->
+      <section class="area-head" id="m-inicio" style="--ac:#3B82F6">
+        <div class="al">Guía por módulos · Sección 1</div>
+        <h2>Inicio</h2>
+        <p>El punto de partida cada día: todo lo que se mueve, en una sola pantalla.</p>
+      </section>
+      <div class="modcard" style="--mc:#3B82F6">
+        <div class="mh"><div class="mi">📋</div><div><h3>Transacciones del día</h3><p class="mp">El tablero principal</p></div></div>
+        <div class="mb">
+          <p class="what">Muestra todo lo que pasó hoy — ventas, abonos, préstamos y gastos — con tarjetas de totales arriba. Es la pantalla donde más va a estar.</p>
+          <ul class="fns">
+            <li><b>Tarjetas de totales:</b> contado, crédito, abonos, neto de caja, kilos y gastos del día.</li>
+            <li><b>Buscar y filtrar:</b> por cliente, por tipo (venta, abono, préstamo, gasto, devolución) o por forma de pago.</li>
+            <li><b>Filtros tipo Excel:</b> la flechita ▾ de cada columna abre una lista con casillas para ver solo lo que marque.</li>
+            <li><b>Marcar 🚩:</b> señale ventas para revisar después, y filtre “ver solo marcadas”.</li>
+            <li><b>Selección múltiple:</b> escoja varias filas y el sistema le suma el valor.</li>
+            <li><b>Editar y anular todo:</b> ventas (incluso quitar una sola pesada), abonos, gastos, devoluciones, préstamos y pagos de comisión, revirtiendo stock, caja y cartera.</li>
+            <li><b>Cajero sin permiso:</b> si el tablero del celular está activo, puede <b>pedir</b> anular o corregir una venta; no se toca hasta que el dueño lo aprueba desde el celular.</li>
+            <li><b>Tiquete y Excel:</b> reimprime la factura (con o sin saldo), el abono o el préstamo, o exporta el día a Excel.</li>
+            <li><b>Venta rápida (<kbd>F10</kbd>):</b> abre el cuadro de venta de un producto sin salir del tablero.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- INVENTARIO -->
+      <section class="area-head" id="m-inventario" style="--ac:#10B981">
+        <div class="al">Guía por módulos · Sección 2</div>
+        <h2>Inventario</h2>
+        <p>La mercancía: lo que vende, lo que llega en cada viaje, lo que hay en existencia y lo que se presta.</p>
+      </section>
+      <div class="modcard" style="--mc:#10B981">
+        <div class="mh"><div class="mi">🐟</div><div><h3>Productos</h3><p class="mp">Catálogo de lo que vende</p></div></div>
+        <div class="mb">
+          <p class="what">La lista de pescados y productos que maneja el negocio.</p>
+          <ul class="fns">
+            <li><b>Crear y editar</b> productos con un código corto para digitar rápido. Los nombres quedan siempre en MAYÚSCULAS.</li>
+            <li><b>Código ocupado:</b> si pone un código que ya tiene otro producto, puede intercambiarlos o pasar el otro al siguiente libre.</li>
+            <li><b>Precio predeterminado:</b> se autocompleta en la venta cuando lo activa.</li>
+            <li><b>Precio y unidad de compra</b> (arroba, kilo, unidad o caja): el costo que usa el sistema para calcular la utilidad.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#10B981">
+        <div class="mh"><div class="mi">🚚</div><div><h3>Viajes</h3><p class="mp">La mercancía que llega</p></div></div>
+        <div class="mb">
+          <p class="what">Cada compra de mercancía es un viaje. Aquí ve el stock que queda de cada uno.</p>
+          <ul class="fns">
+            <li><b>Crear viaje</b> de compra o de comisión, con productos, kilos y precio de compra; por <b>tipo de viaje</b> (Mojarreros, Bagre, Congelados) carga la lista de una vez.</li>
+            <li><b>Gastos del viaje</b> (hielo, transporte) que salen de la caja que elija.</li>
+            <li><b>Balance 📊:</b> abre el balance completo de ese viaje para ver cómo va.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#10B981">
+        <div class="mh"><div class="mi">📦</div><div><h3>Stock</h3><p class="mp">Existencia real, solo lectura</p></div></div>
+        <div class="mb">
+          <p class="what">Cuánto pescado hay en este momento y cuánto vale al costo.</p>
+          <ul class="fns">
+            <li><b>Posición real</b> por producto y por viaje.</li>
+            <li><b>Valorización al costo:</b> el dinero que tiene guardado en mercancía.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#10B981">
+        <div class="mh"><div class="mi">🤝</div><div><h3>Préstamos de patio</h3><p class="mp">Lo que presta y lo que le prestan</p></div></div>
+        <div class="mb">
+          <p class="what">El pescado que sale prestado a otro, o el que le prestan a usted, sin que sea una venta.</p>
+          <ul class="fns">
+            <li><b>Dos direcciones:</b> “nos deben” (usted prestó) y “debemos” (le prestaron).</li>
+            <li><b>Resolver:</b> por devolución, facturar (convertir en venta) o comprar.</li>
+            <li><b>Devolución con kilos distintos:</b> si devuelven de más o de menos, el sistema deja la diferencia como un préstamo nuevo.</li>
+            <li><b>Dos pestañas:</b> préstamos y devoluciones, siempre sincronizadas. Tiquete con firma.</li>
+            <li><b>Corregir uno ya resuelto:</b> “Editar” lo devuelve a pendiente deshaciendo la devolución, la factura o la compra.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#10B981">
+        <div class="mh"><div class="mi">🔄</div><div><h3>Procesos <span class="badge-new">nuevo</span></h3><p class="mp">Transformar producto y saber su costo</p></div></div>
+        <div class="mb">
+          <p class="what">Porcionar, filetear, glasear: lo que sale del inventario como materia prima y lo que entra ya procesado, con su costo real por kilo.</p>
+          <ul class="fns">
+            <li><b>Rendimiento:</b> merma o kilos ganados (glaseo) y cuánto sale cada kilo.</li>
+            <li><b>Reparto del costo</b> entre los productos que salen: por valor de venta, igual por kilo o a mano.</li>
+            <li><b>Destino:</b> al viaje desde el que vende (costo promediado) o a un lote propio.</li>
+            <li><b>Recetas</b> guardadas y pestaña de rendimiento promedio. Anular devuelve todo.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#10B981">
+        <div class="mh"><div class="mi">📝</div><div><h3>Pedidos</h3><p class="mp">Nota rápida de mostrador</p></div></div>
+        <div class="mb">
+          <p class="what">Para anotar lo que un cliente encargó, sin depender del catálogo.</p>
+          <ul class="fns">
+            <li><b>Cliente en texto libre</b> y una nota de qué pidió, con fecha automática.</li>
+            <li><b>Imprimible</b> en la POS con el nombre del cliente como título.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CARTERA -->
+      <section class="area-head" id="m-cartera" style="--ac:#C0392B">
+        <div class="al">Guía por módulos · Sección 3</div>
+        <h2>Cartera</h2>
+        <p>Las cuentas: lo que le deben los clientes y lo que usted les debe a los proveedores.</p>
+      </section>
+      <div class="modcard" style="--mc:#34495E">
+        <div class="mh"><div class="mi">👤</div><div><h3>Clientes</h3><p class="mp">Catálogo de clientes</p></div></div>
+        <div class="mb">
+          <p class="what">Los datos de cada cliente: nombre, cédula o NIT, teléfono, dirección, correo y un código corto. Todo eso sale en su factura.</p>
+          <ul class="fns">
+            <li><b>Crear y editar</b> clientes, activar o desactivar. Los nombres quedan en MAYÚSCULAS.</li>
+            <li><b>Saldo inicial:</b> al crear un cliente que ya venía debiendo, escriba cuánto le debe. El sistema arranca su cuenta con ese saldo y lo muestra como “Saldo inicial” en su estado de cuenta.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#34495E">
+        <div class="mh"><div class="mi">📊</div><div><h3>Cartera de clientes</h3><p class="mp">Quién le debe</p></div></div>
+        <div class="mb">
+          <p class="what">La lista de todos los que le deben, con un semáforo de mora.</p>
+          <ul class="fns">
+            <li><b>Semáforo:</b> verde al día, naranja por vencer, rojo atrasado.</li>
+            <li><b>Estado de cuenta</b> por cliente, con cada pesada y sus abonos; con <b>DESDE/HASTA</b> ve un período con su saldo anterior.</li>
+            <li><b>Imprimir en POS</b> o <b>exportar a Excel</b> con el mismo formato del terminal (saldo anterior, línea por pesada, saldo final).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#C0392B">
+        <div class="mh"><div class="mi">🚛</div><div><h3>Cartera de proveedores</h3><p class="mp">Lo que usted debe</p></div></div>
+        <div class="mb">
+          <p class="what">Cuánto le debe a cada proveedor, con su estado de cuenta al lado.</p>
+          <ul class="fns">
+            <li><b>Vista lista + detalle:</b> elige el proveedor y ve su estado de cuenta al instante.</li>
+            <li><b>Editar líneas:</b> corregir una compra (kilos, precio) o un pago, y el sistema ajusta el saldo.</li>
+            <li><b>Saldo inicial:</b> al crear un proveedor al que ya le debía, escriba cuánto. Aparece como “Saldo anterior” en su estado de cuenta.</li>
+            <li><b>Exportar a Excel</b> el estado de cuenta del proveedor.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- FINANZAS -->
+      <section class="area-head" id="m-finanzas" style="--ac:#F59E0B">
+        <div class="al">Guía por módulos · Sección 4</div>
+        <h2>Finanzas</h2>
+        <p>La plata: cuánto hay en cada caja, lo que entra, lo que sale y el arqueo del día.</p>
+      </section>
+      <div class="modcard" style="--mc:#F59E0B">
+        <div class="mh"><div class="mi">💵</div><div><h3>Efectivo</h3><p class="mp">El libro de caja</p></div></div>
+        <div class="mb">
+          <p class="what">El registro real del dinero: cada entrada y salida, con su base de caja.</p>
+          <ul class="fns">
+            <li><b>Entradas y salidas</b> de dinero por cada caja (Efectivo, Nequi, Transferencia, Daviplata).</li>
+            <li><b>Base de caja:</b> con cuánto arrancó el día.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#F59E0B">
+        <div class="mh"><div class="mi">🏦</div><div><h3>Cuentas y bancos</h3><p class="mp">Control manual diario</p></div></div>
+        <div class="mb">
+          <p class="what">Una libreta aparte para anotar lo que guarda y las salidas de cada caja.</p>
+          <ul class="fns">
+            <li><b>“Guardado”:</b> una nota de cuánto apartó (no suma al saldo real, es solo control).</li>
+            <li><b>“Salidas”:</b> gastos reales que sí descuentan.</li>
+            <li><b>Neto por caja:</b> cada tarjeta muestra guardado menos salidas.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#F59E0B">
+        <div class="mh"><div class="mi">🧾</div><div><h3>Gastos</h3><p class="mp">Todos los gastos juntos</p></div></div>
+        <div class="mb">
+          <p class="what">Reúne los gastos de viaje y los gastos manuales en un solo lugar.</p>
+          <ul class="fns">
+            <li><b>Ver y registrar</b> gastos de cualquier caja.</li>
+            <li><b>Amarrar a un viaje:</b> un gasto se puede asignar a un viaje para que cuente en su balance.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#F59E0B">
+        <div class="mh"><div class="mi">🔒</div><div><h3>Cierre de caja</h3><p class="mp">El arqueo del día</p></div></div>
+        <div class="mb">
+          <p class="what">Al final del día, cuenta la plata y compara con la venta de contado + abonos.</p>
+          <ul class="fns">
+            <li><b>Conteo por denominaciones:</b> billetes y monedas; el sistema suma. Nequi, transferencia y Daviplata aparte.</li>
+            <li><b>Gastos y pagos solos:</b> lo que salió de la caja (F9, F7, gastos de viaje, compras de contado) ya aparece; se puede completar a mano o en la 📝 libreta.</li>
+            <li><b>Cuadra, sobra o falta:</b> descontando la base de ayer.</li>
+            <li><b>Guardar avance</b> a mitad del conteo, <b>imprimir</b> el cierre y moverse entre días con ◀ ▶.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- REPORTES -->
+      <section class="area-head" id="m-reportes" style="--ac:#8B5CF6">
+        <div class="al">Guía por módulos · Sección 5</div>
+        <h2>Reportes</h2>
+        <p>Los números para decidir: ventas, utilidad, balances de viaje y de cliente, y el patrimonio del negocio.</p>
+      </section>
+      <div class="modcard" style="--mc:#8B5CF6">
+        <div class="mh"><div class="mi">📈</div><div><h3>Venta diaria</h3><p class="mp">Ventas y utilidad por producto</p></div></div>
+        <div class="mb">
+          <p class="what">Cuánto vendió de cada producto y cuánto ganó.</p>
+          <ul class="fns">
+            <li><b>Por producto:</b> kilos, venta, precio por kilo, precio de compra, costo y utilidad.</li>
+            <li><b>Filtros:</b> por rango de fechas y por producto.</li>
+            <li><b>Precios de compra editables</b> con su unidad (arroba, kilo, unidad, caja): los guarda una vez y la utilidad sale sola.</li>
+            <li><b>Ordenar</b> por nombre, kilos, venta, utilidad o en su orden personalizado (▲▼), que se recuerda.</li>
+            <li><b>“📅 Por día”:</b> el desglose día por día del rango elegido.</li>
+            <li><b>Exportar a Excel</b> con los filtros y el orden de la pantalla.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#8B5CF6">
+        <div class="mh"><div class="mi">⚖️</div><div><h3>Balance de viaje</h3><p class="mp">Cómo le fue a cada viaje</p></div></div>
+        <div class="mb">
+          <p class="what">La ganancia real de cada viaje, sin mezclar los de compra con los de comisión.</p>
+          <ul class="fns">
+            <li><b>Compra:</b> ingresos y gastos del viaje con su propio filtro de fechas.</li>
+            <li><b>Comisión — liquidación como el papel del terminal:</b> cuántos kilos de cada producto se vendieron a cada precio, el total, el stock recibido / vendido, los descuentos uno por uno (abonos, flete, comisión) y el <b>valor a pagar</b>. Botón <b>“🖨️ Imprimir liquidación”</b> para la POS (con firma del proveedor) y Excel con la misma forma.</li>
+            <li><b>Abonos al proveedor de comisión:</b> “Registrar abono” sale de la caja y se descuenta solo de la liquidación.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#8B5CF6">
+        <div class="mh"><div class="mi">👥</div><div><h3>Balance de cliente</h3><p class="mp">La cuenta de un cliente</p></div></div>
+        <div class="mb">
+          <p class="what">El detalle de un cliente entre dos fechas.</p>
+          <ul class="fns">
+            <li><b>Saldo inicial + movimientos</b> por el rango que elija.</li>
+            <li><b>Exportar a Excel.</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#8B5CF6">
+        <div class="mh"><div class="mi">🗂️</div><div><h3>Resumen diario</h3><p class="mp">El día en cuatro cuadros</p></div></div>
+        <div class="mb">
+          <p class="what">Un vistazo ordenado de todo el movimiento del día.</p>
+          <ul class="fns">
+            <li><b>Contado por producto</b> y <b>crédito por cliente.</b></li>
+            <li><b>Abonos en efectivo</b> y <b>abonos por banco/Nequi</b>, separados.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#8B5CF6">
+        <div class="mh"><div class="mi">🌙</div><div><h3>Cierre mensual</h3><p class="mp">El cuadre del inventario</p></div></div>
+        <div class="mb">
+          <p class="what">Una vez al mes, cuenta el pescado físico y el sistema ajusta la merma o el sobrante.</p>
+          <ul class="fns">
+            <li><b>Conteo físico editable</b> por producto.</li>
+            <li><b>Merma o sobrante:</b> ajusta el stock del sistema al conteo real, con su registro.</li>
+            <li><b>Historial</b> de los cierres anteriores.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#8B5CF6">
+        <div class="mh"><div class="mi">🏠</div><div><h3>Patrimonio</h3><p class="mp">Cuánto vale el negocio</p></div></div>
+        <div class="mb">
+          <p class="what">Lo que el negocio tiene menos lo que debe, calculado en vivo. Reservado al dueño.</p>
+          <ul class="fns">
+            <li><b>Activos − pasivos = patrimonio neto</b>, siempre al día.</li>
+            <li><b>Sección “Otros”:</b> anotaciones personales del dueño (otro efectivo, deudas propias) que no tocan el negocio.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- GESTIÓN -->
+      <section class="area-head" id="m-gestion" style="--ac:#4B5563">
+        <div class="al">Guía por módulos · Sección 6</div>
+        <h2>Gestión</h2>
+        <p>La administración: usuarios, seguridad, respaldos, configuración y soporte.</p>
+      </section>
+      <div class="modcard" style="--mc:#4B5563">
+        <div class="mh"><div class="mi">🔐</div><div><h3>Usuarios y roles</h3><p class="mp">Quién puede ver qué</p></div></div>
+        <div class="mb">
+          <p class="what">Crea los usuarios del negocio y decide a qué módulos entra cada uno.</p>
+          <ul class="fns">
+            <li><b>Crear usuarios</b> y darles permisos por módulo (ver, crear, editar, borrar).</li>
+            <li><b>Roles con plantilla</b> (Cajero, Bodega, Dueño…): un punto de partida de permisos por rol.</li>
+            <li><b>Solo el dueño</b> ve Patrimonio; el cajero ve lo suyo.</li>
+            <li><b>Desde el celular</b> también se crean usuarios y se cambian claves y permisos.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#4B5563">
+        <div class="mh"><div class="mi">🔍</div><div><h3>Auditoría</h3><p class="mp">Quién hizo qué</p></div></div>
+        <div class="mb">
+          <p class="what">El registro de cada operación importante del sistema.</p>
+          <ul class="fns">
+            <li><b>Quién, qué y cuándo:</b> ventas, anulaciones, cambios, cada acción queda anotada.</li>
+            <li><b>Filtros</b> por fecha, usuario, módulo y tipo de acción.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#4B5563">
+        <div class="mh"><div class="mi">💾</div><div><h3>Respaldos</h3><p class="mp">Copias de seguridad</p></div></div>
+        <div class="mb">
+          <p class="what">Las copias de toda la información, para no perder nada.</p>
+          <ul class="fns">
+            <li><b>Crear, listar y restaurar</b> copias cuando quiera.</li>
+            <li><b>Copia automática</b> cada día al abrir el programa.</li>
+            <li><b>Copia a la nube:</b> deja el respaldo en una carpeta de Google Drive (ver abajo).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#4B5563">
+        <div class="mh"><div class="mi">⚙️</div><div><h3>Configuración</h3><p class="mp">Ajustes del negocio</p></div></div>
+        <div class="mb">
+          <p class="what">Los datos y ajustes generales del sistema.</p>
+          <ul class="fns">
+            <li><b>Datos de empresa y logo</b> para la factura.</li>
+            <li><b>Productos de fábrica y viaje predeterminado</b> para arrancar a vender.</li>
+            <li><b>Tipos de viaje</b> con sus productos.</li>
+            <li><b>Ventas y factura:</b> % de comisión, factura con o sin saldo, pie de la factura, impresora.</li>
+            <li><b>Tablero móvil:</b> el token para ver el negocio desde el celular.</li>
+            <li><b>Versión y licencia:</b> buscar actualización, ver cuánto queda y renovar.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modcard" style="--mc:#4B5563">
+        <div class="mh"><div class="mi">💬</div><div><h3>Soporte</h3><p class="mp">Ayuda y contacto</p></div></div>
+        <div class="mb">
+          <p class="what">Los datos de contacto del desarrollador y los servicios que ofrece.</p>
+          <ul class="fns">
+            <li><b>WhatsApp y correo</b> para pedir ayuda o una mejora.</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="sep">
+
+      <!-- 10 precios -->
+      <section class="chapter" id="precios">
+        <span class="ctag"><i>10</i> Más del día a día</span>
+        <h2>Cómo se escriben los precios</h2>
+        <p>Por dentro el sistema guarda todo en miles, pero usted escribe el precio como lo dice en el mostrador. La regla de fábrica es sencilla: <b>la abreviación en miles queda solo para el precio por arroba</b>; todo lo demás se escribe completo.</p>
+        <div class="golden">
+          <div class="rule-flow">
+            <div class="rule-side contado"><div class="k">Por arroba</div><h4>En miles</h4><p>Escriba <kbd>150</kbd> y es <b>$150.000 la arroba</b>. La casilla dice <b>PRECIO ($mil)</b>.</p></div>
+            <div class="rule-side credito"><div class="k">Por kilo, libra, caja o unidad</div><h4>Completo</h4><p>Escriba <kbd>12500</kbd> y la casilla va poniendo sola los puntos: <b>12.500</b>. La casilla dice <b>PRECIO ($)</b>.</p></div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><div><h4>Primero el tipo, después el precio</h4><p>Al escoger el producto, la venta arranca en la unidad en que ese producto se vende (la que tiene en Productos o la de Configuración). Si la cambia (de arroba a kilo, por ejemplo), la casilla de precio cambia de forma sola.</p></div></div>
+          <div class="step"><div><h4>Los separadores salen solos</h4><p>Mientras teclea un precio completo aparecen los separadores de mil (12.500). Si borra justo encima de un separador, se borra el número de antes, como en las casillas del banco.</p></div></div>
+          <div class="step"><div><h4>El subtotal se ve antes de guardar</h4><p>Debajo del precio se calcula el valor de la pesada a medida que escribe: así se nota enseguida si a un precio le faltaron o le sobraron ceros.</p></div></div>
+        </div>
+        <div class="note"><span class="ic">⚙️</span><p><b>¿Prefiere otra forma?</b> En <b>Gestión → Configuración → Ventas, precios y unidades</b> hay dos casillas: “En miles SOLO el precio por arroba” (de fábrica, prendida) y “Escribir y ver los precios en pesos completos” (todo completo, también la arroba). Apagando las dos, todo vuelve a escribirse en miles como en las versiones viejas.</p></div>
+        <h3 class="sub">Dónde se ve igual</h3>
+        <ul class="fns" style="--mc:#2563EB">
+          <li><b>Venta (F2), venta rápida (F10), editar factura, devolución (F11):</b> la casilla de precio sigue al TIPO elegido.</li>
+          <li><b>Ingreso (F4), nuevo viaje (F6), editar compra de Proveedores, facturar/comprar un préstamo:</b> sigue a la unidad POR (Arroba, Kilo, Libra, Caja, Unidad).</li>
+          <li><b>Inventario → Productos e Inventario:</b> el PRECIO DE VENTA se escribe en la forma de su unidad; el precio estimado sigue por arroba.</li>
+          <li><b>Carrito, factura impresa y Transacciones:</b> “150 @” para la arroba y “12.500 kg” para el kilo.</li>
+        </ul>
+        <h3 class="sub">El precio de venta de cada producto</h3>
+        <p>En <b>Inventario → Productos</b> (o con “Editar” desde cualquier buscador) cada producto puede tener su <b>PRECIO DE VENTA</b> con su unidad (POR ▾). Si en Configuración está prendido el <b>precio automático</b>, al escoger el producto en la venta se pone solo; si el producto no tiene precio, la casilla queda en blanco o se pone el <b>sugerido</b> (compra + margen, o el último precio al que se vendió), según lo que elija en Configuración.</p>
+        <div class="tip"><span class="ic">✏️</span><p>En la venta táctil, si escribe un precio distinto al del producto, sale el botón <b>“fijar como precio de venta”</b> (solo para quien tenga permiso de editar productos).</p></div>
+      </section>
+
+      <!-- 11 caja / unidad / libra -->
+      <section class="chapter" id="unidades">
+        <span class="ctag"><i>11</i> Más del día a día</span>
+        <h2>Vender por caja, unidad o libra</h2>
+        <p>No todo se vende por peso. Con el TIPO <b>x Caja</b> o <b>x Unidad</b> la cantidad son piezas: la casilla KILOS pasa a llamarse <b>CAJAS</b> o <b>UNIDADES</b>.</p>
+        <ul class="fns" style="--mc:#10B981">
+          <li><b>1 caja a $86.000</b> = $86.000 (no se divide entre 12,5 como la arroba).</li>
+          <li>El carrito y la factura muestran <b>“1 cj”</b> o <b>“3 und”</b>, y el total separa los kilos de las piezas: “35,7 kg + 2 cj”.</li>
+          <li>Un producto marcado en Productos como “se vende por caja” arranca solo en x Caja.</li>
+          <li><b>x Libra</b> (500 g): el valor es kilos × 2 × precio. En CarniFácil y PolloFácil el kilo y la libra van primero; al pasar de kilo a libra el precio sugerido cambia solo (si no escribió otro).</li>
+        </ul>
+      </section>
+
+      <!-- 12 pesadas y bascula -->
+      <section class="chapter" id="bascula">
+        <span class="ctag"><i>12</i> Más del día a día</span>
+        <h2>Varias pesadas y la báscula</h2>
+        <h3 class="sub">Sumar pesadas — botón Σ o <kbd>F5</kbd></h3>
+        <p>Cuando un pedido se pesa en varias canastas, pulse <b>Σ</b> junto a KILOS: se abre una libreta donde escribe un peso por renglón (con coma o punto) y abajo va la suma (“3 pesadas · 35,7 kg”). Al aceptar, el total pasa a KILOS. En el carrito cada línea lleva su número de pesada (#1, #2…).</p>
+        <h3 class="sub">Báscula conectada — <kbd>F12</kbd></h3>
+        <div class="steps">
+          <div class="step"><div><h4>Configúrela una vez</h4><p>Gestión → Configuración → Ventas, precios y unidades → <b>BÁSCULA</b> → “Configurar y probar”. El botón <b>“Buscar sola”</b> prueba todos los puertos y velocidades hasta encontrarla. Entiende las básculas comunes (CAS, A&amp;D, Toledo, Mettler y las chinas).</p></div></div>
+          <div class="step"><div><h4>Peso en vivo</h4><p>En la venta aparece un recuadro con lo que marca la báscula: <b>verde</b> = quieto, <b>ámbar</b> = moviéndose, gris = sin señal. Un clic en el recuadro pasa el peso a KILOS y salta al precio.</p></div></div>
+          <div class="step"><div><h4>F12 o el botón ⚖</h4><p>Toma el peso quieto. Con “Solo con la báscula” la casilla KILOS no se puede escribir a mano (las cajas y unidades sí).</p></div></div>
+        </div>
+      </section>
+
+      <!-- 13 pago mixto -->
+      <section class="chapter" id="mixto">
+        <span class="ctag"><i>13</i> Más del día a día</span>
+        <h2>Pago mixto (parte en efectivo, parte por Nequi…)</h2>
+        <p>En la lista de la CAJA de la venta, la venta rápida o al editar una factura está <b>“Pago mixto (varias formas)…”</b>. Escribe lo que entró por Nequi, transferencia o Daviplata, y la caja que usted marque como <b>RESTO</b> se completa sola con lo que falte.</p>
+        <ul class="fns" style="--mc:#F59E0B">
+          <li>Cada parte entra a su caja: el cierre y los saldos por caja quedan exactos.</li>
+          <li>La factura dice “CONTADO → MIXTO: Nequi $100.000 + Efectivo $40.000”, y Transacciones muestra el PAGO “Nequi + Efectivo”.</li>
+          <li>Si después corrige la venta y cambia el valor, la caja RESTO absorbe la diferencia.</li>
+        </ul>
+      </section>
+
+      <!-- 14 pagos, consignacion, cruce -->
+      <section class="chapter" id="pagos">
+        <span class="ctag"><i>14</i> Más del día a día</span>
+        <h2>Pagar a proveedores, consignaciones y cruce de cuentas</h2>
+        <h3 class="sub">Pago con plata — <kbd>F7</kbd></h3>
+        <div class="steps">
+          <div class="step"><div><h4>Proveedor, valor y fecha</h4><p>Escoja el proveedor (se ve lo que se le debe), el valor y la FECHA (hoy de entrada; con una fecha pasada el pago cae en el cierre de ese día).</p></div></div>
+          <div class="step"><div><h4>Caja</h4><p>Efectivo, Nequi, Transferencia, Daviplata o <b>🏦 Consignación</b>. Con <b>“💵 Sale de la caja”</b> marcado, el pago sale de esa caja y aparece solo en los <b>PAGOS</b> del cierre; desmarcado, solo baja la cuenta del proveedor (se pagó por fuera).</p></div></div>
+          <div class="step"><div><h4>Comprobante</h4><p>Se imprime con el saldo que le queda al proveedor. Se puede corregir o anular desde Transacciones (fila “Pago Proveedor”) o desde el estado de cuenta del proveedor.</p></div></div>
+        </div>
+        <h3 class="sub">Cruce de cuentas — botón 🔄 dentro del pago</h3>
+        <p>Cuando alguien <b>le debe como cliente</b> y usted <b>le debe como proveedor</b>, se cruzan las dos cuentas sin mover plata:</p>
+        <ul class="fns" style="--mc:#8B5CF6">
+          <li>Las listas traen solo clientes que deben y proveedores a los que se les debe, con su saldo al lado. Al escoger uno se pone solo el otro del mismo nombre y el valor máximo que se puede cruzar.</li>
+          <li>Abajo se ve cómo quedan las dos cuentas (“Te sigue debiendo…”, “Le sigues debiendo…” o PAZ Y SALVO).</li>
+          <li>Si queda un resto, se puede <b>cancelar ya con plata</b> (casilla): eso sí entra o sale de la caja elegida.</li>
+          <li>No toca la caja ni el cierre: es un abono y un pago por el mismo valor que se cancelan. Anular uno de los dos anula el cruce completo.</li>
+        </ul>
+        <h3 class="sub">Gasto que se le descuenta a un proveedor</h3>
+        <p>En <kbd>F9</kbd> (gasto), categoría Gasto, la casilla <b>“Descontar de la cuenta de un proveedor”</b> registra un solo gasto (sale de la caja y va a GASTOS del cierre) y además le baja lo que se le debe a ese proveedor, sin que la plata salga dos veces.</p>
+      </section>
+
+      <!-- 15 ingresos -->
+      <section class="chapter" id="ingresos">
+        <span class="ctag"><i>15</i> Más del día a día</span>
+        <h2>Ingresos de mercancía al detalle</h2>
+        <p>El ingreso rápido (<kbd>F4</kbd>) es la forma de anotar la factura de un proveedor en un viaje que ya existe.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Viaje y proveedor</h4><p>Debajo del viaje dice si es de <b>COMPRA</b> (y de qué proveedor: se pone solo, a crédito) o de <b>COMISIÓN</b> (la mercancía entra, pero no se le carga nada a nadie: se le liquida con el balance de comisión).</p></div></div>
+          <div class="step"><div><h4>Productos con su unidad</h4><p>Cada línea con kilos, precio y <b>POR</b> (Arroba, Kilo, Libra, Caja, Unidad). Si cambia el POR, queda como la unidad de compra del producto.</p></div></div>
+          <div class="step"><div><h4>Retención e IVA</h4><p>A la derecha: SUBTOTAL, <b>IVA</b> de la factura del proveedor (se suma a lo que se le debe, no al costo), <b>RETENCIÓN</b> en % o en valor (se descuenta) y TOTAL A PAGAR.</p></div></div>
+          <div class="step"><div><h4>Crédito o contado, y la fecha</h4><p>A crédito sube la cuenta del proveedor; de contado sale de la caja elegida y va a PAGOS del cierre (o por fuera si desmarca “Sale de la caja”). La FECHA se puede cambiar. Abajo, un resumen en palabras le dice exactamente qué va a pasar.</p></div></div>
+        </div>
+        <div class="note"><span class="ic">📥</span><p>Los ingresos salen en <b>Transacciones</b> (gris pizarra) y en <b>Inventario → Viajes → Ingresos del viaje</b>, donde se editan o anulan completos. El precio de compra del viaje queda <b>promediado</b> entre los ingresos.</p></div>
+      </section>
+
+      <!-- 16 prestamos -->
+      <section class="chapter" id="prestamos">
+        <span class="ctag"><i>16</i> Más del día a día</span>
+        <h2>Préstamos de patio al detalle</h2>
+        <ul class="fns" style="--mc:#8B5CF6">
+          <li><b>Préstamo (F8):</b> a un cliente o a un proveedor, “yo presté” o “me prestaron”, con fecha. El stock se mueve al crearlo.</li>
+          <li><b>⚖️ Abonar kilos:</b> el contacto devuelve parte; escoge producto y cantidad (o “Todos”) y ve el saldo final antes de guardar. Imprime comprobante con lo que le queda de cada producto.</li>
+          <li><b>Devolución con kilos distintos:</b> si debían 150 y devuelven 200, la diferencia queda como un préstamo nuevo al revés; si devuelven 30, queda pendiente el resto.</li>
+          <li><b>Facturar</b> (solo lo que yo presté a un cliente): se vuelve venta a crédito, con la fecha de hoy o la del préstamo. <b>Comprar</b> (lo que me prestaron): se le carga al proveedor o se le descuenta al cliente.</li>
+          <li><b>Corregir uno ya resuelto:</b> “Editar” ofrece devolverlo a Pendiente (deshace la devolución, la factura o la compra) y corregirlo.</li>
+          <li><b>🐟 Por producto:</b> el saldo de todo el patio por especie y quién lo tiene.</li>
+        </ul>
+      </section>
+
+      <!-- 17 transacciones -->
+      <section class="chapter" id="transacciones">
+        <span class="ctag"><i>17</i> Más del día a día</span>
+        <h2>Sacarle provecho a Transacciones</h2>
+        <p>La pantalla de inicio junta <b>todo</b> lo del día: ventas, abonos, préstamos, gastos, ingresos, pagos a proveedores, cruces, devoluciones y tiquetes de los puntos de venta, cada tipo con su color.</p>
+        <ul class="fns" style="--mc:#3B82F6">
+          <li><b>Filtros como en Excel:</b> cada columna tiene una flechita ▾; marque solo lo que quiere ver (por ejemplo PAGO = Nequi). Se combinan entre columnas.</li>
+          <li><b>Columna DESDE:</b> dice de dónde vino cada cosa: “💻 Caja principal”, “📱 Domiciliario Juan”, “🖥️ Caja 2”. Los nombres se ponen en Configuración → Sistema → Nombres de equipos y celulares.</li>
+          <li><b>Suma de lo seleccionado:</b> seleccione varias filas y abajo sale “3 filas · 8,8 kg · $25.764”.</li>
+          <li><b>Tarjetas grandes, chicas o quitarlas:</b> el botón de abajo va pasando de tarjetas grandes → una franja chica → <b>sin tarjetas</b> (más espacio para la lista). Se recuerda para la próxima vez.</li>
+          <li><b>Ocultar filtros:</b> deja solo la tabla en pantalla.</li>
+          <li><b>Editar cualquier cosa:</b> venta (se puede quitar una sola pesada), abono, gasto, devolución, pago, ingreso y préstamo. La corrección queda en Auditoría con cómo estaba y cómo quedó.</li>
+          <li><b>↩️ Revertir una anulación:</b> sobre una venta o un abono anulado por error, el botón Anular cambia a <b>Revertir</b> y lo devuelve con su stock, caja y cartera. No se puede si se anuló por una corrección o si tiene nota crédito electrónica.</li>
+          <li><b>🎫 Tiquetes por cobrar:</b> los que imprime un punto de venta salen como “Por cobrar” hasta que la caja los cobra (ver el manual de venta táctil).</li>
+        </ul>
+      </section>
+
+      <!-- 18 arqueo -->
+      <section class="chapter" id="arqueo">
+        <span class="ctag"><i>18</i> Más del día a día</span>
+        <h2>Arqueo por persona</h2>
+        <p><b>Finanzas → Arqueo por persona</b> responde “¿cuánto me tiene que entregar el domiciliario?” o “¿cuánto recaudó la caja 2?”. Por día, una fila por persona (celular, usuario del PC o puesto de caja).</p>
+        <div class="steps">
+          <div class="step"><div><h4>Escoja la persona</h4><p>Ve su contado, abonos, salidas, crédito, total vendido y lo que entró por Nequi/transferencia (“ya está en la cuenta”).</p></div></div>
+          <div class="step"><div><h4>Efectivo a entregar</h4><p>Es lo que quedó en la caja Efectivo por sus movimientos. Escriba lo que <b>ENTREGÓ</b> y una nota: el sistema marca ✅ completo, ➖ faltó o ➕ sobró.</p></div></div>
+          <div class="step"><div><h4>Comprobante con firma</h4><p>Imprime el arqueo en el POS para que lo firme. El dueño lo ve también en el celular (🛵 Arqueo).</p></div></div>
+        </div>
+      </section>
+
+      <!-- 19 auditoria y seguridad -->
+      <section class="chapter" id="seguridad">
+        <span class="ctag"><i>19</i> Más del día a día</span>
+        <h2>Auditoría, roles y seguridad</h2>
+        <h3 class="sub">Auditoría — Gestión → Auditoría</h3>
+        <p>Cada cosa queda registrada: CUÁNDO · QUIÉN · QUÉ HIZO · SOBRE QUÉ · QUÉ CAMBIÓ. Una corrección muestra solo lo que cambió, por ejemplo “MOJARRA kilos: 10 kg → 12 kg · Total: $80.000 → $96.000”, y abajo <b>CÓMO ESTABA</b> y <b>CÓMO QUEDÓ</b>. El filtro MOSTRAR trae de entrada correcciones, anulaciones y entradas al sistema; los intentos de entrada fallidos salen en rojo.</p>
+        <h3 class="sub">Roles — Gestión → Usuarios → Roles y permisos</h3>
+        <ul class="fns" style="--mc:#4B5563">
+          <li>Cada rol es una plantilla: al darle el rol a un usuario se cargan sus permisos y de ahí se ajustan para esa persona.</li>
+          <li>Permisos por sección: Ver, Crear, Editar, Eliminar. Clic en el encabezado marca toda la columna; “Copiar de” copia otro rol.</li>
+          <li><b>🔒 Rol que SOLO entra a la venta táctil:</b> el empleado entra y le abre directo la pantalla táctil, sin ver nada más. Viene un rol de fábrica: <b>Vendedor de mostrador</b>.</li>
+        </ul>
+        <h3 class="sub">Seguridad</h3>
+        <ul class="fns" style="--mc:#DC2626">
+          <li>Las claves y los PIN se guardan <b>cifrados</b> (nadie los puede leer, ni en la base de datos).</li>
+          <li>Tras <b>5 claves o PIN equivocados</b> seguidos, ese usuario espera 5 minutos. Los intentos quedan en Auditoría.</li>
+          <li><b>Cerrar la sesión sola</b> tras X minutos sin usar el programa: Configuración → Sistema → SEGURIDAD (0 = nunca). No se cierra si hay una venta abierta.</li>
+          <li>Cambie la clave <span class="mono">admin123</span> el primer día.</li>
+        </ul>
+      </section>
+
+      <!-- 20 tactil -->
+      <section class="chapter" id="tactil">
+        <span class="ctag"><i>20</i> Más del día a día</span>
+        <h2>Venta táctil y varios equipos</h2>
+        <p>Para un mostrador con pantalla táctil: botones grandes, teclado en pantalla, operarios que entran con un PIN y, si el negocio crece, varias cajas o puntos de venta trabajando contra un solo equipo principal.</p>
+        <ul class="fns" style="--mc:#10B981">
+          <li>Se abre desde Acciones rápidas → <b>🖐️ VENTA TÁCTIL</b> (o al entrar, si así se configura).</li>
+          <li>Sin cliente = <b>💵 COBRAR</b> (contado); con cliente = <b>📒 FIAR</b>.</li>
+          <li>El precio se escribe <b>completo</b> (12000 = $12.000).</li>
+          <li>Tres maneras de trabajar con varios equipos: vender con la caja general, cajas separadas con factura unificada, o puntos de venta que imprimen un tiquete y se cobra en una sola caja.</li>
+        </ul>
+        <div class="note"><span class="ic">📘</span><p>Todo esto, paso a paso, está en el <b>Manual de venta táctil y varios equipos</b> (Gestión → Soporte → Manuales).</p></div>
+      </section>
+
+      <!-- 21 dian -->
+      <section class="chapter" id="dian">
+        <span class="ctag"><i>21</i> Más del día a día</span>
+        <h2>Facturación electrónica DIAN</h2>
+        <p>El negocio escoge su modo en <b>Gestión → Facturación DIAN</b> (o Configuración → Factura e impresora): <b>SIN DIAN</b> (como siempre) o <b>ELECTRÓNICA DIAN</b>, donde cada venta sale con su factura o documento POS electrónico, con CUFE y código QR, y anular o corregir una venta genera su nota crédito.</p>
+        <div class="note"><span class="ic">📘</span><p>Los requisitos, la configuración y el día a día están en el <b>Manual de facturación electrónica DIAN</b> (Gestión → Soporte → Manuales).</p></div>
+      </section>
+
+      <!-- 22 ediciones -->
+      <section class="chapter" id="ediciones">
+        <span class="ctag"><i>22</i> Más del día a día</span>
+        <h2>PescaFácil, CarniFácil y PolloFácil</h2>
+        <p>Es el mismo programa para tres tipos de negocio. En <b>Configuración → Empresa → TIPO DE NEGOCIO</b> se escoge; el programa se reinicia con sus colores, su nombre y sus palabras:</p>
+        <ul class="fns" style="--mc:#C0392B">
+          <li><b>CarniFácil</b> (rojo vino) y <b>PolloFácil</b> (naranja): “Viaje” pasa a llamarse <b>Lote</b>, se vende por kilo y por libra de entrada y cada producto tiene precio por kilo y por libra.</li>
+          <li>El catálogo de fábrica viene por grupos (Res, Cerdo, Pollo, Embutidos, Pescado, Huevos y otros) y los tipos de lote son esos grupos.</li>
+          <li>El celular también cambia de colores y palabras según el negocio.</li>
+        </ul>
+      </section>
+
+      <!-- 23 manuales -->
+      <section class="chapter" id="manuales">
+        <span class="ctag"><i>23</i> Más del día a día</span>
+        <h2>Los manuales dentro del programa</h2>
+        <p>En <b>Gestión → Soporte</b> está la tarjeta <b>📘 MANUALES</b>, con un botón por manual: <b>Manual de uso</b> (este), <b>Venta táctil y varios equipos</b>, <b>Facturación electrónica DIAN</b> y <b>El negocio en el celular</b>.</p>
+        <ul class="fns" style="--mc:#2563EB">
+          <li><b>Abrir:</b> lo abre en el navegador. Si hay internet, baja la versión más nueva; si no, abre la que vino con el programa.</li>
+          <li><b>Guardar una copia:</b> queda en <span class="mono">Documentos\PescaFacil\Manuales</span> para imprimirla o mandarla por WhatsApp.</li>
+        </ul>
+      </section>
+
+      <hr class="sep">
+
+      <!-- REGLAS -->
+      <section class="chapter" id="reglas">
+        <span class="ctag"><i>★</i> Bueno saber</span>
+        <h2>Las reglas de oro</h2>
+        <p>Tres ideas que explican por qué el sistema siempre cuadra. Si las tiene claras, entiende todo lo demás.</p>
+
+        <h3 class="sub">1. Contado a la caja, crédito a la cartera</h3>
+        <div class="golden">
+          <div class="rule-flow">
+            <div class="rule-side contado"><div class="k">Sin cliente = contado</div><h4>Entra a la caja</h4><p>El dinero llega de una vez a la caja que elija. La cartera no se toca.</p></div>
+            <div class="rule-side credito"><div class="k">Con cliente = crédito</div><h4>Sube la cartera</h4><p>Queda como saldo del cliente. La caja no se mueve hasta que abone.</p></div>
+          </div>
+        </div>
+        <p>Una misma venta nunca afecta las dos cosas. Por eso nunca hay plata “doble” ni deudas fantasma.</p>
+
+        <h3 class="sub">2. Nada se borra, todo se anula</h3>
+        <p>Ventas, abonos, pagos y movimientos no se eliminan: se anulan y el sistema revierte su efecto en stock, caja y cartera. Siempre queda el rastro de lo que pasó, para poder revisar.</p>
+
+        <h3 class="sub">3. El stock puede quedar en negativo</h3>
+        <div class="warn"><span class="ic">➖</span><p>No es un error: en el terminal el pescado se vende apenas llega y el ingreso del viaje se registra después. El sistema lo permite a propósito y usted cuadra cuando llegan las facturas.</p></div>
+      </section>
+
+      <!-- CELULAR -->
+      <section class="chapter" id="celular">
+        <span class="ctag"><i>📱</i> Bueno saber</span>
+        <h2>El negocio en el celular</h2>
+        <p>Con el tablero móvil el dueño ve su negocio desde cualquier parte en <span class="mono">pescafacil.github.io</span>, con su correo y su clave. El computador sube la información sola cada pocos minutos, mientras esté prendido y con internet.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Pida su acceso</h4><p>Soporte le crea la cuenta y le da un <b>token</b> para el computador y un correo con clave para el celular.</p></div></div>
+          <div class="step"><div><h4>Active en el computador</h4><p>Gestión → Configuración → tarjeta <b>“Tablero móvil”</b>: pegue el token y active. Abajo a la derecha verá verde = en línea.</p></div></div>
+          <div class="step"><div><h4>Entre desde el celular</h4><p>Con su correo y clave. Puede cambiar la clave con la 🔑, y si la olvida, use <b>“¿Olvidaste tu contraseña?”</b>: le llega un correo para poner una nueva.</p></div></div>
+        </div>
+        <ul class="fns" style="--mc:#3B82F6;margin:6px 0 18px">
+          <li><b>Ver:</b> resumen del día, transacciones, caja y cierre, cuentas y bancos, cartera con estado de cuenta, inventario, proveedores y préstamos.</li>
+          <li><b>Facturas:</b> tocando una venta ve su factura y la puede descargar o <b>compartir por WhatsApp</b>.</li>
+          <li><b>📥 Ingreso:</b> registrar desde el celular la factura de un proveedor; el computador la aplica solo.</li>
+          <li><b>🛡️ Cambios:</b> aprobar o rechazar lo que pide un cajero (anular o corregir una venta) y ver todo lo que se anuló o editó.</li>
+          <li><b>👤 Usuarios:</b> crear usuarios, cambiar claves, roles y permisos.</li>
+          <li><b>🔔 Campana:</b> avisos de abonos nuevos, solicitudes y cambios mientras tenga la página abierta.</li>
+        </ul>
+        <div class="tip"><span class="ic">📘</span><p>Vender, abonar, registrar gastos, devoluciones, préstamos e ingresos, pagar proveedores y corregir facturas desde el celular — todo eso está paso a paso en el <b>Manual del celular</b> (Gestión → Soporte → Manuales).</p></div>
+        <div class="note"><span class="ic">🔒</span><p>Cada negocio ve <b>solo lo suyo</b>. Las contraseñas nunca viajan escritas, y el computador solo sube lo que cambió, así gasta muy pocos datos.</p></div>
+      </section>
+
+      <!-- ACTUALIZAR -->
+      <section class="chapter" id="actualizar">
+        <span class="ctag"><i>⬆</i> Bueno saber</span>
+        <h2>Actualizaciones automáticas</h2>
+        <p>PescaFácil se actualiza solo por internet. Al abrir (y cada 12 horas) revisa si hay una versión nueva; si la hay, abajo a la derecha sale un aviso verde.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Clic en el aviso verde</h4><p>Le muestra qué trae la versión nueva.</p></div></div>
+          <div class="step"><div><h4>Actualizar</h4><p>Descarga, saca un <b>respaldo</b> de la base, Windows pide permiso (diga “Sí”), se instala y el programa vuelve a abrir solo.</p></div></div>
+        </div>
+        <div class="tip"><span class="ic">✅</span><p>Sus datos y la licencia <b>no se tocan</b>. También puede buscar la versión a mano en Gestión → Configuración → botón “Versión”.</p></div>
+      </section>
+
+      <!-- RESPALDO -->
+      <section class="chapter" id="respaldo">
+        <span class="ctag"><i>☁</i> Bueno saber</span>
+        <h2>Respaldo en la nube</h2>
+        <p>Todos los días, al abrir el programa, se guarda una copia. Puede además dejarla en una carpeta de Google Drive para que quede fuera del equipo.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Instale Google Drive para escritorio</h4><p>Aparece una unidad nueva, normalmente <kbd>G:</kbd></p></div></div>
+          <div class="step"><div><h4>Elija la carpeta en el programa</h4><p>En <b>Gestión → Respaldos → Copia en la nube</b>, pulse “Elegir” y escoja una carpeta dentro de esa unidad, por ejemplo <span class="mono">G:\Mi unidad\Respaldos PescaFácil</span>.</p></div></div>
+          <div class="step"><div><h4>Listo</h4><p>Cada día la copia queda ahí y Drive la sube sola. También sirve una USB o una carpeta de red.</p></div></div>
+        </div>
+        <div class="note"><span class="ic">♻️</span><p>Los respaldos viejos se borran solos después de los días que configure (30 por defecto), tanto en el equipo como en la carpeta de Drive — siempre se conservan los 5 más recientes. Antes de cada actualización y de limpiar datos también se saca un respaldo.</p></div>
+      </section>
+
+      <!-- LIMPIAR -->
+      <section class="chapter" id="limpiar">
+        <span class="ctag"><i>🧹</i> Bueno saber</span>
+        <h2>Dejar el sistema en blanco</h2>
+        <p>Para empezar de cero (por ejemplo, después de una capacitación con datos de prueba) sin volver a activar la licencia. Se hace en <b>Gestión → Configuración → Sistema → RESTABLECER EL SISTEMA</b>, o desde la USB de instalación con <b>“Limpiar datos (dejar en blanco)”</b>, con PescaFácil cerrado.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Usuario de Admin o Dueño</h4><p>Pide usuario y clave de un administrador y que escriba <b>BORRAR</b>.</p></div></div>
+          <div class="step"><div><h4>Qué se borra</h4><p>Siempre: viajes, ventas, abonos, préstamos, caja, cierres, gastos, pedidos, devoluciones, procesos y el registro de cambios. Con casillas: también clientes, proveedores y/o productos.</p></div></div>
+          <div class="step"><div><h4>Qué se queda</h4><p>La licencia, los usuarios y la configuración (empresa, logo, impresora, tablero). Antes de borrar saca un respaldo que se puede recuperar en Gestión → Respaldos.</p></div></div>
+        </div>
+      </section>
+
+      <!-- LICENCIA -->
+      <section class="chapter" id="licencia">
+        <span class="ctag"><i>🔑</i> Bueno saber</span>
+        <h2>Licencia y renovación</h2>
+        <p>PescaFácil funciona con una licencia anual, sin necesidad de internet. Cuando se acerca el vencimiento, el programa avisa.</p>
+        <div class="steps">
+          <div class="step"><div><h4>Gestión → Configuración → Ver licencia</h4><p>Ahí ve cuántos días quedan.</p></div></div>
+          <div class="step"><div><h4>Léale a soporte el “ID de este equipo”</h4><p>Un código como <span class="mono">7EC9-A5F3</span>, con botón para copiarlo.</p></div></div>
+          <div class="step"><div><h4>Escriba la fecha y el código</h4><p>Ponga la nueva fecha de vencimiento y el código que le dictaron, y pulse “Aplicar”.</p></div></div>
+        </div>
+        <div class="warn"><span class="ic">🕐</span><p><b>No atrase la fecha de Windows.</b> Si el reloj queda en el pasado, el programa avisa y no abre hasta corregirlo. Si es por la pila del equipo, cambie la fecha y listo.</p></div>
+      </section>
+
+      <!-- REQUISITOS -->
+      <section class="chapter" id="requisitos">
+        <span class="ctag"><i>💻</i> Bueno saber</span>
+        <h2>Requisitos del equipo</h2>
+        <p>PescaFácil es liviano: funciona en casi cualquier computador con Windows de los últimos años. Medido con un año completo de trabajo de un terminal ocupado (44 mil ventas): cada pantalla abre en menos de una décima de segundo.</p>
+        <div class="golden">
+          <div class="rule-flow">
+            <div class="rule-side contado">
+              <div class="k">Mínimo</div>
+              <h4>Para que funcione</h4>
+              <p><b>Windows 10</b> (versión 1803 o más nueva) u <b>11</b>, de 32 o 64 bits · procesador de 2 núcleos · <b>4 GB de RAM</b> (el programa usa ~150 MB) · <b>1 GB libre</b> en disco · pantalla de <b>1366 × 768</b>.</p>
+            </div>
+            <div class="rule-side credito">
+              <div class="k">Recomendado</div>
+              <h4>Para que vuele</h4>
+              <p>8 GB de RAM · disco sólido (SSD) · pantalla Full HD (1920 × 1080) · impresora térmica POS de <b>80 mm</b> · regulador o UPS para los cortes de luz.</p>
+            </div>
+          </div>
+        </div>
+        <ul class="fns" style="--mc:#3B82F6">
+          <li><b>No hay que instalar nada más:</b> Windows 10 y 11 ya traen el .NET Framework 4.7.2 que necesita. Si un equipo viejo no lo tiene, el instalador avisa qué hacer.</li>
+          <li><b>Espacio:</b> el programa ocupa ~15 MB; la base crece unos 20 MB por año de trabajo, y se guardan 30 días de respaldos.</li>
+          <li><b>Internet:</b> no hace falta para vender. Solo se usa para el tablero del celular y las actualizaciones, y gasta muy pocos datos.</li>
+          <li><b>Excel:</b> los reportes se exportan en formato .xlsx; para abrirlos sirve Excel, LibreOffice o Google Sheets.</li>
+        </ul>
+      </section>
+
+      <!-- ATAJOS -->
+      <section class="chapter" id="atajos">
+        <span class="ctag"><i>⌨</i> Bueno saber</span>
+        <h2>Atajos de teclado</h2>
+        <p>Desde cualquier pantalla, estas teclas abren las acciones más usadas. Aprendérselas ahorra muchísimo tiempo en el mostrador.</p>
+        <div class="shortcuts">
+          <div class="sc"><kbd>F2</kbd><div><div class="scl">Nueva venta</div><div class="scd">Venta con factura</div></div></div>
+          <div class="sc"><kbd>F3</kbd><div><div class="scl">Abono</div><div class="scd">Cobrar a un cliente</div></div></div>
+          <div class="sc"><kbd>F4</kbd><div><div class="scl">Ingreso rápido</div><div class="scd">Mercancía de un proveedor</div></div></div>
+          <div class="sc"><kbd>F6</kbd><div><div class="scl">Nuevo viaje</div><div class="scd">Mercancía que llega</div></div></div>
+          <div class="sc"><kbd>F7</kbd><div><div class="scl">Pago a proveedor</div><div class="scd">Pagar lo que se debe</div></div></div>
+          <div class="sc"><kbd>F8</kbd><div><div class="scl">Préstamo</div><div class="scd">Préstamo de patio</div></div></div>
+          <div class="sc"><kbd>F9</kbd><div><div class="scl">Gasto</div><div class="scd">Salida de plata</div></div></div>
+          <div class="sc"><kbd>F10</kbd><div><div class="scl">Venta rápida</div><div class="scd">Un producto, en el afán</div></div></div>
+          <div class="sc"><kbd>F11</kbd><div><div class="scl">Devolución</div><div class="scd">Un cliente devuelve mercancía</div></div></div>
+          <div class="sc"><kbd>F5</kbd><div><div class="scl">Sumar pesadas</div><div class="scd">Dentro de la venta (Σ)</div></div></div>
+          <div class="sc"><kbd>F12</kbd><div><div class="scl">Báscula</div><div class="scd">Tomar el peso en la venta</div></div></div>
+        </div>
+        <div class="note" style="margin-top:24px"><span class="ic">🔎</span><p>En el menú de la izquierda hay un <b>buscador</b>: escriba “caja”, “prov”… y <kbd>Enter</kbd> abre la pantalla. Dentro del tablero: <kbd>F5</kbd> actualiza, <kbd>Supr</kbd> anula, <kbd>Ctrl</kbd>+<kbd>F</kbd> busca por cliente, <kbd>Ctrl</kbd>+<kbd>E</kbd> exporta a Excel.</p></div>
+      </section>
+
+      <footer>🐟 PescaFácil · Manual de uso · versión 1.4.45 — desarrollado por Kevin Ortiz</footer>
+    </div>
+  </main>
+</div>
