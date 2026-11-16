@@ -211,19 +211,20 @@
       <a href="#modos"><span class="num">1</span> Los dos modos</a>
       <a href="#obligado"><span class="num">2</span> ¿Mi negocio está obligado?</a>
       <a href="#necesita"><span class="num">3</span> Qué necesita antes de prenderlo</a>
+      <a href="#enconfig"><span class="num">4</span> Mientras tanto: EN CONFIGURACIÓN y la constancia</a>
       <div class="navlabel">Configurar</div>
-      <a href="#configurar"><span class="num">4</span> Llenar la configuración</a>
-      <a href="#siigo"><span class="num">5</span> Conectar con Siigo</a>
-      <a href="#otro"><span class="num">6</span> Otro proveedor</a>
-      <a href="#pruebas"><span class="num">7</span> Primero en pruebas, después en producción</a>
+      <a href="#configurar"><span class="num">5</span> Llenar la configuración</a>
+      <a href="#siigo"><span class="num">6</span> Conectar con Siigo</a>
+      <a href="#otro"><span class="num">7</span> Otro proveedor</a>
+      <a href="#pruebas"><span class="num">8</span> Primero en pruebas, después en producción</a>
       <div class="navlabel">El día a día</div>
-      <a href="#venta"><span class="num">8</span> Vender con el modo prendido</a>
-      <a href="#envio"><span class="num">9</span> El envío y sus estados</a>
-      <a href="#notas"><span class="num">10</span> Anular o corregir = nota crédito</a>
-      <a href="#faltantes"><span class="num">11</span> Ventas de antes y “Generar faltantes”</a>
+      <a href="#venta"><span class="num">9</span> Vender con el modo prendido</a>
+      <a href="#envio"><span class="num">10</span> El envío y sus estados</a>
+      <a href="#notas"><span class="num">11</span> Anular o corregir = nota crédito</a>
+      <a href="#faltantes"><span class="num">12</span> Ventas de antes y “Generar faltantes”</a>
       <div class="navlabel">Si algo pasa</div>
-      <a href="#rango"><span class="num">12</span> Se acabó el rango o venció la resolución</a>
-      <a href="#preguntas"><span class="num">13</span> Preguntas frecuentes</a>
+      <a href="#rango"><span class="num">13</span> Se acabó el rango o venció la resolución</a>
+      <a href="#preguntas"><span class="num">14</span> Preguntas frecuentes</a>
     </nav>
   </aside>
 
@@ -265,8 +266,21 @@
         </div>
       </section>
 
+      <section class="chapter" id="enconfig">
+        <span class="ctag"><i>4</i> Antes de empezar</span>
+        <h2>Mientras tanto: EN CONFIGURACIÓN y la constancia</h2>
+        <p>Todo PescaFácil viene con la facturación electrónica <b>EN CONFIGURACIÓN</b>: el programa <b>tiene el módulo DIAN</b> y queda constancia de que se está configurando, por ejemplo mientras llegan las indicaciones del contador. En ese estado <b>no cambia nada</b>: se vende y se factura como siempre y no se manda nada a la DIAN.</p>
+        <div class="steps">
+        <div class="step"><div><h4>Dónde se ve</h4><p>Gestión → Configuración → Factura e impresora: la casilla dice <b>"Facturación electrónica DIAN: SÍ · EN CONFIGURACIÓN"</b>, con la fecha desde la que lo está.</p></div></div>
+        <div class="step"><div><h4>El responsable</h4><p>En ⚙️ Configurar, la casilla <b>CONTADOR O RESPONSABLE DEL TRÁMITE</b>: el nombre del contador que lleva el proceso.</p></div></div>
+        <div class="step"><div><h4>La constancia</h4><p><b>🖨️ Imprimir constancia</b> imprime el software y su versión, que el módulo DIAN está instalado, el estado y desde cuándo, el responsable y lo que falta para activarla, con firma. Sirve para mostrar, por ejemplo, en una visita de la DIAN.</p></div></div>
+        <div class="step"><div><h4>Cuando el contador lo indique</h4><p>Se completa lo pendiente (Siigo u otro proveedor) y se escoge <b>ELECTRÓNICA DIAN</b>.</p></div></div>
+        </div>
+        <div class="warn"><span class="ic">⚖️</span><p>La constancia muestra el estado real del programa; no reemplaza la habilitación ante la DIAN. Si el negocio está obligado a facturar electrónicamente, el contador le dice los plazos.</p></div>
+      </section>
+
       <section class="chapter" id="configurar">
-        <span class="ctag"><i>4</i> Configurar</span>
+        <span class="ctag"><i>5</i> Configurar</span>
         <h2>Llenar la configuración</h2>
         <p><b>Gestión → Facturación DIAN → ⚙️ Configurar.</b> El cuadro va diciendo abajo lo que falta, en naranja, hasta que dice ✅ Listo.</p>
         <ul class="fns" style="--mc:#2563EB">
@@ -282,7 +296,7 @@
       </section>
 
       <section class="chapter" id="siigo">
-        <span class="ctag"><i>5</i> Configurar</span>
+        <span class="ctag"><i>6</i> Configurar</span>
         <h2>Conectar con Siigo</h2>
         <p>Si el negocio ya tiene <b>Siigo Nube</b>, PescaFácil le manda cada venta a Siigo y <b>Siigo es quien factura ante la DIAN</b> (con su resolución, su numeración y su firma). Así no hay que pedirle nada aparte a la DIAN ni a otro proveedor.</p>
         <div class="warn"><span class="ic">⚠️</span><p><b>Siigo no emite el documento POS electrónico</b>, solo factura electrónica. Conectado a Siigo, <b>toda venta sale como factura</b>: la de contado va a "consumidor final" (222222222222). El plan de Siigo debe incluir la <b>API</b> y los documentos suficientes para todas las ventas del mes.</p></div>
@@ -305,7 +319,7 @@
       </section>
 
       <section class="chapter" id="otro">
-        <span class="ctag"><i>6</i> Configurar</span>
+        <span class="ctag"><i>7</i> Configurar</span>
         <h2>Otro proveedor</h2>
         <p>Además de Siigo hay muchos proveedores tecnológicos autorizados por la DIAN (Alegra, Factus, The Factory HKA, Carvajal y otros). Cada uno tiene su propia API, así que conectarlo es un trabajo de <b>soporte de PescaFácil</b>: se agrega su conector al programa y aparece en la lista de proveedores.</p>
         <div class="steps">
@@ -317,7 +331,7 @@
       </section>
 
       <section class="chapter" id="pruebas">
-        <span class="ctag"><i>7</i> Configurar</span>
+        <span class="ctag"><i>8</i> Configurar</span>
         <h2>Primero en pruebas, después en producción</h2>
         <div class="steps">
         <div class="step"><div><h4>Ambiente de PRUEBAS</h4><p>Prenda el modo en pruebas y haga unas ventas normales: contado, a un cliente con cédula, anule una. Revise en la pantalla de documentos que salgan aceptados y que el tiquete tenga el CUFE y el QR. Los tiquetes de pruebas dicen “AMBIENTE DE PRUEBAS · SIN VALIDEZ”.</p></div></div>
@@ -327,7 +341,7 @@
       </section>
 
       <section class="chapter" id="venta">
-        <span class="ctag"><i>8</i> El día a día</span>
+        <span class="ctag"><i>9</i> El día a día</span>
         <h2>Vender con el modo prendido</h2>
         <p>Usted vende igual que siempre: venta (F2), venta rápida (F10), venta táctil, celular o un mostrador. Al guardar, el sistema le pone a la venta su documento:</p>
         <ul class="fns" style="--mc:#10B981">
@@ -339,7 +353,7 @@
       </section>
 
       <section class="chapter" id="envio">
-        <span class="ctag"><i>9</i> El día a día</span>
+        <span class="ctag"><i>10</i> El día a día</span>
         <h2>El envío y sus estados</h2>
         <p>Cada documento nace <b>Pendiente</b> y el programa lo manda solo al proveedor <b>cada minuto</b>, en segundo plano, sin trabar la venta.</p>
         <ul class="fns" style="--mc:#8B5CF6">
@@ -351,7 +365,7 @@
       </section>
 
       <section class="chapter" id="notas">
-        <span class="ctag"><i>10</i> El día a día</span>
+        <span class="ctag"><i>11</i> El día a día</span>
         <h2>Anular o corregir = nota crédito</h2>
         <p>Un documento electrónico no se borra. Cuando anula o corrige una venta que ya tenía documento:</p>
         <ul class="fns" style="--mc:#F59E0B">
@@ -362,13 +376,13 @@
       </section>
 
       <section class="chapter" id="faltantes">
-        <span class="ctag"><i>11</i> El día a día</span>
+        <span class="ctag"><i>12</i> El día a día</span>
         <h2>Ventas de antes y “Generar faltantes”</h2>
         <p>Las ventas guardadas antes de prender el modo no tienen documento. Si necesita emitirlo, en la pantalla de documentos escoja el rango y pulse <b>🧩 Generar faltantes</b>: crea el documento de cada venta activa del rango que no lo tenga. También sirve si por alguna razón una venta quedó sin documento.</p>
       </section>
 
       <section class="chapter" id="rango">
-        <span class="ctag"><i>12</i> Si algo pasa</span>
+        <span class="ctag"><i>13</i> Si algo pasa</span>
         <h2>Se acabó el rango o venció la resolución</h2>
         <p>Si se acaba el rango (por ejemplo, la resolución era del 1 al 1.000) o pasa la fecha de vigencia, la venta <b>se guarda igual</b> (no se pierde nada), pero su documento queda en <b>Error</b> con el aviso “pida una nueva a la DIAN”.</p>
         <div class="steps">
@@ -379,7 +393,7 @@
       </section>
 
       <section class="chapter" id="preguntas">
-        <span class="ctag"><i>13</i> Si algo pasa</span>
+        <span class="ctag"><i>14</i> Si algo pasa</span>
         <h2>Preguntas frecuentes</h2>
         <h3 class="sub">¿Y si no hay internet?</h3><p>Se sigue vendiendo e imprimiendo normal. Los documentos quedan Pendientes y se mandan solos cuando vuelve la conexión.</p>
         <h3 class="sub">¿Y el IVA?</h3><p>El pescado, la carne y el pollo frescos se venden sin IVA, y así salen los documentos. Si su negocio vende productos con IVA, hable con soporte antes de prender el modo.</p>
