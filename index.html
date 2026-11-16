@@ -1757,8 +1757,8 @@
       }
       if(lin.length){
         var f0=lin[0];
-        var fac={ ventaId:ventaId, numLab: f0.factura ? "Factura de venta" : "Venta N°", numVal: f0.factura ? String(f0.factura) : String(ventaId),
-          num: f0.factura ? "FACTURA DE VENTA #"+f0.factura : "COMPROBANTE DE VENTA #"+ventaId, datosCliente: datosCli(f0.cliente_id),
+        var fac={ ventaId:ventaId, numLab: f0.factura ? TITULO_VENTA.charAt(0)+TITULO_VENTA.slice(1).toLowerCase() : "Venta N°", numVal: f0.factura ? String(f0.factura) : String(ventaId),
+          num: f0.factura ? TITULO_VENTA+" #"+f0.factura : "COMPROBANTE DE VENTA #"+ventaId, datosCliente: datosCli(f0.cliente_id),
           titulo:f0.titulo||"", fecha:new Date(f0.fecha), pago:"Crédito", cliente:"",
           lineas: lin.map(function(l){ return { producto:l.producto||"", kilos:Number(l.kilos||0), precio:l.precio||"", valor:Number(l.cargo||0) }; }) };
         fac.total=fac.lineas.reduce(function(s,l){ return s+l.valor; },0);
@@ -3164,6 +3164,7 @@
       // 1.4.46: precios como en el PC (miles solo por arroba) y la fecha de lo que se registra (la decide el negocio).
       PRECIO_SOLO_ARROBA=!!cfgF.precio_solo_arroba; PRECIO_EN_PESOS=!!cfgF.precio_en_pesos;
       FECHA_MODO=cfgF.fecha_modo||""; FECHA_DIAS=Number(cfgF.fecha_dias)||0;
+      TITULO_VENTA=cfgF.titulo_venta||"FACTURA DE VENTA";   // 1.4.49: un PC viejo no lo manda
       state.cache[k]=c;
       // Edición del negocio (PescaFácil/CarniFácil/PolloFácil). Un PC anterior a 1.4.31 no la manda = PescaFácil.
       if((c.config||[]).length){
@@ -3176,6 +3177,7 @@
   }
   // Tamaño del logo en la factura/recibo/estado de cuenta: el de fábrica (≤300×190 en 576) por el
   // % de Configuración → Impresora del PC ("Tamaño del logo"), sin pasarse del ancho del papel.
+  var TITULO_VENTA="FACTURA DE VENTA";
   var LOGO_PCT=100, TIPO_PRED=null, PRECIO_SOLO_ARROBA=false, PRECIO_EN_PESOS=false, FECHA_MODO="", FECHA_DIAS=0;
 
   // ===== PRECIOS (1.4.46, igual que el PC): por arroba en miles (150 = $150.000); por kilo, libra, caja o unidad
