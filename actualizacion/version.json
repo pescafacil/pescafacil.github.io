@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.43",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.43/PescaFacil-Actualizacion-1.4.43.exe",
-    "sha256":  "7907f90498f87bd8f76e8bef4aa0c605bc853bf5f79d956c7f6b57cce6258e13",
-    "notas":  "Configuración sin partes cortadas (se acomoda sola). Auditoría: ahora salen las entradas al sistema y los intentos con clave equivocada, con filtros por tipo. Roles y permisos rediseñados: por sección, marcar columnas completas, copiar de otro rol y aviso de cambios sin guardar.",
+    "version":  "1.4.44",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.44/PescaFacil-Actualizacion-1.4.44.exe",
+    "sha256":  "d96e73bbd9d07cd39f9834a07733782356a8cccc75098099ae8598a0d936540f",
+    "notas":  "Venta táctil: un solo botón cobrar/fiar según haya cliente, factura con o sin saldo, precio escrito completo, escoger lote, teclado en pantalla, crear cliente/producto y fijar precio según permisos. Rol \u0027Vendedor de mostrador\u0027 que solo entra a la venta táctil. Columna DESDE con el nombre del equipo y de cada celular. Tiquetes de los puntos de venta visibles en Transacciones.",
     "fecha":  "2026-11-15"
 }
