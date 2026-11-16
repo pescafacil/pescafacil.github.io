@@ -224,8 +224,9 @@
       <a href="#mirar"><span class="num">11</span> Lo que se puede ver</a>
       <a href="#cambios"><span class="num">12</span> Aprobar cambios y manejar usuarios</a>
       <div class="navlabel">Bueno saber</div>
-      <a href="#impresora"><span class="num">13</span> Imprimir desde el celular</a>
-      <a href="#pendientes"><span class="num">14</span> Lo que está “sin sincronizar”</a>
+      <a href="#fecha"><span class="num">13</span> Registrar algo con otra fecha</a>
+      <a href="#impresora"><span class="num">14</span> Imprimir desde el celular</a>
+      <a href="#pendientes"><span class="num">15</span> Lo que está “sin sincronizar”</a>
     </nav>
   </aside>
 
@@ -269,7 +270,7 @@
         <div class="steps">
         <div class="step"><div><h4>🛒 Vender</h4><p>Desde el atajo de Transacciones.</p></div></div>
         <div class="step"><div><h4>Cliente</h4><p>Sin cliente = contado; con cliente = crédito. El buscador encuentra por código o parte del nombre, sin tildes; al final de la lista está <b>➕ Nuevo cliente</b>.</p></div></div>
-        <div class="step"><div><h4>Productos</h4><p>Producto (o ➕ Nuevo producto), kilos y precio (con coma o punto), y el tipo: arroba, kilo, libra, caja o unidad. El precio sugerido del producto se pone solo.</p></div></div>
+        <div class="step"><div><h4>Productos</h4><p>Producto (o ➕ Nuevo producto), kilos, el tipo (arroba, kilo, libra, caja o unidad) y el precio: <b>por arroba en miles</b> (150 = $150.000) y <b>por kilo, libra, caja o unidad completo</b> (12500 = $12.500, los puntos salen solos), igual que en el computador. El precio sugerido del producto se pone solo.</p></div></div>
         <div class="step"><div><h4>Pago</h4><p>De contado: la caja o <b>Pago mixto</b>. Las casillas “🖨️ Imprimir factura al registrar” y “Con el saldo del cliente” se recuerdan.</p></div></div>
         </div>
         <p>Al enviar, sale de una vez el comprobante para imprimir o compartir. En el computador la venta queda como “📱 Venta” (cian) y en DESDE con el nombre del celular.</p>
@@ -351,8 +352,18 @@
         </ul>
       </section>
 
-      <section class="chapter" id="impresora">
+      <section class="chapter" id="fecha">
         <span class="ctag"><i>13</i> Bueno saber</span>
+        <h2>Registrar algo con otra fecha</h2>
+        <p>Venta, abono, gasto, devolución, pago a proveedor, préstamo e ingreso tienen la casilla <b>📅 Fecha</b> (hoy de entrada). Si se registra algo que pasó ayer, se escoge ese día y en el computador cae en la caja y en el <b>cierre de ese día</b>.</p>
+        <ul class="fns" style="--mc:#2563EB">
+        <li>Lo decide el negocio en el computador: Configuración → Celular → <b>FECHA EN EL CELULAR</b>: todos los que usan el celular, solo el dueño o nadie (siempre hoy), y hasta cuántos días atrás (de fábrica 15).</li>
+        <li>Si alguien manda una fecha más vieja de lo permitido, el computador no la aplica y la campana avisa el error.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="impresora">
+        <span class="ctag"><i>14</i> Bueno saber</span>
         <h2>Imprimir desde el celular</h2>
         <div class="steps">
         <div class="step"><div><h4>Botón 🖨️ arriba</h4><p>Escoja el papel: <b>58 mm</b> u <b>80 mm</b>.</p></div></div>
@@ -362,13 +373,13 @@
       </section>
 
       <section class="chapter" id="pendientes">
-        <span class="ctag"><i>14</i> Bueno saber</span>
+        <span class="ctag"><i>15</i> Bueno saber</span>
         <h2>Lo que está “sin sincronizar”</h2>
         <p>Todo lo que registra en el celular se ve de inmediato marcado <b>⏳ sin sincronizar</b> (borde naranja): ya cuenta en las tarjetas, en la cartera y en el estado de cuenta. Cuando el computador lo aplica, la marca desaparece. Si algo no se pudo aplicar (por ejemplo, un cliente que no existe), la campana avisa el error.</p>
         <div class="note"><span class="ic">📶</span><p>Con poca señal, el celular usa lo último que bajó (la lista de productos y clientes queda guardada en el teléfono).</p></div>
       </section>
 
-      <footer>📱 PescaFácil · El negocio en el celular · versión 1.4.45 — desarrollado por Kevin Ortiz · También sirve para CarniFácil y PolloFácil</footer>
+      <footer>📱 PescaFácil · El negocio en el celular · versión 1.4.46 — desarrollado por Kevin Ortiz · También sirve para CarniFácil y PolloFácil</footer>
     </div>
   </main>
 </div>

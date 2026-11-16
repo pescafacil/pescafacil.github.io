@@ -1,7 +1,7 @@
 {
-    "version":  "1.4.45",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.45/PescaFacil-Actualizacion-1.4.45.exe",
-    "sha256":  "846ff930291f6683596dd2cb739e72ae45e9dff141cc07a04a7d2e1d1b39024c",
-    "notas":  "Facturación electrónica DIAN (modo por negocio: factura y POS electrónico con CUFE y QR, nota crédito al anular). Precio por kilo, libra, caja o unidad se escribe completo con los puntos de mil al teclear (en miles solo por arroba). Claves y PIN cifrados, bloqueo tras 5 intentos y cierre de sesión por inactividad. Tarjetas de Transacciones que se pueden quitar. Manuales para descargar en Gestión → Soporte. Ningún texto cortado en las pantallas.",
+    "version":  "1.4.46",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.46/PescaFacil-Actualizacion-1.4.46.exe",
+    "sha256":  "68a8f7cf55a91c90f86c722cb359627e5192cb87eb8c50cd884efeaaec42fde5",
+    "notas":  "Arreglado: error \u0027El parámetro no es válido\u0027 al registrar ventas. Nuevo: conexión con Siigo para facturación electrónica (con instructivo), fecha en el celular para ventas, abonos, gastos, pagos e ingresos, fecha en todas las ventanas de edición, precio predeterminado al cambiar el producto al editar, precios por kilo completos con puntos de mil en todas partes (también en el celular), factura de los mostradores mucho más rápida.",
     "fecha":  "2026-11-16"
 }

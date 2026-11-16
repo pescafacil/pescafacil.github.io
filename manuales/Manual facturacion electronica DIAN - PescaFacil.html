@@ -213,15 +213,17 @@
       <a href="#necesita"><span class="num">3</span> Qué necesita antes de prenderlo</a>
       <div class="navlabel">Configurar</div>
       <a href="#configurar"><span class="num">4</span> Llenar la configuración</a>
-      <a href="#pruebas"><span class="num">5</span> Primero en pruebas, después en producción</a>
+      <a href="#siigo"><span class="num">5</span> Conectar con Siigo</a>
+      <a href="#otro"><span class="num">6</span> Otro proveedor</a>
+      <a href="#pruebas"><span class="num">7</span> Primero en pruebas, después en producción</a>
       <div class="navlabel">El día a día</div>
-      <a href="#venta"><span class="num">6</span> Vender con el modo prendido</a>
-      <a href="#envio"><span class="num">7</span> El envío y sus estados</a>
-      <a href="#notas"><span class="num">8</span> Anular o corregir = nota crédito</a>
-      <a href="#faltantes"><span class="num">9</span> Ventas de antes y “Generar faltantes”</a>
+      <a href="#venta"><span class="num">8</span> Vender con el modo prendido</a>
+      <a href="#envio"><span class="num">9</span> El envío y sus estados</a>
+      <a href="#notas"><span class="num">10</span> Anular o corregir = nota crédito</a>
+      <a href="#faltantes"><span class="num">11</span> Ventas de antes y “Generar faltantes”</a>
       <div class="navlabel">Si algo pasa</div>
-      <a href="#rango"><span class="num">10</span> Se acabó el rango o venció la resolución</a>
-      <a href="#preguntas"><span class="num">11</span> Preguntas frecuentes</a>
+      <a href="#rango"><span class="num">12</span> Se acabó el rango o venció la resolución</a>
+      <a href="#preguntas"><span class="num">13</span> Preguntas frecuentes</a>
     </nav>
   </aside>
 
@@ -257,7 +259,7 @@
         <div class="steps">
         <div class="step"><div><h4>RUT actualizado</h4><p>Con la responsabilidad de facturador electrónico.</p></div></div>
         <div class="step"><div><h4>Habilitarse en la DIAN</h4><p>En el portal de la DIAN, como facturador electrónico (su contador lo hace en minutos).</p></div></div>
-        <div class="step"><div><h4>Un proveedor tecnológico</h4><p>Es la empresa autorizada por la DIAN que recibe cada documento, lo firma y lo valida. Le da un <b>usuario y una clave</b> (o token) para conectar el programa. Soporte de PescaFácil le ayuda a escogerlo y deja el programa conectado a él.</p></div></div>
+        <div class="step"><div><h4>Un proveedor tecnológico</h4><p>Es la empresa autorizada por la DIAN que recibe cada documento, lo firma y lo valida. Si el negocio ya usa <b>Siigo</b>, se conecta directo (capítulo «Conectar con Siigo») y Siigo pone la resolución y la numeración: no hacen falta los pasos de abajo. Para otro proveedor, vea «Otro proveedor».</p></div></div>
         <div class="step"><div><h4>Las resoluciones de numeración</h4><p>Dos: una para la <b>factura electrónica</b> y otra para el <b>documento equivalente POS electrónico</b>. Cada una trae número, prefijo, rango (desde – hasta), fecha y vigencia, y la <b>clave técnica</b>.</p></div></div>
         <div class="step"><div><h4>El PIN del software</h4><p>Lo da el proveedor o la DIAN al registrar el software con el que factura.</p></div></div>
         </div>
@@ -279,18 +281,53 @@
         <div class="note"><span class="ic">🔐</span><p>La clave del proveedor, la clave técnica y el PIN se guardan <b>cifrados para este equipo</b>: aunque alguien copie la base de datos, no los puede leer.</p></div>
       </section>
 
-      <section class="chapter" id="pruebas">
+      <section class="chapter" id="siigo">
         <span class="ctag"><i>5</i> Configurar</span>
+        <h2>Conectar con Siigo</h2>
+        <p>Si el negocio ya tiene <b>Siigo Nube</b>, PescaFácil le manda cada venta a Siigo y <b>Siigo es quien factura ante la DIAN</b> (con su resolución, su numeración y su firma). Así no hay que pedirle nada aparte a la DIAN ni a otro proveedor.</p>
+        <div class="warn"><span class="ic">⚠️</span><p><b>Siigo no emite el documento POS electrónico</b>, solo factura electrónica. Conectado a Siigo, <b>toda venta sale como factura</b>: la de contado va a "consumidor final" (222222222222). El plan de Siigo debe incluir la <b>API</b> y los documentos suficientes para todas las ventas del mes.</p></div>
+        <div class="steps">
+        <div class="step"><div><h4>En Siigo: la credencial de la API</h4><p>Entre a Siigo Nube con el usuario administrador → <b>Alianzas → Mi credencial API</b>. Ahí están el <b>USUARIO API</b> (un correo), la <b>ACCESS KEY</b> y el <b>Partner-Id</b>. Si no aparece, pídale a Siigo que le active la API en su plan.</p></div></div>
+        <div class="step"><div><h4>En Siigo: un producto genérico</h4><p>Cree en Siigo un producto o servicio, por ejemplo con código <b>VENTAS</b> (sin IVA si vende pescado, carne o pollo frescos). PescaFácil manda cada producto de la venta como un renglón con ese código, y en la descripción va el detalle: "MOJARRA 12,5 kg a $150.000 /@".</p></div></div>
+        <div class="step"><div><h4>En PescaFácil: escoger Siigo</h4><p>Gestión → <b>Facturación DIAN → ⚙️ Configurar</b>. Modo <b>ELECTRÓNICA DIAN</b>, proveedor <b>Siigo</b>, y escriba el <b>USUARIO API</b> y la <b>ACCESS KEY</b>, más el NIT y la razón social del negocio.</p></div></div>
+        <div class="step"><div><h4>Los datos de Siigo</h4><p>Botón <b>⚙️ Datos</b> (junto al proveedor): escriba el <b>Partner-Id</b> y pulse <b>🔎 Traer los IDs de Siigo</b>. El programa lista los tipos de factura y de nota crédito, las formas de pago y los vendedores de su cuenta: copie el número (ID) de cada uno en su casilla, y el código del producto genérico. <b>🔌 Probar conexión</b> confirma que entra.</p></div></div>
+        <div class="step"><div><h4>Primero en PRUEBAS</h4><p>Con el ambiente en <b>Pruebas</b>, las facturas se crean en Siigo <b>sin enviarlas a la DIAN</b>: haga unas ventas, revise en Siigo que lleguen bien y anule una (debe salir su nota crédito).</p></div></div>
+        <div class="step"><div><h4>Producción</h4><p>Cambie a <b>Producción</b>: desde ahí Siigo las manda a la DIAN y les pone el CUFE.</p></div></div>
+        </div>
+        <h3 class="sub">El día a día con Siigo</h3>
+        <ul class="fns" style="--mc:#2563EB">
+        <li>El tiquete sale apenas se vende, marcado <b>"EN TRÁMITE"</b>: el número y el CUFE oficiales los pone Siigo segundos después. En Gestión → Facturación DIAN se ve el número de Siigo (FV-…) y desde ahí se reimprime con su CUFE y su QR.</li>
+        <li>El cliente se busca en Siigo por su cédula o NIT; si Siigo no lo tiene, PescaFácil lo crea solo (con la ciudad configurada).</li>
+        <li>Anular o corregir una venta = nota crédito en Siigo contra su factura.</li>
+        <li>Sin internet se sigue vendiendo; lo pendiente se manda solo cuando vuelve la conexión.</li>
+        </ul>
+        <div class="note"><span class="ic">🔐</span><p>La access key queda <b>cifrada</b> en este equipo. No la comparta ni la mande por WhatsApp: quien la tenga puede facturar a nombre del negocio.</p></div>
+      </section>
+
+      <section class="chapter" id="otro">
+        <span class="ctag"><i>6</i> Configurar</span>
+        <h2>Otro proveedor</h2>
+        <p>Además de Siigo hay muchos proveedores tecnológicos autorizados por la DIAN (Alegra, Factus, The Factory HKA, Carvajal y otros). Cada uno tiene su propia API, así que conectarlo es un trabajo de <b>soporte de PescaFácil</b>: se agrega su conector al programa y aparece en la lista de proveedores.</p>
+        <div class="steps">
+        <div class="step"><div><h4>Pida a su proveedor</h4><p>La documentación de su API ("API de facturación electrónica") y unas credenciales de <b>pruebas</b> (usuario, clave o token).</p></div></div>
+        <div class="step"><div><h4>Pregunte si emite POS electrónico</h4><p>Si solo hace factura, todas las ventas irán como factura (como con Siigo).</p></div></div>
+        <div class="step"><div><h4>Mándeselo a soporte</h4><p>Con eso se arma y se prueba el conector, primero en pruebas y luego en producción. Los datos del negocio, la cola de envío, las notas crédito y el tiquete funcionan igual con cualquier proveedor.</p></div></div>
+        </div>
+        <p>Mientras tanto, el <b>Simulador</b> deja montar y probar todo el modo sin enviar nada a la DIAN.</p>
+      </section>
+
+      <section class="chapter" id="pruebas">
+        <span class="ctag"><i>7</i> Configurar</span>
         <h2>Primero en pruebas, después en producción</h2>
         <div class="steps">
         <div class="step"><div><h4>Ambiente de PRUEBAS</h4><p>Prenda el modo en pruebas y haga unas ventas normales: contado, a un cliente con cédula, anule una. Revise en la pantalla de documentos que salgan aceptados y que el tiquete tenga el CUFE y el QR. Los tiquetes de pruebas dicen “AMBIENTE DE PRUEBAS · SIN VALIDEZ”.</p></div></div>
         <div class="step"><div><h4>PRODUCCIÓN</h4><p>Cuando todo esté bien, cambie a Producción con las resoluciones reales. Desde ahí cada documento es válido ante la DIAN.</p></div></div>
         </div>
-        <div class="warn"><span class="ic">🧪</span><p>Mientras no haya un proveedor conectado, el programa trae un <b>SIMULADOR</b>: valida y “acepta” los documentos sin mandar nada a la DIAN. Sirve solo en pruebas (en producción no deja guardarlo).</p></div>
+        <div class="warn"><span class="ic">🧪</span><p>Además de Siigo, el programa trae un <b>SIMULADOR</b>: valida y “acepta” los documentos sin mandar nada a la DIAN. Sirve solo en pruebas (en producción no deja guardarlo).</p></div>
       </section>
 
       <section class="chapter" id="venta">
-        <span class="ctag"><i>6</i> El día a día</span>
+        <span class="ctag"><i>8</i> El día a día</span>
         <h2>Vender con el modo prendido</h2>
         <p>Usted vende igual que siempre: venta (F2), venta rápida (F10), venta táctil, celular o un mostrador. Al guardar, el sistema le pone a la venta su documento:</p>
         <ul class="fns" style="--mc:#10B981">
@@ -302,7 +339,7 @@
       </section>
 
       <section class="chapter" id="envio">
-        <span class="ctag"><i>7</i> El día a día</span>
+        <span class="ctag"><i>9</i> El día a día</span>
         <h2>El envío y sus estados</h2>
         <p>Cada documento nace <b>Pendiente</b> y el programa lo manda solo al proveedor <b>cada minuto</b>, en segundo plano, sin trabar la venta.</p>
         <ul class="fns" style="--mc:#8B5CF6">
@@ -314,7 +351,7 @@
       </section>
 
       <section class="chapter" id="notas">
-        <span class="ctag"><i>8</i> El día a día</span>
+        <span class="ctag"><i>10</i> El día a día</span>
         <h2>Anular o corregir = nota crédito</h2>
         <p>Un documento electrónico no se borra. Cuando anula o corrige una venta que ya tenía documento:</p>
         <ul class="fns" style="--mc:#F59E0B">
@@ -325,13 +362,13 @@
       </section>
 
       <section class="chapter" id="faltantes">
-        <span class="ctag"><i>9</i> El día a día</span>
+        <span class="ctag"><i>11</i> El día a día</span>
         <h2>Ventas de antes y “Generar faltantes”</h2>
         <p>Las ventas guardadas antes de prender el modo no tienen documento. Si necesita emitirlo, en la pantalla de documentos escoja el rango y pulse <b>🧩 Generar faltantes</b>: crea el documento de cada venta activa del rango que no lo tenga. También sirve si por alguna razón una venta quedó sin documento.</p>
       </section>
 
       <section class="chapter" id="rango">
-        <span class="ctag"><i>10</i> Si algo pasa</span>
+        <span class="ctag"><i>12</i> Si algo pasa</span>
         <h2>Se acabó el rango o venció la resolución</h2>
         <p>Si se acaba el rango (por ejemplo, la resolución era del 1 al 1.000) o pasa la fecha de vigencia, la venta <b>se guarda igual</b> (no se pierde nada), pero su documento queda en <b>Error</b> con el aviso “pida una nueva a la DIAN”.</p>
         <div class="steps">
@@ -342,7 +379,7 @@
       </section>
 
       <section class="chapter" id="preguntas">
-        <span class="ctag"><i>11</i> Si algo pasa</span>
+        <span class="ctag"><i>13</i> Si algo pasa</span>
         <h2>Preguntas frecuentes</h2>
         <h3 class="sub">¿Y si no hay internet?</h3><p>Se sigue vendiendo e imprimiendo normal. Los documentos quedan Pendientes y se mandan solos cuando vuelve la conexión.</p>
         <h3 class="sub">¿Y el IVA?</h3><p>El pescado, la carne y el pollo frescos se venden sin IVA, y así salen los documentos. Si su negocio vende productos con IVA, hable con soporte antes de prender el modo.</p>
@@ -350,7 +387,7 @@
         <h3 class="sub">¿Qué pasa con el celular y los mostradores?</h3><p>Todo pasa por el equipo principal: una venta del celular o de un mostrador recibe su documento cuando llega al principal, con la misma numeración.</p>
       </section>
 
-      <footer>🧾 PescaFácil · Facturación electrónica DIAN · versión 1.4.45 — desarrollado por Kevin Ortiz · También sirve para CarniFácil y PolloFácil</footer>
+      <footer>🧾 PescaFácil · Facturación electrónica DIAN · versión 1.4.46 — desarrollado por Kevin Ortiz · También sirve para CarniFácil y PolloFácil</footer>
     </div>
   </main>
 </div>
