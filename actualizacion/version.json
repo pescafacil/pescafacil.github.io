@@ -1,11 +1,11 @@
 {
-    "version":  "1.4.50",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.50/PescaFacil-Actualizacion-1.4.50.exe",
-    "sha256":  "c45a379c0c27a41f91cc80ebec73ae9b459078c117bf49c550ce77608031aa51",
-    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.50/CarniFacil-Actualizacion-1.4.50.exe",
-    "sha256_carni":  "90f7cc910bd6f98c4b31df385c5ec734bf73dbaa7ea677cb324c1a0ded2ddbfc",
-    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.50/PolloFacil-Actualizacion-1.4.50.exe",
-    "sha256_pollo":  "37a8248427f7ca9bad82e0f8c3a7f4f3f9d5f048395e1900d26080d83ee05277",
-    "notas":  "Tres instaladores: PescaFácil, CarniFácil y PolloFácil, cada uno con su ícono; cada equipo se actualiza con el de su tipo de negocio. Respaldos más seguros: se revisan al sacarlos, uno automático cada pocas horas y al cerrar, restaurar revisa el archivo (también desde una USB o Drive) y aviso si no hay copia fuera del equipo. Código ordenado.",
-    "fecha":  "2026-11-16"
+    "version":  "1.4.51",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.51/PescaFacil-Actualizacion-1.4.51.exe",
+    "sha256":  "49941d4cb266a4b2f587ee8b3094760f13a34ab3d3affab6a43cd5ab608fc933",
+    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.51/CarniFacil-Actualizacion-1.4.51.exe",
+    "sha256_carni":  "752b37726af7a507fcaf3afe254ca9088ab93be071d3616175f60bafd5389a36",
+    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.51/PolloFacil-Actualizacion-1.4.51.exe",
+    "sha256_pollo":  "444a1333b8fd4edd038fa9bc06d9dc01239a08d92ca4c30e1759e01619a66863",
+    "notas":  "Venta táctil: cada caja ve sus registros (reimprimir, corregir, anular) y, si el operario no tiene permiso, la solicitud le llega a la caja principal para aprobarla; abonos y pago mixto (parte Nequi y parte efectivo) en la venta táctil. Manuales nuevos con imágenes, números y animaciones: cómo conectar varios equipos, la báscula, la impresora y el celular. Arreglo de la ventana Editar usuario.",
+    "fecha":  "2026-11-17"
 }
