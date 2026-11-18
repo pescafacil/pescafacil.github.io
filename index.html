@@ -1088,7 +1088,7 @@
       .then(function(r){ var d=(r && !r.error && r.data)||[]; state.cache[k]={t:Date.now(), d:d}; return d; }, function(){ return []; });
   }
   // Solo lo que se muestra (nunca las de usuarios: pueden traer la huella de una clave).
-  var TIPOS_PEND=["venta","abono","gasto","devolucion","pago_proveedor","pago_comision","prestamo","ingreso","corregir_venta","anular_venta","editar_pago_proveedor","anular_pago_proveedor"];
+  var TIPOS_PEND=["venta","abono","gasto","devolucion","pago_proveedor","pago_comision","prestamo","ingreso","corregir_venta","anular_venta","editar_pago_proveedor","anular_pago_proveedor","editar_abono","anular_abono"];
   function olvidarPendientes(){ delete state.cache["pend_"+state.negocioId]; }
   function datosPend(sol){ var d=sol && sol.datos; if(typeof d==="string"){ try{ d=JSON.parse(d); }catch(e){ d=null; } } return d||{}; }
   var ABREV_TP={"x Arroba":"@","x Kilo":"kg","x Caja":"cj","x Unidad":"un","x Libra":"lb"};
@@ -1125,6 +1125,8 @@
       if(sol.tipo==="venta" && d.pago==="credito" && Number(d.cliente_id)) add(d.cliente_id, totalLineas(d.lineas), { tipo:"venta", fecha:sol.creado, valor:totalLineas(d.lineas), d:d, sol:sol });
       else if(sol.tipo==="abono") add(idCliPend(cat, d), -Number(d.monto||0), { tipo:"abono", fecha:sol.creado, valor:Number(d.monto||0), d:d, sol:sol });
       else if(sol.tipo==="devolucion" && Number(d.cliente_id)){ var v=subtotalVenta(d.kilos, d.precio, d.tipo_precio); add(d.cliente_id, -v, { tipo:"devolucion", fecha:sol.creado, valor:v, d:d, sol:sol }); }
+      else if(sol.tipo==="editar_abono" && Number(d.cliente_id) && d.monto_antes!=null) add(d.cliente_id, -(Number(d.monto||0)-Number(d.monto_antes)), null);
+      else if(sol.tipo==="anular_abono" && Number(d.cliente_id) && d.monto_antes!=null) add(d.cliente_id, Number(d.monto_antes), null);
       else if((sol.tipo==="corregir_venta" || sol.tipo==="anular_venta") && d.total_antes!=null){
         var nuevoTot = sol.tipo==="corregir_venta" ? totalLineas(d.lineas) : 0, cliNuevo = sol.tipo==="corregir_venta" ? Number(d.cliente_id) : 0;
         if(Number(d.cliente_antes_id) && Number(d.cliente_antes_id)===cliNuevo) add(cliNuevo, nuevoTot-Number(d.total_antes), null);   // mismo cliente: la diferencia
@@ -1188,6 +1190,17 @@
           r.pend=true;
           if(sol.tipo==="anular_pago_proveedor"){ r.estado="Anulada"; r.pendAnular=true; }
           else { r.valor=Number(d.monto||r.valor); r.pago=d.caja ? nombreCaja(d.caja) : "Por fuera"; r.detalle="✏️ corregido · 📱 celular"; }
+        });
+        return;
+      }
+      if(sol.tipo==="editar_abono" || sol.tipo==="anular_abono"){
+        out.concat(nuevas).forEach(function(r){
+          var es = Number(d.abono_id) ? (r.tipo==="Abono" && abonoDeRef(r.ref)===Number(d.abono_id))
+                                      : (r.sol && r.sol.tipo==="abono" && Number(r.sol.id)===Number(d.sobre_pendiente));
+          if(!es) return;
+          r.pend=true;
+          if(sol.tipo==="anular_abono"){ r.estado="Anulada"; r.pendAnular=true; }
+          else { r.valor=Number(d.monto||r.valor); r.abCorr=true; }
         });
         return;
       }
@@ -1277,13 +1290,15 @@
         var vid = (r.tipo==="Venta" && r.estado!=="Anulada") ? ventaDeRef(r.ref) : null;
         var pid = (r.tipo==="Pago Proveedor" && r.estado!=="Anulada" && !r.pend && esDueno()) ? pagoDeRef(r.ref) : null;   // el dueño lo corrige o anula
         var psol = (r.pend && r.sol && !r.pendCorr && !r.pendAnular && r.tipo==="Venta") ? r.sol.id : null;   // venta del celular aún sin registrar: su comprobante
-        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+(pid?' vpp" data-p="'+pid:'')+(psol?' vps" data-s="'+psol:'')+'"><td>'+(r.pend?'⏳ ':'')+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(r.pendAnular?' <span class="pend-tag">se anula</span>':r.pendCorr?' <span class="pend-tag">corregida</span>':'')+((vid||psol)?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+(pid?' <span class="fbtn" aria-label="Corregir pago">✏️</span>':'')+'</td>'
+        // 1.4.52: abono (registrado o todavía en camino): el dueño lo corrige o lo anula
+        var aid = (r.tipo==="Abono" && r.estado!=="Anulada" && esDueno()) ? (abonoDeRef(r.ref) || (r.sol && r.sol.tipo==="abono" ? "s"+r.sol.id : null)) : null;
+        h+='<tr class="'+cls+(vid?' vta" data-v="'+vid:'')+(pid?' vpp" data-p="'+pid:'')+(aid?' vab" data-a="'+aid:'')+(psol?' vps" data-s="'+psol:'')+'"><td>'+(r.pend?'⏳ ':'')+esc(r.hora)+'</td><td class="tp">'+(r.marcada?'🚩 ':'')+(delCel?'📱 ':'')+esc(prod)+(r.pendAnular?' <span class="pend-tag">se anula</span>':r.pendCorr?' <span class="pend-tag">corregida</span>':'')+((vid||psol)?' <span class="fbtn" aria-label="Ver factura">🧾</span>':'')+(pid?' <span class="fbtn" aria-label="Corregir pago">✏️</span>':'')+(aid?' <span class="fbtn" aria-label="Corregir abono">✏️</span>':'')+(r.abCorr?' <span class="pend-tag">corregido</span>':'')+'</td>'
           +'<td>'+(Number(r.kilos)?kilos(r.kilos):'')+'</td><td>'+esc(r.precio||'')+'</td>'
           +'<td class="tv">'+(Number(r.valor)?money(r.valor):'')+'</td><td class="tc">'+esc(r.cliente)+'</td>'
           +'<td>'+esc(r.pago)+'</td><td>'+(r.pend ? "⏳ Sin sincronizar" : String(r.detalle||"").indexOf("📱 celular")>=0 ? "📱 Celular" : "💻 PC")+'</td><td class="tt">'+(delCel?'📱 ':'')+esc(r.tipo)+'</td><td>'+esc(r.viaje)+'</td></tr>';
       });
       h+='</tbody></table></div></div>';
-      h+='<p class="updated">'+filas.length+' de '+todas.length+' movimientos · desliza la tabla hacia los lados para ver todo · toca una venta (🧾) para su factura'+(esDueno()?' · toca un pago a proveedor (✏️) para corregirlo':'')+'</p>';
+      h+='<p class="updated">'+filas.length+' de '+todas.length+' movimientos · desliza la tabla hacia los lados para ver todo · toca una venta (🧾) para su factura'+(esDueno()?' · toca un abono o un pago a proveedor (✏️) para corregirlo':'')+'</p>';
     }
     host.innerHTML=h;
     Array.prototype.forEach.call(host.querySelectorAll("tr.vta"), function(tr){
@@ -1294,6 +1309,13 @@
     });
     Array.prototype.forEach.call(host.querySelectorAll("tr.vpp"), function(tr){
       tr.onclick=function(){ var p=Number(tr.dataset.p); var r=todas.filter(function(x){ return x.tipo==="Pago Proveedor" && pagoDeRef(x.ref)===p; })[0]; if(r) abrirEditarPago(p, r); };
+    });
+    Array.prototype.forEach.call(host.querySelectorAll("tr.vab"), function(tr){
+      tr.onclick=function(){
+        var a=String(tr.dataset.a), r = a[0]==="s" ? todas.filter(function(x){ return x.sol && x.sol.tipo==="abono" && Number(x.sol.id)===Number(a.slice(1)); })[0]
+                                                   : todas.filter(function(x){ return x.tipo==="Abono" && abonoDeRef(x.ref)===Number(a); })[0];
+        if(r) abrirEditarAbono(r, a[0]==="s" ? 0 : Number(a), a[0]==="s" ? Number(a.slice(1)) : 0);
+      };
     });
     Array.prototype.forEach.call(host.querySelectorAll(".tchip"), function(b){ b.onclick=function(){ state.transTipo=b.dataset.tt; pintarTrans(); }; });
     el("atVender").onclick=function(){ irA("vext"); };
@@ -1474,7 +1496,7 @@
     }
     if(act.indexOf("__ing")>=0){
       var desdeI=marca("_ing"); if(!desdeI){ marca("_ing", new Date().toISOString()); }
-      else sb.from("solicitud_movil").select("id,tipo,estado,resumen,error,aplicado").eq("negocio_id",neg).eq("origen","celular").in("tipo",["ingreso","usuario","gasto","devolucion","pago_proveedor","pago_comision","corregir_venta","anular_venta"]).in("estado",["aplicada","error"]).gt("aplicado",desdeI).order("aplicado",{ascending:true}).then(function(r){
+      else sb.from("solicitud_movil").select("id,tipo,estado,resumen,error,aplicado").eq("negocio_id",neg).eq("origen","celular").in("tipo",["ingreso","usuario","gasto","devolucion","pago_proveedor","pago_comision","corregir_venta","anular_venta","editar_abono","anular_abono"]).in("estado",["aplicada","error"]).gt("aplicado",desdeI).order("aplicado",{ascending:true}).then(function(r){
         var filas=(r&&r.data)||[];
         filas.forEach(function(s){
           var ic = s.tipo==="usuario" ? "👤 " : s.tipo==="ingreso" ? "📥 " : "";
@@ -1719,6 +1741,7 @@
     };
   }
   function ventaDeRef(ref){ var m=/^Venta-(\d+)-/.exec(String(ref||"")); return m?Number(m[1]):null; }
+  function abonoDeRef(ref){ var m=/^Abono-(\d+)-/.exec(String(ref||"")); return m?Number(m[1]):null; }
   function cargarEmpresa(){
     var k="empresa_"+state.negocioId;
     if(state.cache[k]) return Promise.resolve(state.cache[k]);
@@ -1794,7 +1817,8 @@
       if(!par[0]){ ov.innerHTML='<div class="fac-msg">No encontré esa venta en la nube.<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar; return; }
       // ⏳ Corregida o anulada desde un celular y el PC aún no lo registra: se ve ya como quedará.
       var sp=pendienteDeVenta(pendFac, ventaId);
-      if(sp && sp.tipo==="corregir_venta"){ mostrarFactura(ov, facConCorreccion(par[0], datosPend(sp), catFac), par[1], cerrar, { aviso:"⏳ Factura CORREGIDA desde el celular: el computador todavía no la registra (lo hace cuando se prenda y sincronice). Ya la puedes imprimir o enviar así." }); return; }
+      // 1.4.52: y se puede VOLVER a corregir o anular (el PC las aplica en orden, sobre la corrección anterior).
+      if(sp && sp.tipo==="corregir_venta"){ var fcp=facConCorreccion(par[0], datosPend(sp), catFac); fcp.sobrePend=sp.id; mostrarFactura(ov, fcp, par[1], cerrar, { editable:true, aviso:"⏳ Factura CORREGIDA desde el celular: el computador todavía no la registra (lo hace cuando se prenda y sincronice). Ya la puedes imprimir, enviar o volver a corregir." }); return; }
       if(sp && sp.tipo==="anular_venta"){ mostrarFactura(ov, par[0], par[1], cerrar, { aviso:"🚫⏳ Esta venta se ANULA desde el celular: el computador la anula cuando se prenda y sincronice." }); return; }
       mostrarFactura(ov, par[0], par[1], cerrar, { editable:true });
     }).catch(function(e){
@@ -2319,12 +2343,13 @@
   function enviarSolicitud(tipo, resumen, datos){
     return sb.auth.getSession().then(function(ss){
       var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
-      return sb.from("solicitud_movil").insert({ negocio_id:state.negocioId, origen:"celular", tipo:tipo, estado:"aprobada", creado_por:email, resumen:resumen, datos:datos });
+      return sb.from("solicitud_movil").insert({ negocio_id:state.negocioId, origen:"celular", tipo:tipo, estado:"aprobada", creado_por:email, resumen:resumen, datos:datos }).select("id");
     }).then(function(res){
       if(res.error) throw new Error(/row-level security|policy/i.test(res.error.message)
         ? (esDueno() ? "La nube todavía no acepta esto desde el celular (falta actualizar el servidor)." : "Esto solo lo puede hacer la cuenta del dueño.")
         : "No se pudo enviar: "+res.error.message);
       delete state.cache["cat_"+state.negocioId]; olvidarPendientes();
+      res.idNube = res.data && res.data[0] ? res.data[0].id : null;   // 1.4.52: para volver a corregir lo que va en camino
       return res;
     });
   }
@@ -2709,10 +2734,58 @@
     if(!confirm("¿ANULAR la venta #"+fac.ventaId+" ("+quien+", "+money(fac.total)+")?\n\nEl computador la anula en unos minutos: devuelve el inventario y saca la plata de la caja o de la cartera. No se puede deshacer.")) return;
     var cat0=state.cache["cat_"+state.negocioId]||{};
     enviarSolicitud("anular_venta", "Anular venta #"+fac.ventaId+" · "+quien+" · "+money(fac.total)+" (desde el celular)",
-      { venta_id:Number(fac.ventaId), total_antes:Number(fac.total||0), cliente_antes_id:idClienteDeFac(fac, cat0.cliente) }).then(function(){
+      conPend(fac, { venta_id:Number(fac.ventaId), total_antes:Number(fac.total||0), cliente_antes_id:idClienteDeFac(fac, cat0.cliente) })).then(function(){
       say("🚫 Venta #"+fac.ventaId+": el computador la anula en unos minutos."); if(alTerminar) alTerminar();
       if(state.section==="trans") loadTrans();
     }, function(e){ say(e.message); });
+  }
+  // 1.4.52: corregir o anular una factura cuya corrección anterior todavía va en camino: el PC sigue la cadena.
+  function conPend(fac, d){ if(fac && fac.sobrePend) d.sobre_pendiente = fac.sobrePend; return d; }
+  // 1.4.52 (pedido del dueño): CORREGIR o ANULAR un abono desde el celular, ya registrado (abonoId) o todavía en
+  // camino (solId = el abono que se mandó y el PC aún no tiene). El PC corrige ESE mismo abono: la cartera por la
+  // diferencia, su entrada de caja y el cierre de caja de ese día.
+  function abrirEditarAbono(r, abonoId, solId){
+    if(!esDueno()){ say("Solo la cuenta del dueño puede corregir abonos."); return; }
+    var o=abrirHoja("Corregir abono");
+    cargarCatalogo().then(function(cat){
+      if(!document.body.contains(o.ov)) return;
+      var dSol = solId && r.sol ? datosPend(r.sol) : null;
+      var cliId = dSol ? idCliPend(cat, dSol) : ((buscarPorNombre(cat.cliente||[], r.cliente)||{}).id || 0);
+      var montoAntes=Number(r.valor||0), fecha=String(r.fecha||isoToday()).slice(0,10);
+      o.hoja().innerHTML=cabHoja("✏️ Corregir abono", "eX")
+        +'<div class="cli-tarjeta"><div class="ct-nom">'+esc(r.cliente||"")+'</div>'
+        +'<div class="ct-saldo"><span>Abono del '+esc(fechaCorta(fecha))+' · '+esc(r.pago||"")+(solId?' · ⏳ sin sincronizar':'')+'</span><b>'+money(montoAntes)+'</b></div></div>'
+        +'<label class="hoja-lab" for="eMonto">Valor correcto</label>'+montoHTML("eMonto")
+        +(puedeFecha() ? '<label class="hoja-lab" for="eFecha">Fecha del abono</label><input id="eFecha" class="hoja-in" type="date" value="'+esc(fecha)+'" min="'+fechaMinima()+'" max="'+isoToday()+'">' : '')
+        +'<div id="eQueda" class="queda"></div>'
+        +'<button class="hoja-ok" id="eGuardar">💾 Guardar corrección</button>'
+        +'<button class="hoja-sec e-anular" id="eAnular">🚫 Anular este abono</button>'
+        +'<p class="hoja-pie">El computador lo corrige en unos minutos: la cartera del cliente, la caja y el cierre de caja de ese día se ajustan solos. Mientras tanto el celular ya lo muestra así (⏳).</p>';
+      el("eX").onclick=o.cerrar;
+      ponerMonto("eMonto", montoAntes);
+      function verQueda(){ var m=leerPlata(el("eMonto").value), d=m-montoAntes;
+        el("eQueda").textContent = !(m>0) ? "" : Math.round(d)===0 ? "Mismo valor que antes." : "Antes "+money(montoAntes)+" → ahora "+money(m)+": lo que debe le "+(d>0?"baja ":"sube ")+money(Math.abs(d))+"."; }
+      conectarMonto("eMonto", verQueda); verQueda();
+      function datos(extra){ var x={ cliente_id:Number(cliId)||0, monto_antes:montoAntes }; if(solId) x.sobre_pendiente=solId; else x.abono_id=abonoId; Object.keys(extra).forEach(function(k){ x[k]=extra[k]; }); return x; }
+      function listo(){ if(state.section==="trans") loadTrans(); }
+      el("eGuardar").onclick=function(){
+        var m=leerPlata(el("eMonto").value), f=el("eFecha") ? (el("eFecha").value||fecha) : fecha;
+        if(!(m>0)){ say("Escribe el valor del abono."); return; }
+        if(Math.round(m)===Math.round(montoAntes) && f===fecha){ say("No cambiaste nada."); return; }
+        var resumen="Corregir abono de "+r.cliente+": "+money(montoAntes)+" → "+money(m)+(f!==fecha?" · fecha "+fechaCorta(f):"");
+        var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+        enviarSolicitud("editar_abono", resumen, datos({ monto:m, fecha:f })).then(function(){
+          hojaHecha(o, "Corrección enviada", money(m), [esc(r.cliente||"")+" · antes "+money(montoAntes), "Fecha: "+esc(fechaCorta(f))], null, null); listo();
+        }, function(e){ btn.disabled=false; btn.textContent="💾 Guardar corrección"; say(e.message); });
+      };
+      el("eAnular").onclick=function(){
+        if(!confirm("¿Anular el abono de "+money(montoAntes)+" de "+r.cliente+"?\n\nVuelve a deber ese valor y la plata sale de la caja donde entró.")) return;
+        var btn=this; btn.disabled=true; btn.textContent="Enviando…";
+        enviarSolicitud("anular_abono", "Anular abono de "+r.cliente+" de "+money(montoAntes), datos({})).then(function(){
+          hojaHecha(o, "Anulación enviada", money(montoAntes), [esc(r.cliente||"")+": vuelve a deber ese valor"], null, null); listo();
+        }, function(e){ btn.disabled=false; btn.textContent="🚫 Anular este abono"; say(e.message); });
+      };
+    });
   }
   function abrirCorregirFactura(fac, alTerminar){
     if(!esDueno()){ say("Solo la cuenta del dueño puede corregir facturas."); return; }
@@ -2811,13 +2884,14 @@
         var btn=this; btn.disabled=true; btn.textContent="Enviando…";
         var datosEnv={ venta_id:Number(fac.ventaId), cliente_id: c ? Number(c.id) : 0, caja:caja, detalle:el("eTit").value.trim(), lineas:items,
           total_antes:Number(fac.total||0), cliente_antes_id:idClienteDeFac(fac, clientes) };
-        enviarSolicitud("corregir_venta", resumen, datosEnv).then(function(){
+        conPend(fac, datosEnv);
+        enviarSolicitud("corregir_venta", resumen, datosEnv).then(function(res){
           // 1.4.31: la factura CORREGIDA se ve, imprime y envía ya, sin esperar a que el computador sincronice
           // (misma factura y número; el PC la aplica igual cuando se prenda).
-          var nueva=facConCorreccion(fac, datosEnv, cat);
+          var nueva=facConCorreccion(fac, datosEnv, cat); nueva.sobrePend = res && res.idNube || fac.sobrePend || -1;
           o.cerrar(); if(alTerminar) alTerminar();
           if(state.section==="trans") loadTrans();
-          abrirFacturaArmada(nueva, { aviso:"⏳ Corrección enviada. Esta es la factura corregida: ya la puedes imprimir o enviar. El computador la aplica cuando se prenda; mientras tanto el celular ya la muestra así (⏳) en Transacciones, la cartera y el estado de cuenta." });
+          abrirFacturaArmada(nueva, { editable:true, aviso:"⏳ Corrección enviada. Esta es la factura corregida: ya la puedes imprimir, enviar o volver a corregir. El computador la aplica cuando se prenda; mientras tanto el celular ya la muestra así (⏳) en Transacciones, la cartera y el estado de cuenta." });
         }, function(e){ btn.disabled=false; btn.textContent="📨 Guardar corrección"; say(e.message); });
       };
     });
@@ -3195,6 +3269,7 @@
     inp.placeholder = inp._pesos ? "Precio $" : "Precio $mil";
     if(antes) ponerPrecio(inp, antes);
     inp.addEventListener("input", function(){
+      inp._tecleo=true;   // lo escribió la persona (ponerPrecio lo borra)
       if(!inp._pesos) return;
       var d=inp.value.replace(/\D/g,"").replace(/^0+/,""), n=d?pesosTxt(Number(d)):"";
       if(n===inp.value) return;
@@ -3202,12 +3277,17 @@
       inp.value=n; var pos=Math.max(0,n.length-desdeFin); try{ inp.setSelectionRange(pos,pos); }catch(e){}
     });
   }
-  // Cambió el tipo: el mismo valor, escrito en la forma del tipo nuevo (miles ↔ completo).
+  // Cambió el tipo: los mismos números si se teclearon y tienen sentido; si no, el mismo valor en la forma del tipo nuevo.
   function precioTipoCambio(inp){
     if(!inp || !inp._tipoDe) return;
     var nuevo=precioPesos(inp._tipoDe()); if(nuevo===inp._pesos) return;
-    var m=leerPrecio(inp); inp._pesos=nuevo; inp.placeholder = nuevo ? "Precio $" : "Precio $mil";
-    if(String(inp.value).trim()) ponerPrecio(inp, m);
+    var m=leerPrecio(inp), txt=String(inp.value).trim();
+    // 1.4.52 (pedido del dueño): se escribió 130 por kilo y se pasó a ARROBA → quedan los MISMOS números ($130.000 la
+    // arroba), si dan un precio con sentido en el tipo nuevo (arroba hasta 5.000 mil, completo desde $1.000). Igual que el PC.
+    var n = inp._pesos ? Number(txt.replace(/\D/g,"")) : leerNum(txt);
+    inp._pesos=nuevo; inp.placeholder = nuevo ? "Precio $" : "Precio $mil";
+    if(txt && inp._tecleo && n>0 && (nuevo ? n>=1000 : n<=5000)){ inp.value = nuevo ? pesosTxt(n) : String(n).replace(".",","); return; }
+    if(txt) ponerPrecio(inp, m);
   }
   // El precio de la casilla EN MILES (lo que entiende el PC).
   function leerPrecio(inp){
@@ -3218,7 +3298,7 @@
   // Precio para mostrar en un resumen: $12.500 (completo) o $150 mil (por arroba).
   function precioTexto(miles, t){ miles=Number(miles)||0; return precioPesos(t) ? "$"+pesosTxt(miles*1000) : "$"+String(Math.round(miles*1000)/1000).replace(".",",")+" mil"; }
   function ponerPrecio(inp, miles){
-    if(!inp) return; miles=Number(miles)||0;
+    if(!inp) return; miles=Number(miles)||0; inp._tecleo=false;
     inp.value = !miles ? "" : inp._pesos ? pesosTxt(miles*1000) : String(Math.round(miles*1000)/1000).replace(".",",");
   }
 
@@ -3855,7 +3935,7 @@
 
   // ===== 🛡️ CAMBIOS: solicitudes del cajero (aprobar/rechazar) + registro de cambios del programa =====
   state.audFiltro="Todo";
-  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t==="abono"?"💰 Abono": t==="cliente"?"👤 Cliente nuevo": t==="producto"?"🐟 Producto nuevo": t==="gasto"?"📤 Gasto": t==="devolucion"?"↩️ Devolución": t==="pago_proveedor"?"🚛 Pago a proveedor": t==="pago_comision"?"💼 Pago a comisionista": t==="corregir_venta"?"✏️ Corregir venta (celular)": t==="editar_pago_proveedor"?"✏️ Corregir pago a proveedor": t==="anular_pago_proveedor"?"🚫 Anular pago a proveedor": t; }
+  function tipoSolicitud(t){ return t==="anular_venta"?"🚫 Anular venta": t==="editar_venta"?"✏️ Corregir venta": t==="ingreso"?"📥 Ingreso de mercancía": t==="usuario"?"👤 Usuario": t==="venta"?"🛒 Venta externa": t==="prestamo"?"🤝 Préstamo": t==="abono"?"💰 Abono": t==="cliente"?"👤 Cliente nuevo": t==="producto"?"🐟 Producto nuevo": t==="gasto"?"📤 Gasto": t==="devolucion"?"↩️ Devolución": t==="pago_proveedor"?"🚛 Pago a proveedor": t==="pago_comision"?"💼 Pago a comisionista": t==="corregir_venta"?"✏️ Corregir venta (celular)": t==="editar_pago_proveedor"?"✏️ Corregir pago a proveedor": t==="anular_pago_proveedor"?"🚫 Anular pago a proveedor": t==="editar_abono"?"✏️ Corregir abono": t==="anular_abono"?"🚫 Anular abono": t; }
   var CLASE_COLOR={ Anulaciones:"k-anul", Ediciones:"k-edic", Ingresos:"k-ing", Solicitudes:"k-sol", Otros:"k-otro" };
   function colorTipoSolicitud(t){ return t==="anular_venta"||t==="anular_pago_proveedor"?"k-anul": t==="editar_venta"||t==="editar_pago_proveedor"?"k-edic": t==="ingreso"?"k-ing": t==="venta"?"k-vta": t==="abono"?"k-vta": t==="prestamo"?"k-sol":"k-otro"; }
   function claseAccion(a){ a=String(a||"");
