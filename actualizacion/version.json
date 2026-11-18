@@ -1,11 +1,11 @@
 {
-    "version":  "1.4.51",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.51/PescaFacil-Actualizacion-1.4.51.exe",
-    "sha256":  "49941d4cb266a4b2f587ee8b3094760f13a34ab3d3affab6a43cd5ab608fc933",
-    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.51/CarniFacil-Actualizacion-1.4.51.exe",
-    "sha256_carni":  "752b37726af7a507fcaf3afe254ca9088ab93be071d3616175f60bafd5389a36",
-    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.51/PolloFacil-Actualizacion-1.4.51.exe",
-    "sha256_pollo":  "444a1333b8fd4edd038fa9bc06d9dc01239a08d92ca4c30e1759e01619a66863",
-    "notas":  "Venta táctil: cada caja ve sus registros (reimprimir, corregir, anular) y, si el operario no tiene permiso, la solicitud le llega a la caja principal para aprobarla; abonos y pago mixto (parte Nequi y parte efectivo) en la venta táctil. Manuales nuevos con imágenes, números y animaciones: cómo conectar varios equipos, la báscula, la impresora y el celular. Arreglo de la ventana Editar usuario.",
+    "version":  "1.4.52",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.52/PescaFacil-Actualizacion-1.4.52.exe",
+    "sha256":  "061e28de44ad7c19877eb769181a38dbdbfbb105d45cb531ea5816866b642dcd",
+    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.52/CarniFacil-Actualizacion-1.4.52.exe",
+    "sha256_carni":  "4427f56501ddd5f128cb5a74353ec38dd0f5916497482ed6993cb3e996f8841d",
+    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.52/PolloFacil-Actualizacion-1.4.52.exe",
+    "sha256_pollo":  "0104e3531433cbde7f8767766a41641a8eb6a1037f6ff54d95ffb488eec41e2a",
+    "notas":  "Desde el celular: volver a corregir o anular una factura que ya se corrigió y el computador aún no sincroniza; corregir (valor y fecha) y anular abonos. En la venta: si escribes el precio (p. ej. 130) y cambias de kilo a arroba, quedan los mismos números (130 = 130.000 la arroba).",
     "fecha":  "2026-11-17"
 }
