@@ -638,6 +638,7 @@
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -1760,14 +1761,17 @@
     function cerrar(){ ov.remove(); document.removeEventListener("keydown", teclas); }
     document.addEventListener("keydown", teclas);
     ov.addEventListener("click", function(e){ if(e.target===ov) cerrar(); });
-    var neg=state.negocioId, catFac={}, pendFac=[];
+    var neg=state.negocioId, catFac={}, pendFac=[], docFeFac=null;
     Promise.all([
       cargarEmpresa(),
       sb.from("cliente_movimiento").select("cliente_id,fecha,producto,kilos,precio,cargo,factura,titulo")
         .eq("negocio_id", neg).eq("venta_id", ventaId),
       cargarCatalogo().catch(function(){ return {cliente:[], config:[]}; }),
-      cargarPendientes()
+      cargarPendientes(),
+      // 1.4.53: su documento electrónico DIAN (si el negocio factura electrónico y el PC ya lo subió)
+      sb.from("documento_fe").select("*").eq("negocio_id", neg).eq("venta_id", ventaId).limit(1).then(function(x){ return x && !x.error && x.data && x.data[0] || null; }, function(){ return null; })
     ]).then(function(r){
+      docFeFac=r[4]||null;
       var emp=r[0], lin=(r[1] && r[1].data) || [], cat=r[2] || {};
       catFac=cat; pendFac=r[3]||[];
       // Datos de la factura del PC (pie, saldo destacado) y los del cliente (cédula, dirección…).
@@ -1814,6 +1818,7 @@
       return [null, emp];
     }).then(function(par){
       if(!document.body.contains(ov)) return;
+      if(par[0] && docFeFac) par[0].dian=docFeFac;
       if(!par[0]){ ov.innerHTML='<div class="fac-msg">No encontré esa venta en la nube.<br><br><button class="xls" id="facX">Cerrar</button></div>'; el("facX").onclick=cerrar; return; }
       // ⏳ Corregida o anulada desde un celular y el PC aún no lo registra: se ve ya como quedará.
       var sp=pendienteDeVenta(pendFac, ventaId);
@@ -1943,12 +1948,14 @@
       if(emp.nit) centro("NIT: "+emp.nit,26,false);
       if(emp.direccion) centro("Dirección: "+emp.direccion,26,false);
       if(emp.telefono) centro("Teléfono: "+emp.telefono,26,false);
+      var dn=fac.dian && !fac.dian.en_tramite ? fac.dian : null;
+      if(fac.dian){ y+=4; centro(fac.dian.tipo==="FE" ? "FACTURA ELECTRÓNICA DE VENTA" : "DOCUMENTO EQUIVALENTE POS", 28, true); if(dn && dn.numero) centro("N° "+dn.numero, 30, true); }
       if(fac.titulo) { y+=4; titulo(String(fac.titulo).toUpperCase(),34); }
       lineaFina();
       var fe=fac.fecha.toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"});
       var ho=fac.fecha.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
       var pagoTxt = fac.pago==="Contado" ? "CONTADO" : "CRÉDITO";
-      infoFila("Fecha: "+fe, fac.numLab||"Venta N°", fac.numVal||String(fac.ventaId));
+      infoFila("Fecha: "+fe, dn && dn.numero ? (dn.tipo==="FE" ? "Factura" : "POS") : (fac.numLab||"Venta N°"), dn && dn.numero ? dn.numero : (fac.numVal||String(fac.ventaId)));
       infoFila("Hora: "+ho, "Pago", pagoTxt);
       lineaFina();
       // Datos del cliente: siempre los cinco cuando hay cliente, con N/A en lo que no se tenga (contado no los lleva).
@@ -1994,6 +2001,37 @@
       else totalLinea("Total venta", money(fac.total));
       dos("FORMA DE PAGO:", fac.pago==="Contado" ? "CONTADO" : "CRÉDITO (queda en cartera)", 24, false);
       lineaFina();
+      // 1.4.53: representación gráfica del documento electrónico, como el tiquete del PC (CUFE/CUDE, QR, estado…)
+      function parrafo(t, px, bold){ f(px,bold); var pal=String(t||"").split(" "), lin=""; pal.forEach(function(p){ var tt=lin?lin+" "+p:p; if(ancho(tt)>W-2*M && lin){ centro(lin,px,bold); f(px,bold); lin=p; } else lin=tt; }); if(lin) centro(lin,px,bold); }
+      if(fac.dian){
+        var d=fac.dian;
+        if(!d.produccion) centro("*** AMBIENTE DE PRUEBAS · SIN VALIDEZ ***",20,true);
+        if(d.en_tramite) parrafo("Factura electrónica en trámite con "+(d.proveedor||"el proveedor")+". El número y el CUFE oficiales quedan en el programa al ser aceptada.",20,true);
+        else {
+          centro(d.tipo==="FE" ? "CUFE" : "CUDE", 22, true);
+          f(18,false,true); var cu=String(d.cufe||""), lin="";
+          for(var i=0;i<cu.length;i++){ if(ancho(lin+cu[i])>W-2*M){ g.textAlign="center"; g.fillText(lin,W/2,y); y+=22; lin=""; } lin+=cu[i]; }
+          if(lin){ g.textAlign="center"; g.fillText(lin,W/2,y); y+=26; }
+          if(d.qr && window.qrcode){
+            try{
+              var q=window.qrcode(0,"M"); q.addData(d.qr); q.make();
+              var n=q.getModuleCount(), cel=Math.max(2,Math.floor(232/n)), lado=cel*n, x0=Math.round((W-lado)/2);
+              for(var rr=0;rr<n;rr++) for(var cc=0;cc<n;cc++) if(q.isDark(rr,cc)) g.fillRect(x0+cc*cel, y+rr*cel, cel, cel);
+              y+=lado+14;
+            }catch(e){ parrafo(d.qr,18); }
+          } else if(d.qr) parrafo(d.qr,18);
+          parrafo("Estado DIAN: "+(d.estado==="Aceptado" ? "aceptado" : d.estado==="Pendiente" ? "pendiente de envío" : String(d.estado||"").toLowerCase()),20);
+          if(d.resolucion) parrafo(d.resolucion,20);
+          if(FE_EMISOR) parrafo("Emisor: "+FE_EMISOR,20);
+          parrafo("Adquirente: "+(d.adquirente_doc==="222222222222" ? "Consumidor final" : (d.adquirente_nombre||"")+" · "+(d.adquirente_doc||"")),20);
+        }
+        if(d.nota) parrafo("ANULADA con nota crédito "+d.nota,20,true);
+        parrafo("Representación gráfica del documento electrónico · Software "+nomMarca(),20);
+        lineaFina();
+      } else if(fac.dianPend){
+        parrafo((fac.dianPend==="FE" ? "La factura electrónica" : "El documento POS electrónico")+" (con su CUFE y su QR) lo genera el computador al registrar esta venta. Abre la venta después en Transacciones para verla así.",20,true);
+        lineaFina();
+      }
       var pie=String(emp.pie||"¡Gracias por su compra!\nProducto perecedero, no se aceptan devoluciones después de retirada la mercancía.");
       pie.split(/\r?\n/).forEach(function(lin){
         lin=lin.trim(); if(!lin) return;
@@ -3239,6 +3277,8 @@
       PRECIO_SOLO_ARROBA=!!cfgF.precio_solo_arroba; PRECIO_EN_PESOS=!!cfgF.precio_en_pesos;
       FECHA_MODO=cfgF.fecha_modo||""; FECHA_DIAS=Number(cfgF.fecha_dias)||0;
       TITULO_VENTA=cfgF.titulo_venta||"FACTURA DE VENTA";   // 1.4.49: un PC viejo no lo manda
+      // 1.4.53: facturación electrónica DIAN del negocio (un PC viejo no la manda: sin selector de documento).
+      FE_ACTIVA=!!cfgF.fe_activa; FE_POS=cfgF.fe_pos!==false; FE_SIN=!!cfgF.fe_sin; FE_DOC_CLIENTE=cfgF.fe_doc_cliente!==false; FE_EMISOR=cfgF.fe_emisor||"";
       state.cache[k]=c;
       // Edición del negocio (PescaFácil/CarniFácil/PolloFácil). Un PC anterior a 1.4.31 no la manda = PescaFácil.
       if((c.config||[]).length){
@@ -3252,6 +3292,13 @@
   // Tamaño del logo en la factura/recibo/estado de cuenta: el de fábrica (≤300×190 en 576) por el
   // % de Configuración → Impresora del PC ("Tamaño del logo"), sin pasarse del ancho del papel.
   var TITULO_VENTA="FACTURA DE VENTA";
+  var FE_ACTIVA=false, FE_POS=true, FE_SIN=false, FE_DOC_CLIENTE=true, FE_EMISOR="";
+  // El documento que sale solo para un cliente (igual que el PC): FACTURA si tiene cédula/NIT, si no POS.
+  function docAutomatico(c){
+    if(!FE_POS) return "FE";
+    var ced=String((c && c.extra && c.extra.cedula)||"").split("-")[0].replace(/\D/g,"");
+    return FE_DOC_CLIENTE && c && ced.length>=5 ? "FE" : "POS";
+  }
   var LOGO_PCT=100, TIPO_PRED=null, PRECIO_SOLO_ARROBA=false, PRECIO_EN_PESOS=false, FECHA_MODO="", FECHA_DIAS=0;
 
   // ===== PRECIOS (1.4.46, igual que el PC): por arroba en miles (150 = $150.000); por kilo, libra, caja o unidad
@@ -3623,6 +3670,9 @@
       +'<label for="vViaje">Viaje de donde sale la mercancía</label><select id="vViaje"><option value="">Automático (el que tenga el producto)</option>'
       +(cat.viaje||[]).map(function(v){ return '<option value="'+v.id+'">'+esc(v.nombre)+(v.extra&&v.extra.predeterminado?' ⭐':'')+'</option>'; }).join("")+'</select>'
       +'<label for="vDet">Título de la factura (opcional)</label><input id="vDet" maxlength="40" placeholder="Ej: Pedido de la calle 5">'
+      +(FE_ACTIVA ? '<label for="vDoc">🧾 Documento electrónico DIAN</label><select id="vDoc"><option value="FE">Factura electrónica</option>'
+          +(FE_POS?'<option value="POS">POS electrónico (consumidor final)</option>':'')+(FE_SIN?'<option value="NO">Sin documento electrónico</option>':'')+'</select>'
+          +'<div class="m" id="vDocInfo" style="font-size:.76rem;color:var(--muted);margin-top:4px">Lo genera el computador al registrar la venta, con su CUFE y su QR.</div>' : '')
       +fechaHTML("vFecha")
       +'<div class="total-row" style="margin:14px -14px -14px"><span>Total de la venta</span><span class="big num" id="vTotal">$0</span></div>'
       +'</div></div>'
@@ -3657,8 +3707,11 @@
     }
     function porNombre(t){ return buscarPorNombre(cat.producto, t); }
     function clienteSel(){ return buscarPorNombre(clientes, cli.value); }
+    var docTocado=false;
+    if(el("vDoc")) el("vDoc").addEventListener("change", function(){ docTocado=true; });
     function verCliente(){
       var t=cli.value.trim(), c=clienteSel();
+      if(el("vDoc") && !docTocado){ var dA=docAutomatico(c); if(Array.prototype.some.call(el("vDoc").options, function(o){ return o.value===dA; })) el("vDoc").value=dA; }
       el("vSalBox").hidden = !t;   // el saldo solo aplica a crédito (con cliente)
       el("vCliNuevoBox").hidden = !(t && !c);
       el("vContadoBox").hidden = !!t;
@@ -3742,7 +3795,7 @@
         +(el("vDet").value.trim()?" · "+el("vDet").value.trim():"")+textoFecha(leerFecha("vFecha"));
       if(!confirm("¿Registrar esta venta?\n\n"+resumen)) return;
       var detTxt=el("vDet").value.trim();
-      var imprimirFac=el("vImp").checked, facConSaldo=el("vSal").checked;
+      var imprimirFac=el("vImp").checked, facConSaldo=el("vSal").checked, docElegido=el("vDoc") ? el("vDoc").value : "";
       btn.disabled=true; btn.textContent="Enviando…";
       sb.auth.getSession().then(function(ss){
         var email=(ss.data&&ss.data.session&&ss.data.session.user&&ss.data.session.user.email)||"";
@@ -3752,7 +3805,8 @@
             cliente_id: c ? Number(c.id) : null,
             cliente_nuevo: t && !c ? { nombre:t.toUpperCase(), telefono:el("vCliTel").value.trim() } : null,
             pago:pago, caja:caja, viaje_id: el("vViaje").value ? Number(el("vViaje").value) : null,
-            detalle: el("vDet").value.trim(), lineas:items, fecha:leerFecha("vFecha") }
+            detalle: el("vDet").value.trim(), lineas:items, fecha:leerFecha("vFecha"),
+            doc_electronico: el("vDoc") ? el("vDoc").value : undefined }
         });
       }).then(function(res){
         btn.disabled=false; btn.textContent="📨 Registrar venta";
@@ -3770,7 +3824,8 @@
         var facCel={ ventaId:"celular", numLab:"Venta", numVal:"del celular", num:"COMPROBANTE DE VENTA", titulo:detTxt,
           fecha:new Date(), pago: pago==="credito" ? "Crédito" : "Contado", cliente: t ? (c ? c.nombre : t.toUpperCase()) : "CONTADO",
           datosCliente: datosCli, lineas: paraTiquete, total: tot,
-          saldo: (pago==="credito" && c) ? { antes: saldoCli, despues: saldoCli+tot } : null };
+          saldo: (pago==="credito" && c) ? { antes: saldoCli, despues: saldoCli+tot } : null,
+          dianPend: docElegido && docElegido!=="NO" ? docElegido : null };
         if(imprimirFac){
           var o=abrirOverlay();
           cargarEmpresa().then(function(emp){ mostrarFactura(o.ov, facCel, emp, o.cerrar, { conSaldo:facConSaldo, imprimir:true }); });
