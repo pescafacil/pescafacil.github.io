@@ -1949,7 +1949,19 @@
       if(emp.direccion) centro("Dirección: "+emp.direccion,26,false);
       if(emp.telefono) centro("Teléfono: "+emp.telefono,26,false);
       var dn=fac.dian && !fac.dian.en_tramite ? fac.dian : null;
-      if(fac.dian){ y+=4; centro(fac.dian.tipo==="FE" ? "FACTURA ELECTRÓNICA DE VENTA" : "DOCUMENTO EQUIVALENTE POS", 28, true); if(dn && dn.numero) centro("N° "+dn.numero, 30, true); }
+      function parrafo(t, px, bold){ f(px,bold); var pal=String(t||"").split(" "), lin=""; pal.forEach(function(p){ var tt=lin?lin+" "+p:p; if(ancho(tt)>W-2*M && lin){ centro(lin,px,bold); f(px,bold); lin=p; } else lin=tt; }); if(lin) centro(lin,px,bold); }
+      // 1.4.54 (pedido del dueño): como una factura electrónica normal — ARRIBA el tipo, el número, la resolución y el
+      // emisor; ABAJO, al final de todo, el CUFE y el QR.
+      if(fac.dian){
+        var dA=fac.dian; y+=4;
+        centro(dA.tipo==="FE" ? "FACTURA ELECTRÓNICA DE VENTA" : "DOCUMENTO EQUIVALENTE POS", 28, true);
+        if(dn && dn.numero) centro("N° "+dn.numero, 30, true);
+        if(!dA.produccion) centro("*** AMBIENTE DE PRUEBAS · SIN VALIDEZ ***",20,true);
+        if(FE_EMISOR) parrafo(FE_EMISOR,20);
+        if(dA.resolucion) parrafo(dA.resolucion,20);
+        if(dA.adquirente_doc==="222222222222") centro("Adquirente: consumidor final (222222222222)",20,false);
+        if(dA.nota) parrafo("ANULADA con nota crédito "+dA.nota,20,true);
+      }
       if(fac.titulo) { y+=4; titulo(String(fac.titulo).toUpperCase(),34); }
       lineaFina();
       var fe=fac.fecha.toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"});
@@ -2001,34 +2013,7 @@
       else totalLinea("Total venta", money(fac.total));
       dos("FORMA DE PAGO:", fac.pago==="Contado" ? "CONTADO" : "CRÉDITO (queda en cartera)", 24, false);
       lineaFina();
-      // 1.4.53: representación gráfica del documento electrónico, como el tiquete del PC (CUFE/CUDE, QR, estado…)
-      function parrafo(t, px, bold){ f(px,bold); var pal=String(t||"").split(" "), lin=""; pal.forEach(function(p){ var tt=lin?lin+" "+p:p; if(ancho(tt)>W-2*M && lin){ centro(lin,px,bold); f(px,bold); lin=p; } else lin=tt; }); if(lin) centro(lin,px,bold); }
-      if(fac.dian){
-        var d=fac.dian;
-        if(!d.produccion) centro("*** AMBIENTE DE PRUEBAS · SIN VALIDEZ ***",20,true);
-        if(d.en_tramite) parrafo("Factura electrónica en trámite con "+(d.proveedor||"el proveedor")+". El número y el CUFE oficiales quedan en el programa al ser aceptada.",20,true);
-        else {
-          centro(d.tipo==="FE" ? "CUFE" : "CUDE", 22, true);
-          f(18,false,true); var cu=String(d.cufe||""), lin="";
-          for(var i=0;i<cu.length;i++){ if(ancho(lin+cu[i])>W-2*M){ g.textAlign="center"; g.fillText(lin,W/2,y); y+=22; lin=""; } lin+=cu[i]; }
-          if(lin){ g.textAlign="center"; g.fillText(lin,W/2,y); y+=26; }
-          if(d.qr && window.qrcode){
-            try{
-              var q=window.qrcode(0,"M"); q.addData(d.qr); q.make();
-              var n=q.getModuleCount(), cel=Math.max(2,Math.floor(232/n)), lado=cel*n, x0=Math.round((W-lado)/2);
-              for(var rr=0;rr<n;rr++) for(var cc=0;cc<n;cc++) if(q.isDark(rr,cc)) g.fillRect(x0+cc*cel, y+rr*cel, cel, cel);
-              y+=lado+14;
-            }catch(e){ parrafo(d.qr,18); }
-          } else if(d.qr) parrafo(d.qr,18);
-          parrafo("Estado DIAN: "+(d.estado==="Aceptado" ? "aceptado" : d.estado==="Pendiente" ? "pendiente de envío" : String(d.estado||"").toLowerCase()),20);
-          if(d.resolucion) parrafo(d.resolucion,20);
-          if(FE_EMISOR) parrafo("Emisor: "+FE_EMISOR,20);
-          parrafo("Adquirente: "+(d.adquirente_doc==="222222222222" ? "Consumidor final" : (d.adquirente_nombre||"")+" · "+(d.adquirente_doc||"")),20);
-        }
-        if(d.nota) parrafo("ANULADA con nota crédito "+d.nota,20,true);
-        parrafo("Representación gráfica del documento electrónico · Software "+nomMarca(),20);
-        lineaFina();
-      } else if(fac.dianPend){
+      if(fac.dianPend && !fac.dian){
         parrafo((fac.dianPend==="FE" ? "La factura electrónica" : "El documento POS electrónico")+" (con su CUFE y su QR) lo genera el computador al registrar esta venta. Abre la venta después en Transacciones para verla así.",20,true);
         lineaFina();
       }
@@ -2043,6 +2028,27 @@
       centro("Proveedor del software: "+nomMarca(),20,true);
       centro("pescafacilbykevin@gmail.com  ·  320 967 1137",20,false);
       y=by+64;
+      // Al final de todo: CUFE/CUDE, el QR, el estado ante la DIAN y la leyenda de representación gráfica.
+      if(fac.dian){
+        var d=fac.dian; y+=14;
+        if(d.en_tramite) parrafo("Factura electrónica en trámite con "+(d.proveedor||"el proveedor")+". El número y el CUFE oficiales quedan en el programa al ser aceptada.",20,true);
+        else {
+          centro(d.tipo==="FE" ? "CUFE" : "CUDE", 22, true);
+          f(18,false,true); var cu=String(d.cufe||""), lin="";
+          for(var i=0;i<cu.length;i++){ if(ancho(lin+cu[i])>W-2*M){ g.textAlign="center"; g.fillText(lin,W/2,y); y+=22; lin=""; } lin+=cu[i]; }
+          if(lin){ g.textAlign="center"; g.fillText(lin,W/2,y); y+=26; }
+          if(d.qr && window.qrcode){
+            try{
+              var q=window.qrcode(0,"M"); q.addData(d.qr); q.make();
+              var n=q.getModuleCount(), cel=Math.max(2,Math.floor(240/n)), lado=cel*n, x0=Math.round((W-lado)/2);
+              for(var rr=0;rr<n;rr++) for(var cc=0;cc<n;cc++) if(q.isDark(rr,cc)) g.fillRect(x0+cc*cel, y+rr*cel, cel, cel);
+              y+=lado+14;
+            }catch(e){ parrafo(d.qr,18); }
+          } else if(d.qr) parrafo(d.qr,18);
+          centro("Estado DIAN: "+(d.estado==="Aceptado" ? "aceptado" : d.estado==="Pendiente" ? "pendiente de envío" : String(d.estado||"").toLowerCase()),20,false);
+        }
+        parrafo("Representación gráfica del documento electrónico",20);
+      }
       var out=document.createElement("canvas"); out.width=W; out.height=y+18;
       out.getContext("2d").drawImage(cv,0,0); return out;
     }
