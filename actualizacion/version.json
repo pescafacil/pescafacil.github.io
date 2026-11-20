@@ -1,11 +1,11 @@
 {
-    "version":  "1.4.53",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.53/PescaFacil-Actualizacion-1.4.53.exe",
-    "sha256":  "2768e920a1af5ba704883a4de1d404bc260179c6417d7743a72a6532464ac212",
-    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.53/CarniFacil-Actualizacion-1.4.53.exe",
-    "sha256_carni":  "7f31efa04de4ec780d521b43e71ecf4c77ad5df164a6cd61b02aec0d7745a791",
-    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.53/PolloFacil-Actualizacion-1.4.53.exe",
-    "sha256_pollo":  "f49299a3dcc26a5d7fac434f17260c88b31cde3ac2f55ade3836e3b437d4c98f",
-    "notas":  "Factura electrónica: en la venta (y desde el celular) se escoge Factura o POS electrónico; la factura del celular sale con su CUFE y su QR; contador de lo facturado (hoy, mes, año, numeración) con límite diario y tope del año que avisan al vender. Cruce de cuentas: cliente y proveedor por código con buscador, y vínculo cliente-proveedor.",
-    "fecha":  "2026-11-19"
+    "version":  "1.4.54",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.54/PescaFacil-Actualizacion-1.4.54.exe",
+    "sha256":  "51505f129c998473ee0ca7f4eee5ee6fef14fcd5b3cbf5650d20b1afdee329cc",
+    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.54/CarniFacil-Actualizacion-1.4.54.exe",
+    "sha256_carni":  "3507c1a3c230e1dd9cdcf9a5ffb91d9bd948d9c4ae5241375a15fd382c0157df",
+    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.54/PolloFacil-Actualizacion-1.4.54.exe",
+    "sha256_pollo":  "277841803901f472f0c9fd503fc89ffdb22034ba557ddb3ef1ff8bafa008c7dd",
+    "notas":  "Factura electrónica: casilla ¿ELECTRÓNICA? SÍ/NO en la venta, junto a ¿FACTURA? y ¿CON SALDO?; la factura electrónica sale ordenada como las normales (resolución arriba, CUFE y QR al final), también en el celular; en Facturación DIAN, lo facturado a consumidor final y a clientes con cédula o NIT.",
+    "fecha":  "2026-11-20"
 }
