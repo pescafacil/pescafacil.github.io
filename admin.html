@@ -202,12 +202,12 @@
       var sync = n.ultima_sync ? '<span class="pill '+((Date.now()-new Date(n.ultima_sync))<3600e3?'good':'warn')+'">PC: '+hace(n.ultima_sync)+'</span>' : '<span class="pill bad">PC: sin conectar</span>';
       return '<div class="neg" data-id="'+n.id+'">'
         +'<div class="top"><div><div class="nom">'+esc(n.nombre)+'</div><div class="muted">Creado '+new Date(n.creado).toLocaleDateString("es-CO")+'</div></div>'
-        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+sync+(n.activo?'':'<span class="pill bad">Pausado</span>')+'</div></div>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+sync+(n.activo?'':'<span class="pill bad">Pausado</span>')+(n.grupo?'<span class="pill good">🏢 '+esc(n.grupo)+'</span>':'')+'</div></div>'
         +'<div class="fila" style="margin-top:10px"><div class="token">'+esc(n.token)+'</div><button type="button" class="b2" data-a="copiar">Copiar token</button></div>'
         +'<ul class="duenos">'+(n.duenos.length?n.duenos.map(function(d){
             return '<li><span>👤 '+esc(d.email)+' <span class="muted">· entró '+hace(d.ultimo_ingreso)+'</span></span><button type="button" class="b2" data-a="clave" data-u="'+d.user_id+'" data-e="'+esc(d.email)+'">Nueva clave</button></li>';
           }).join(""):'<li class="muted">Sin correo vinculado</li>')+'</ul>'
-        +'<div class="acciones"><button type="button" class="b2" data-a="vincular">+ Otro correo</button><button type="button" class="b2" data-a="renombrar">Renombrar</button>'
+        +'<div class="acciones"><button type="button" class="b2" data-a="vincular">+ Otro correo</button><button type="button" class="b2" data-a="renombrar">Renombrar</button><button type="button" class="b2" data-a="grupo">🏢 Grupo</button>'
         +'<button type="button" class="b2 '+(n.activo?'peligro':'')+'" data-a="activo">'+(n.activo?'Pausar':'Reactivar')+'</button></div>'
         +'</div>';
     }).join("");
@@ -234,6 +234,16 @@
     if(a==="renombrar"){
       var nom=window.prompt("Nuevo nombre del negocio:", n.nombre); if(!nom || nom===n.nombre) return;
       return api({ accion:"renombrar", negocio_id:n.id, nombre:nom }).then(cargar, function(err){ say("No se pudo: "+err.message); });
+    }
+    if(a==="grupo"){
+      var ya=[]; negocios.forEach(function(x){ if(x.grupo && ya.indexOf(x.grupo)<0) ya.push(x.grupo); });
+      var g=window.prompt("GRUPO DE EMPRESAS de "+n.nombre+"
+Las empresas del mismo grupo se pasan los gastos pagados por otra y la plata entre ellas.
+"
+        +(ya.length?"Grupos que ya existen: "+ya.join(", ")+"
+":"")+"Escribe el nombre del grupo (vacío = sacarlo del grupo):", n.grupo||"");
+      if(g===null) return;
+      return api({ accion:"grupo", negocio_id:n.id, grupo:g.trim() }).then(function(){ say(g.trim()?"En el grupo "+g.trim():"Fuera del grupo"); cargar(); }, function(err){ say("No se pudo: "+err.message); });
     }
     if(a==="activo"){
       if(n.activo && !window.confirm("¿Pausar "+n.nombre+"?\nSu PC deja de subir datos hasta que lo reactives (por ejemplo, si no pagó).")) return;
