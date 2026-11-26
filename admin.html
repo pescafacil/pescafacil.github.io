@@ -237,11 +237,8 @@
     }
     if(a==="grupo"){
       var ya=[]; negocios.forEach(function(x){ if(x.grupo && ya.indexOf(x.grupo)<0) ya.push(x.grupo); });
-      var g=window.prompt("GRUPO DE EMPRESAS de "+n.nombre+"
-Las empresas del mismo grupo se pasan los gastos pagados por otra y la plata entre ellas.
-"
-        +(ya.length?"Grupos que ya existen: "+ya.join(", ")+"
-":"")+"Escribe el nombre del grupo (vacío = sacarlo del grupo):", n.grupo||"");
+      var g=window.prompt("GRUPO DE EMPRESAS de "+n.nombre+"\nLas empresas del mismo grupo se pasan los gastos pagados por otra y la plata entre ellas.\n"
+        +(ya.length?"Grupos que ya existen: "+ya.join(", ")+"\n":"")+"Escribe el nombre del grupo (vacío = sacarlo del grupo):", n.grupo||"");
       if(g===null) return;
       return api({ accion:"grupo", negocio_id:n.id, grupo:g.trim() }).then(function(){ say(g.trim()?"En el grupo "+g.trim():"Fuera del grupo"); cargar(); }, function(err){ say("No se pudo: "+err.message); });
     }
