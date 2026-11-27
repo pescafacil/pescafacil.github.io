@@ -1,11 +1,11 @@
 {
-    "version":  "1.4.55",
-    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.55/PescaFacil-Actualizacion-1.4.55.exe",
-    "sha256":  "528dd44e0abe67562fcc1bbc0d7d0824164d4c23675d796489d9fb8ce12e71b5",
-    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.55/CarniFacil-Actualizacion-1.4.55.exe",
-    "sha256_carni":  "baf60fa1fa25560808c182acc3133c3c25925a3e135ca69f33bdcc5905896c94",
-    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.55/PolloFacil-Actualizacion-1.4.55.exe",
-    "sha256_pollo":  "3034f2ba4c25c4ffcd0c9016bd610ab12e464c3f09789c032b9c24ba1e096595",
-    "notas":  "Informes para el contador (Excel con ventas por factura, compras con IVA y retención, cartera y cuentas por pagar por edades, caja, gastos, inventario y estado de resultados). Cuentas entre empresas: varias empresas del mismo dueño se pasan los gastos pagados por otra y la plata entre ellas (aceptar o rechazar). NIT del proveedor.",
-    "fecha":  "2026-11-21"
+    "version":  "1.4.56",
+    "url":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.56/PescaFacil-Actualizacion-1.4.56.exe",
+    "sha256":  "131e36b333ede06a7331eb4bf2df8112c996cea71e7f1df4b9d6834eb2e58001",
+    "url_carni":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.56/CarniFacil-Actualizacion-1.4.56.exe",
+    "sha256_carni":  "5d658659941cc724f85ada976995184ca5b304bcfe713c358be1fe8c0ed47df7",
+    "url_pollo":  "https://github.com/pescafacil/pescafacil.github.io/releases/download/v1.4.56/PolloFacil-Actualizacion-1.4.56.exe",
+    "sha256_pollo":  "d43b40e7d2e933d54fac7601f81e44c62257ac7766a014752526ded0f9b53e30",
+    "notas":  "Seguridad de la licencia: la suspensión queda firmada (no se levanta editando la base, restaurando un respaldo ni desconectando el internet), plazo máximo sin conectarse para verificar la licencia y bloqueo a los 5 minutos si se suspende con el programa abierto.",
+    "fecha":  "2026-11-27"
 }
