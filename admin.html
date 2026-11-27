@@ -63,11 +63,22 @@
   #toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#15242e; color:#fff; padding:10px 16px; border-radius:12px; font-size:.85rem; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw}
   #toast.show{opacity:1}
   [hidden]{display:none !important}
+  .tabs{display:flex; gap:8px; margin:0 0 6px}
+  .tabs button{flex:1; appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--muted); border-radius:12px; padding:11px 8px; font:800 .9rem var(--f-ui); cursor:pointer}
+  .tabs button.on{background:var(--ocean); border-color:var(--ocean); color:#fff}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px}
+  .chips button{appearance:none; border:1px solid var(--line); background:var(--chip); color:var(--ink); border-radius:999px; padding:6px 11px; font:700 .78rem var(--f-ui); cursor:pointer}
+  .chips button.on{background:var(--ocean); border-color:var(--ocean); color:#fff}
+  .eq .det{font-size:.82rem; color:var(--muted); margin-top:6px; line-height:1.5}
+  .eq .msg{font-size:.8rem; margin-top:8px; padding:8px 10px; border-radius:10px; background:var(--chip)}
+  .eq.susp{background:var(--bad-bg); border-radius:12px; padding:14px; margin:6px 0}
+  .eq.aviso{background:var(--warn-bg); border-radius:12px; padding:14px; margin:6px 0}
+  .b2.ok{color:var(--good)} .b2.av{color:var(--warn)}
 </style>
 </head>
 <body>
 <header><div class="in">
-  <div><h1>PescaFácil · Administración</h1><p>Clientes del tablero móvil</p></div>
+  <div><h1>PescaFácil · Administración</h1><p>Equipos, pagos y tablero móvil</p></div>
   <button class="out" id="salir" hidden>Salir</button>
 </div></header>
 
@@ -86,6 +97,20 @@
   </div>
 
   <div id="vApp" hidden>
+    <div class="tabs"><button type="button" id="tEquipos" class="on">💻 Equipos y pagos</button><button type="button" id="tTablero">📱 Tablero móvil</button></div>
+
+    <!-- Equipos instalados: aviso de pago, suspender, reactivar, mensajes -->
+    <div id="secEquipos">
+      <h2 style="display:flex;justify-content:space-between;align-items:center">Equipos instalados <button type="button" class="b2" id="eRecargar">Actualizar</button></h2>
+      <div class="card">
+        <input id="eBuscar" placeholder="Buscar negocio, NIT, teléfono o ID del equipo…" style="margin-bottom:10px">
+        <div class="chips" id="eFiltros"></div>
+        <p class="muted" style="margin:0 0 12px;font-size:.78rem">El programa revisa su estado al abrir y cada 6 horas: un cambio le llega al cliente la próxima vez que abra (o en máximo 6 horas si ya está abierto). Suspender NO toca sus datos.</p>
+        <div id="eLista"><p class="muted">Cargando…</p></div>
+      </div>
+    </div>
+
+    <div id="secTablero" hidden>
     <h2>Cliente nuevo</h2>
     <div class="card">
       <form id="fNuevo">
@@ -118,6 +143,7 @@
     <div class="card">
       <input id="buscar" placeholder="Buscar negocio o correo…" style="margin-bottom:12px">
       <div id="lista"><p class="muted">Cargando…</p></div>
+    </div>
     </div>
   </div>
 </div>
@@ -180,7 +206,123 @@
     el("vLogin").hidden=true; el("vApp").hidden=false; el("salir").hidden=false;
     el("nClave").value=claveAlAzar();
     cargar();
+    cargarEquipos();
   }
+
+  // ----- Pestañas -----
+  function verSeccion(cual){
+    el("secEquipos").hidden = cual!=="equipos"; el("secTablero").hidden = cual!=="tablero";
+    el("tEquipos").classList.toggle("on", cual==="equipos"); el("tTablero").classList.toggle("on", cual==="tablero");
+  }
+  el("tEquipos").onclick=function(){ verSeccion("equipos"); };
+  el("tTablero").onclick=function(){ verSeccion("tablero"); };
+
+  // ----- EQUIPOS INSTALADOS: aviso de pago, suspender, reactivar, mensajes -----
+  var equipos=[], filtroEq="todos";
+  var FILTROS=[["todos","Todos"],["aviso","⚠️ Con aviso"],["suspendido","⛔ Suspendidos"],["vence","📅 Licencia por vencer"],["sin","🕐 Sin conectar +7 días"]];
+  function diasA(fecha){ if(!fecha) return null; return Math.round((new Date(fecha+"T00:00:00")-new Date(new Date().toDateString()))/86400000); }
+  function sinConectar(e){ return !e.ultima_conexion || (Date.now()-new Date(e.ultima_conexion))>7*86400000; }
+  function porVencer(e){ var d=diasA(e.licencia_vence); return d!==null && d<=15; }
+  function pasaFiltro(e){
+    if(filtroEq==="aviso") return e.estado==="aviso";
+    if(filtroEq==="suspendido") return e.estado==="suspendido";
+    if(filtroEq==="vence") return porVencer(e);
+    if(filtroEq==="sin") return sinConectar(e);
+    return true;
+  }
+  function cargarEquipos(){
+    el("eLista").innerHTML='<p class="muted">Cargando…</p>';
+    api({ accion:"equipos" }).then(function(d){ equipos=d.equipos||[]; pintarEquipos(); }, function(err){
+      el("eLista").innerHTML='<p class="err">No se pudo cargar: '+esc(err.message)+'</p>';
+    });
+  }
+  el("eRecargar").onclick=cargarEquipos;
+  el("eBuscar").addEventListener("input", pintarEquipos);
+  el("eFiltros").addEventListener("click", function(e){ var b=e.target.closest("button[data-f]"); if(!b) return; filtroEq=b.getAttribute("data-f"); pintarEquipos(); });
+
+  function pintarEquipos(){
+    el("eFiltros").innerHTML=FILTROS.map(function(f){
+      var n=equipos.filter(function(e){ var g=filtroEq; filtroEq=f[0]; var r=pasaFiltro(e); filtroEq=g; return r; }).length;
+      return '<button type="button" data-f="'+f[0]+'" class="'+(filtroEq===f[0]?"on":"")+'">'+f[1]+' ('+n+')</button>';
+    }).join("");
+    var q=el("eBuscar").value.trim().toLowerCase();
+    var vis=equipos.filter(function(e){
+      if(!pasaFiltro(e)) return false;
+      if(!q) return true;
+      return [e.negocio,e.nit,e.telefono,e.id_equipo,e.direccion,e.tablero,e.nota].some(function(x){ return String(x||"").toLowerCase().indexOf(q)>=0; });
+    });
+    // Primero los suspendidos y con aviso, luego por última conexión.
+    vis.sort(function(a,b){ var o={suspendido:0,aviso:1,activo:2}; return (o[a.estado]-o[b.estado]) || (new Date(b.ultima_conexion)-new Date(a.ultima_conexion)); });
+    if(!vis.length){ el("eLista").innerHTML='<p class="muted">'+(equipos.length?"Nada con ese filtro.":"Todavía no se ha conectado ningún equipo.")+'</p>'; return; }
+    el("eLista").innerHTML=vis.map(function(e){
+      var pill = e.estado==="suspendido" ? '<span class="pill bad">⛔ SUSPENDIDO</span>' : e.estado==="aviso" ? '<span class="pill warn">⚠️ AVISO DE PAGO</span>' : '<span class="pill good">✅ Activo</span>';
+      var con = '<span class="pill '+(sinConectar(e)?'warn':'good')+'">Abrió '+hace(e.ultima_conexion)+'</span>';
+      var d=diasA(e.licencia_vence);
+      var vence = e.licencia_vence ? (d<0 ? '<b style="color:var(--bad)">Licencia VENCIDA hace '+(-d)+' días</b>' : d<=15 ? '<b style="color:var(--warn)">Licencia vence en '+d+' días</b>' : 'Licencia hasta '+new Date(e.licencia_vence+"T00:00:00").toLocaleDateString("es-CO")) : 'Licencia sin fecha';
+      var datos=[];
+      if(e.nit) datos.push("NIT "+esc(e.nit));
+      if(e.telefono) datos.push("📞 "+esc(e.telefono));
+      if(e.direccion) datos.push("📍 "+esc(e.direccion));
+      if(e.tablero) datos.push("📱 Tablero: "+esc(e.tablero));
+      var msg="";
+      if(e.mensaje){
+        var leido = e.mensaje_id && e.mensaje_leido_id>=e.mensaje_id;
+        msg='<div class="msg">✉️ <b>Último mensaje:</b> «'+esc(e.mensaje)+'» <span class="muted">· '+(leido?"✓ lo leyó "+hace(e.mensaje_leido_at):"todavía no lo ha leído")+'</span></div>';
+      }
+      var tel=String(e.telefono||"").replace(/\D/g,""); if(tel.length===10) tel="57"+tel;
+      return '<div class="neg eq '+(e.estado==="suspendido"?"susp":e.estado==="aviso"?"aviso":"")+'" data-id="'+esc(e.id_equipo)+'">'
+        +'<div class="top"><div><div class="nom">'+esc(e.negocio||"(sin nombre)")+'</div>'
+        +'<div class="muted">ID '+esc(e.id_equipo)+' · '+esc(e.edicion||"PescaFácil")+' '+esc(e.version||"")+'</div></div>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+pill+con+'</div></div>'
+        +'<div class="det">'+vence+(datos.length?'<br>'+datos.join(" · "):'')+(e.nota?'<br>📝 '+esc(e.nota):'')+'</div>'
+        +msg
+        +'<div class="acciones">'
+        +(e.estado!=="aviso"?'<button type="button" class="b2 av" data-a="aviso">⚠️ Aviso de pago</button>':'')
+        +(e.estado!=="suspendido"?'<button type="button" class="b2 peligro" data-a="suspender">⛔ Suspender</button>':'')
+        +(e.estado!=="activo"?'<button type="button" class="b2 ok" data-a="reactivar">✅ Reactivar</button>':'')
+        +'<button type="button" class="b2" data-a="mensaje">✉️ Mensaje</button>'
+        +'<button type="button" class="b2" data-a="nota">📝 Nota y datos</button>'
+        +(tel.length>=10?'<a class="b2" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/'+tel+'">💬 WhatsApp</a>':'')
+        +'</div></div>';
+    }).join("");
+  }
+
+  function textoPago(e){ return "Hola, tienes un pago pendiente de "+(e.edicion||"PescaFácil")+". Para seguir usando el sistema sin interrupciones, por favor realiza el pago o comunícate con nosotros. ¡Gracias!"; }
+  function cambiarEstado(e, estado, mensaje, aviso){
+    return api({ accion:"equipo_estado", id_equipo:e.id_equipo, estado:estado, mensaje:mensaje }).then(function(){ say(aviso); cargarEquipos(); }, function(err){ say("No se pudo: "+err.message); });
+  }
+  el("eLista").addEventListener("click", function(ev){
+    var b=ev.target.closest("button[data-a]"); if(!b) return;
+    var box=b.closest(".eq"), e=equipos.filter(function(x){ return x.id_equipo===box.getAttribute("data-id"); })[0]; if(!e) return;
+    var a=b.getAttribute("data-a"), nom=e.negocio||e.id_equipo;
+    if(a==="aviso"){
+      var m=window.prompt("AVISO DE PAGO para "+nom+"\nLe sale este recordatorio CADA vez que abra el programa, pero lo deja trabajar.\n\nMensaje:", textoPago(e));
+      if(m===null) return;
+      return cambiarEstado(e, "aviso", m.trim()||textoPago(e), "⚠️ Aviso de pago puesto a "+nom);
+    }
+    if(a==="suspender"){
+      if(!window.confirm("¿SUSPENDER "+nom+"?\n\nNo lo dejará entrar al programa hasta que lo reactives (al abrir, o en máximo 6 horas si ya está abierto). Desconectar internet no lo levanta. Sus datos NO se tocan.")) return;
+      var ms=window.prompt("Mensaje que verá en la pantalla de suspendido:", "Tu sistema fue suspendido por falta de pago. Tus datos están seguros. Comunícate con nosotros para reactivarlo.");
+      if(ms===null) return;
+      return cambiarEstado(e, "suspendido", ms.trim(), "⛔ "+nom+" suspendido");
+    }
+    if(a==="reactivar"){
+      var mr=window.prompt("REACTIVAR "+nom+"\nMensaje que verá UNA vez al abrir (vacío = ninguno):", "✅ Tu sistema quedó reactivado. ¡Gracias por tu pago!");
+      if(mr===null) return;
+      return cambiarEstado(e, "activo", mr.trim(), "✅ "+nom+" reactivado");
+    }
+    if(a==="mensaje"){
+      var t=window.prompt("Mensaje para "+nom+"\nLo ve UNA vez al abrir el programa y marca \"Entendido\":", "");
+      if(!t || !t.trim()) return;
+      return api({ accion:"equipo_mensaje", id_equipo:e.id_equipo, mensaje:t.trim() }).then(function(){ say("✉️ Mensaje enviado a "+nom); cargarEquipos(); }, function(err){ say("No se pudo: "+err.message); });
+    }
+    if(a==="nota"){
+      var nota=window.prompt("Nota privada de "+nom+" (solo la ves tú: cuánto paga, cuándo, etc.):", e.nota||""); if(nota===null) return;
+      var tl=window.prompt("Teléfono de "+nom+":", e.telefono||""); if(tl===null) return;
+      var dir=window.prompt("Dirección de "+nom+":", e.direccion||""); if(dir===null) return;
+      return api({ accion:"equipo_datos", id_equipo:e.id_equipo, nota:nota.trim(), telefono:tl.trim(), direccion:dir.trim() }).then(function(){ say("📝 Guardado"); cargarEquipos(); }, function(err){ say("No se pudo: "+err.message); });
+    }
+  });
 
   function cargar(){
     el("lista").innerHTML='<p class="muted">Cargando…</p>';
