@@ -74,6 +74,9 @@
   .eq.susp{background:var(--bad-bg); border-radius:12px; padding:14px; margin:6px 0}
   .eq.aviso{background:var(--warn-bg); border-radius:12px; padding:14px; margin:6px 0}
   .b2.ok{color:var(--good)} .b2.av{color:var(--warn)}
+  dialog{border:none; border-radius:16px; padding:18px; width:calc(100% - 32px); max-width:470px; background:var(--surface); color:var(--ink)}
+  dialog::backdrop{background:rgba(0,0,0,.45)}
+  dialog h3{margin:0 0 4px; font-size:1.05rem}
 </style>
 </head>
 <body>
@@ -148,6 +151,28 @@
   </div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Editar los datos de la empresa de un equipo (bajan a su programa) -->
+<dialog id="dlgDatos">
+  <form id="fDatos">
+    <h3 id="dTitulo">Editar datos</h3>
+    <p class="muted" style="margin:0 0 6px;font-size:.78rem" id="dSub"></p>
+    <label for="dNombre">Nombre de la empresa (sale en sus facturas y en el celular)</label>
+    <input id="dNombre" maxlength="120" required>
+    <label for="dNit">NIT</label>
+    <input id="dNit" maxlength="40">
+    <label for="dDir">Dirección</label>
+    <input id="dDir" maxlength="160">
+    <label for="dTel">Teléfono</label>
+    <input id="dTel" maxlength="40">
+    <label id="dTabFila" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="dTablero" style="width:auto"> <span id="dTabTexto">Cambiar también el nombre en el celular</span></label>
+    <label for="dNota">Nota privada (solo la ves tú: cuánto paga, cuándo…)</label>
+    <textarea id="dNota" style="min-height:70px"></textarea>
+    <p class="muted" style="font-size:.78rem;margin:8px 0 0">Nombre, NIT, dirección y teléfono le llegan a su programa la próxima vez que lo abra (o en máximo 6 horas) y quedan en sus facturas. La nota no le llega.</p>
+    <p class="err" id="dErr"></p>
+    <div class="acciones" style="justify-content:flex-end"><button type="button" class="b2" id="dCancelar">Cancelar</button><button type="submit" class="b2 ok" id="dGuardar">💾 Guardar</button></div>
+  </form>
+</dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
 <script>
@@ -267,9 +292,11 @@
       var plazo = e.dias_sin_conexion==null ? 15 : e.dias_sin_conexion;
       datos.push("⏱️ Sin internet: "+(plazo>0 ? "máx. "+plazo+" días" : "sin límite"));
       var msg="";
+      if((e.datos_pendientes_id||0) > (e.datos_aplicado_id||0))
+        msg+='<div class="msg">⏳ <b>Datos en camino:</b> le llegan a su programa la próxima vez que lo abra (o en máximo 6 horas).</div>';
       if(e.mensaje){
         var leido = e.mensaje_id && e.mensaje_leido_id>=e.mensaje_id;
-        msg='<div class="msg">✉️ <b>Último mensaje:</b> «'+esc(e.mensaje)+'» <span class="muted">· '+(leido?"✓ lo leyó "+hace(e.mensaje_leido_at):"todavía no lo ha leído")+'</span></div>';
+        msg+='<div class="msg">✉️ <b>Último mensaje:</b> «'+esc(e.mensaje)+'» <span class="muted">· '+(leido?"✓ lo leyó "+hace(e.mensaje_leido_at):"todavía no lo ha leído")+'</span></div>';
       }
       var tel=String(e.telefono||"").replace(/\D/g,""); if(tel.length===10) tel="57"+tel;
       return '<div class="neg eq '+(e.estado==="suspendido"?"susp":e.estado==="aviso"?"aviso":"")+'" data-id="'+esc(e.id_equipo)+'">'
@@ -284,7 +311,7 @@
         +(e.estado!=="activo"?'<button type="button" class="b2 ok" data-a="reactivar">✅ Reactivar</button>':'')
         +'<button type="button" class="b2" data-a="mensaje">✉️ Mensaje</button>'
         +'<button type="button" class="b2" data-a="plazo">⏱️ Plazo sin internet</button>'
-        +'<button type="button" class="b2" data-a="nota">📝 Nota y datos</button>'
+        +'<button type="button" class="b2" data-a="datos">✏️ Editar datos</button>'
         +(tel.length>=10?'<a class="b2" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/'+tel+'">💬 WhatsApp</a>':'')
         +'</div></div>';
     }).join("");
@@ -326,12 +353,42 @@
       var n=parseInt(pz,10); if(isNaN(n) || n<0 || n>365){ say("Escribe un número de 0 a 365"); return; }
       return api({ accion:"equipo_datos", id_equipo:e.id_equipo, dias_sin_conexion:n }).then(function(){ say("⏱️ "+nom+": "+(n>0?"máx. "+n+" días sin internet":"sin límite")); cargarEquipos(); }, function(err){ say("No se pudo: "+err.message); });
     }
-    if(a==="nota"){
-      var nota=window.prompt("Nota privada de "+nom+" (solo la ves tú: cuánto paga, cuándo, etc.):", e.nota||""); if(nota===null) return;
-      var tl=window.prompt("Teléfono de "+nom+":", e.telefono||""); if(tl===null) return;
-      var dir=window.prompt("Dirección de "+nom+":", e.direccion||""); if(dir===null) return;
-      return api({ accion:"equipo_datos", id_equipo:e.id_equipo, nota:nota.trim(), telefono:tl.trim(), direccion:dir.trim() }).then(function(){ say("📝 Guardado"); cargarEquipos(); }, function(err){ say("No se pudo: "+err.message); });
-    }
+    if(a==="datos") return abrirDatos(e);
+  });
+
+  // ----- Editar datos de la empresa de un equipo -----
+  var eqDatos=null;
+  function abrirDatos(e){
+    eqDatos=e;
+    el("dTitulo").textContent="✏️ Editar datos · "+(e.negocio||e.id_equipo);
+    el("dSub").textContent="Equipo "+e.id_equipo+" · "+(e.edicion||"PescaFácil")+" "+(e.version||"");
+    el("dNombre").value=e.negocio||""; el("dNit").value=e.nit||""; el("dDir").value=e.direccion||""; el("dTel").value=e.telefono||""; el("dNota").value=e.nota||"";
+    el("dTabFila").hidden=!e.tablero;
+    el("dTablero").checked=!!e.tablero;
+    el("dTabTexto").textContent="Cambiar también el nombre en el celular (hoy: "+(e.tablero||"")+")";
+    el("dErr").textContent=""; el("dGuardar").disabled=false;
+    el("dlgDatos").showModal();
+    el("dNombre").focus();
+  }
+  el("dCancelar").onclick=function(){ el("dlgDatos").close(); };
+  el("fDatos").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var e=eqDatos; if(!e) return;
+    var n={ nombre:el("dNombre").value.trim(), nit:el("dNit").value.trim(), direccion:el("dDir").value.trim(), telefono:el("dTel").value.trim() };
+    if(!n.nombre){ el("dErr").textContent="Escribe el nombre de la empresa."; return; }
+    var cambiaEmpresa = n.nombre!==(e.negocio||"") || n.nit!==(e.nit||"") || n.direccion!==(e.direccion||"") || n.telefono!==(e.telefono||"");
+    var cambiaTablero = !!e.tablero && el("dTablero").checked && n.nombre!==e.tablero;
+    var nota=el("dNota").value.trim(), cambiaNota = nota!==(e.nota||"");
+    if(!cambiaEmpresa && !cambiaTablero && !cambiaNota){ el("dlgDatos").close(); return; }
+    el("dGuardar").disabled=true; el("dErr").textContent="";
+    var p=Promise.resolve();
+    if(cambiaEmpresa || cambiaTablero) p=p.then(function(){ return api({ accion:"equipo_empresa", id_equipo:e.id_equipo, nombre:n.nombre, nit:n.nit, direccion:n.direccion, telefono:n.telefono, cambiar_tablero:cambiaTablero }); });
+    if(cambiaNota) p=p.then(function(){ return api({ accion:"equipo_datos", id_equipo:e.id_equipo, nota:nota }); });
+    p.then(function(){
+      el("dlgDatos").close();
+      say(cambiaEmpresa ? "✏️ Guardado: le llega a su programa la próxima vez que lo abra" : "✏️ Guardado");
+      cargarEquipos(); if(cambiaTablero) cargar();
+    }, function(err){ el("dGuardar").disabled=false; el("dErr").textContent="No se pudo: "+err.message; });
   });
 
   function cargar(){
@@ -359,7 +416,7 @@
         +'<ul class="duenos">'+(n.duenos.length?n.duenos.map(function(d){
             return '<li><span>👤 '+esc(d.email)+' <span class="muted">· entró '+hace(d.ultimo_ingreso)+'</span></span><button type="button" class="b2" data-a="clave" data-u="'+d.user_id+'" data-e="'+esc(d.email)+'">Nueva clave</button></li>';
           }).join(""):'<li class="muted">Sin correo vinculado</li>')+'</ul>'
-        +'<div class="acciones"><button type="button" class="b2" data-a="vincular">+ Otro correo</button><button type="button" class="b2" data-a="renombrar">Renombrar</button><button type="button" class="b2" data-a="grupo">🏢 Grupo</button>'
+        +'<div class="acciones"><button type="button" class="b2" data-a="vincular">+ Otro correo</button><button type="button" class="b2" data-a="renombrar">✏️ Nombre en el celular</button><button type="button" class="b2" data-a="grupo">🏢 Grupo</button>'
         +'<button type="button" class="b2 '+(n.activo?'peligro':'')+'" data-a="activo">'+(n.activo?'Pausar':'Reactivar')+'</button></div>'
         +'</div>';
     }).join("");
@@ -384,7 +441,7 @@
       }, function(err){ say("No se pudo: "+err.message); });
     }
     if(a==="renombrar"){
-      var nom=window.prompt("Nuevo nombre del negocio:", n.nombre); if(!nom || nom===n.nombre) return;
+      var nom=window.prompt("Nombre de este negocio en el celular (el que sale arriba y al cambiar de empresa):", n.nombre); if(!nom || nom===n.nombre) return;
       return api({ accion:"renombrar", negocio_id:n.id, nombre:nom }).then(cargar, function(err){ say("No se pudo: "+err.message); });
     }
     if(a==="grupo"){
